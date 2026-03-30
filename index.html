@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Director Promotion Pitch · BCG Platinion </title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <style>
+    :root {
+      --bg:           #07090A;
+      --bg2:          #0B0F0C;
+      --bg3:          #111610;
+      --bg4:          #161D15;
+      --green:        #3EE475;
+      --green-bright: #8FFFB2;
+      --green-mid:    #22C55E;
+      --green-dark:   #14532D;
+      --green-glow:   rgba(62,228,117,0.12);
+      --green-glow-s: rgba(62,228,117,0.25);
+      --text:         #EEF5EE;
+      --text-mid:     #8FA68F;
+      --text-muted:   #4A5D4A;
+      --border:       rgba(62,228,117,0.12);
+      --border-hover: rgba(62,228,117,0.35);
+      --font-d: 'Syne', sans-serif;
+      --font-b: 'DM Sans', sans-serif;
+      --font-m: 'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-b); overflow-x: hidden; cursor: none; }
+    ::selection { background: rgba(62,228,117,0.25); color: var(--text); }
+
+    /* ── Cursor ── */
+    #cur { width:10px; height:10px; background:var(--green); border-radius:50%; position:fixed; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width .25s,height .25s; mix-blend-mode:screen; }
+    #cur-r { width:32px; height:32px; border:1px solid rgba(62,228,117,.4); border-radius:50%; position:fixed; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:left .12s ease-out,top .12s ease-out,width .3s,height .3s; }
+    body:hover #cur { opacity:1; }
+
+    /* ── Progress ── */
+    #pbar { position:fixed; top:0; left:0; height:6px; width:0%; background:linear-gradient(90deg,var(--green-dark),var(--green),var(--green-bright)); z-index:200; box-shadow:0 0 16px var(--green-glow-s); transition:width .08s linear; }
+
+    /* ── Nav ── */
+    nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:22px 64px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to bottom,rgba(7,9,10,.95) 0%,transparent 100%); opacity:0; transition:opacity .5s; }
+    nav.vis { opacity:1; }
+    .nlogo { font-family:var(--font-d); font-size:12px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--green); }
+    .nlinks { display:flex; gap:40px; list-style:none; }
+    .nlinks a { font-family:var(--font-m); font-size:14px; letter-spacing:.18em; text-transform:uppercase; color:var(--text); text-decoration:none; transition:color .3s; }
+    .nlinks a:hover { color:var(--green); }
+
+    /* ── Shared ── */
+    .sec-label { font-family:var(--font-m); font-size:15px; letter-spacing:.28em; text-transform:uppercase; color:var(--green); margin-bottom:18px; }
+    .sec-title { font-family:var(--font-d); font-size:clamp(36px,5.5vw,72px); font-weight:800; line-height:1.04; letter-spacing:-.02em; margin-bottom:64px; }
+    section { padding:120px 64px; position:relative; }
+
+    /* ── HERO SHARED ── */
+    .h-bg { position:absolute; inset:0; pointer-events:none;
+      background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(62,228,117,.06) 0%, transparent 65%); }
+    .h-grid { position:absolute; inset:0; pointer-events:none;
+      background-image: linear-gradient(rgba(62,228,117,.04) 1px,transparent 1px), linear-gradient(90deg,rgba(62,228,117,.04) 1px,transparent 1px);
+      background-size:64px 64px;
+      mask-image: radial-gradient(ellipse 85% 85% at 50% 50%,black 20%,transparent 100%); }
+
+    /* ── HERO PAGE 1 — LOGO ── */
+    #hero-logo {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+    }
+    .hero-video-frame {
+      position: relative;
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-video {
+      width: 100%;
+      max-height: 90vh;
+      aspect-ratio: 16/9;
+      object-fit: contain;
+      display: block;
+      border-radius: 0;
+    }
+    .video-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 78% 78% at 50% 50%, transparent 35%, rgba(7,9,10,0.7) 100%);
+      pointer-events: none;
+    }
+    .scroll-cue {
+      position: absolute;
+      bottom: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      animation: scFade 1s 2.2s forwards;
+    }
+    .scroll-cue-label {
+      font-family: var(--font-m);
+      font-size: 20px;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      white-space: nowrap;
+    }
+    .scroll-arrows {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .s-arr {
+      width: 44px;
+      height: 22px;
+      border-right: 4px solid var(--green);
+      border-bottom: 4px solid var(--green);
+      transform: rotate(45deg);
+    }
+    .s-arr:nth-child(1) { animation: arrPulse 1.6s ease 0s    infinite; }
+    .s-arr:nth-child(2) { animation: arrPulse 1.6s ease 0.22s  infinite; }
+    .s-arr:nth-child(3) { animation: arrPulse 1.6s ease 0.44s  infinite; }
+    @keyframes arrPulse {
+      0%   { opacity: 0.15; }
+      50%  { opacity: 1; }
+      100% { opacity: 0.15; }
+    }
+    @keyframes scFade { from{opacity:0;transform:translateX(-50%) translateY(12px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+    /* ── HERO PAGE 2 — NAME ── */
+    #hero-name {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-name-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .h-eyebrow { font-family:var(--font-m); font-size:13px; letter-spacing:.3em; text-transform:uppercase; color:var(--green); margin-bottom:36px; }
+    .h-name { font-family:var(--font-d); font-size:clamp(72px,11vw,160px); font-weight:800; line-height:.92; letter-spacing:-.04em; margin-bottom:32px; }
+    .h-name span { display:block; background:linear-gradient(130deg, #EEF5EE 0%, var(--green-bright) 45%, var(--green) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .h-sub { font-size:clamp(18px,2.2vw,26px); font-weight:300; color:var(--text-mid); margin-bottom:52px; letter-spacing:.01em; }
+    .h-sub strong { color:var(--green); font-weight:500; }
+    .h-btn {
+      display: inline-block;
+      padding: 22px 72px;
+      border: 1px solid var(--green);
+      font-family: var(--font-m);
+      font-size: 14px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--green);
+      text-decoration: none;
+      transition: all .35s;
+      background: rgba(62,228,117,0.07);
+      border-radius: 16px;
+      box-shadow: 0 0 40px rgba(62,228,117,0.12), inset 0 0 20px rgba(62,228,117,0.04);
+    }
+    .h-btn:hover {
+      background: var(--green-mid);
+      color: var(--bg);
+      border-color: var(--green-mid);
+      box-shadow: 0 0 70px rgba(62,228,117,0.4);
+      transform: translateY(-3px);
+    }
+
+    /* ── ABOUT ── */
+    #about { background:var(--bg2); display:grid; grid-template-columns:1fr 1.15fr; gap:96px; align-items:stretch; }
+    .a-photo-wrap { position:relative; height:100%; align-self:stretch; max-width:420px; }
+    .a-photo { width:100%; height:100%; aspect-ratio:auto; background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+    .a-photo::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,var(--green-glow) 0%,transparent 60%); }
+    .a-corner { position:absolute; width:22px; height:22px; border-color:var(--green); border-style:solid; }
+    .a-corner.tl { top:-1px;left:-1px;border-width:2px 0 0 2px; }
+    .a-corner.tr { top:-1px;right:-1px;border-width:2px 2px 0 0; }
+    .a-corner.bl { bottom:-1px;left:-1px;border-width:0 0 2px 2px; }
+    .a-corner.br { bottom:-1px;right:-1px;border-width:0 2px 2px 0; }
+    .a-photo-label { font-family:var(--font-m); font-size:11px; color:var(--text-muted); letter-spacing:.15em; text-transform:uppercase; z-index:1; }
+    .a-photo-img { width:100%; height:90%; object-fit:cover; z-index:1; margin:5% auto 5% auto; }
+    .a-bio { font-size:16px; line-height:1.85; color:var(--text-mid); margin-bottom:40px; }
+    .a-bio strong { color:var(--text); font-weight:500; }
+    .a-tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:40px; }
+    .tag { padding:7px 14px; border:1px solid var(--border); font-family:var(--font-m); font-size:10px; letter-spacing:.1em; color:var(--green); background:var(--green-glow); }
+    .a-facts { display:flex; flex-direction:column; gap:12px; }
+    .fact { display:flex; align-items:center; gap:16px; padding:14px 20px; border:1px solid var(--border); background:rgba(11,15,12,.6); transition:border-color .3s; }
+    .fact:hover { border-color:var(--border-hover); }
+    .fact-icon { font-size:18px; width:32px; text-align:center; }
+    .fact-text { font-size:14px; color:var(--text-mid); }
+    .fact-text strong { color:var(--text); font-weight:500; }
+
+    /* ── PORTFOLIO MAP SECTION (full page) ── */
+    #portfolio-map-section {
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 52px 64px 36px;
+      background: var(--bg);
+      position: relative;
+    }
+    #portfolio-map-section .sec-title { margin-bottom: 0; font-size: clamp(32px,4.5vw,60px); }
+    .map-with-logos {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 200px 1fr 200px;
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 20px;
+    }
+    #portfolio-map-section .map-container {
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      margin-top: 0;
+      aspect-ratio: unset;
+    }
+    .map-logos-side {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .map-logo-ph {
+      flex: 1;
+      min-height: 0;
+      border: 1px dashed rgba(62,228,117,0.22);
+      border-radius: 12px;
+      background: rgba(62,228,117,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-m);
+      font-size: 8px;
+      letter-spacing: .14em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    .map-logos-side.left  .map-logo-ph { transform: translateX(-10px); }
+    .map-logos-side.right .map-logo-ph { transform: translateX( 10px); }
+    .map-logo-ph.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .logo-ph-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-ph-name {
+      font-family: var(--font-d);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+    .logo-ph-city {
+      font-family: var(--font-m);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+    .logo-ph-img {
+      max-width: 85%;
+      max-height: 58px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      opacity: 0.85;
+    }
+
+    /* ── PORTFOLIO ── */
+    #portfolio { background:var(--bg); }
+    .port-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+    .pcard { background:var(--bg3); border:1px solid var(--border); padding:36px 30px 80px; position:relative; overflow:hidden; transition:border-color .3s,background .3s; }
+    .pcard::before { content:''; position:absolute; top:0;left:0; width:100%; height:2px; background:linear-gradient(90deg,var(--green-dark),var(--green)); transform:scaleX(0); transform-origin:left; transition:transform .45s; }
+    .pcard:hover::before { transform:scaleX(1); }
+    .pcard:hover { border-color:var(--border-hover); background:var(--bg4); }
+    .pcard-num { font-family:var(--font-m); font-size:10px; color:var(--text-muted); letter-spacing:.2em; margin-bottom:22px; }
+    .pcard-sector { font-family:var(--font-m); font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--green); margin-bottom:10px; }
+    .pcard-title { font-family:var(--font-d); font-size:20px; font-weight:700; line-height:1.25; margin-bottom:14px; }
+    .pcard-desc { font-size:13px; line-height:1.75; color:var(--text-muted); margin-bottom:28px; }
+    .pcard-metrics { display:flex; gap:24px; padding-top:20px; border-top:1px solid var(--border); }
+    .pm-val { font-family:var(--font-d); font-size:22px; font-weight:800; color:var(--green); }
+    .pm-lbl { font-family:var(--font-m); font-size:9px; letter-spacing:.1em; color:var(--text-muted); text-transform:uppercase; margin-top:3px; }
+    .pcard-role { position:absolute; bottom:32px; right:28px; font-family:var(--font-m); font-size:9px; color:var(--text-muted); letter-spacing:.12em; text-transform:uppercase; }
+
+    /* ── PIPELINE ── */
+    #pipeline { background:var(--bg2); }
+    .pipe-intro { max-width:580px; font-size:17px; line-height:1.8; color:var(--text-mid); margin-bottom:72px; }    .pipeline-visual { position:relative; margin:42px 0 32px; padding:32px 18px 24px; border:1px solid var(--border); background:rgba(11,15,12,.45); border-radius:14px; }
+    .pipeline-line { position:absolute; top:50%; left:64px; right:64px; height:3px; background:linear-gradient(90deg,var(--green),var(--green-bright)); transform:translateY(-50%); z-index:2; }
+    .pipeline-step { position:relative; display:inline-flex; align-items:center; justify-content:center; width:130px; height:56px; margin:0 12px; border-radius:999px; border:1px solid var(--border); background:var(--bg3); color:var(--text); z-index:3; font-family:var(--font-m); font-size:12px; letter-spacing:.1em; text-transform:uppercase; }
+    .pipeline-step.start { background:var(--green-dark); border-color:var(--green); box-shadow:0 0 16px rgba(62,228,117,0.25); }
+    .pipeline-targets { display:flex; justify-content:center; align-items:center; gap:14px; margin-top:18px; }
+    .client-logo { border:1px solid var(--border); border-radius:10px; padding:12px 16px; background:var(--bg3); color:var(--green); font-family:var(--font-m); font-size:11px; letter-spacing:.05em; }
+    .pipeline-kpis { display:grid; grid-template-columns:repeat(4,minmax(170px,1fr)); gap:14px; margin-top:56px; }
+    .kpi-card { padding:18px 16px; border:1px solid var(--border); border-radius:10px; background:rgba(10,13,11,.7); }
+    .kpi-number { font-family:var(--font-d); font-size:clamp(26px,3.5vw,46px); font-weight:800; color:var(--green); }
+    .kpi-label { margin-top:8px; color:var(--text-mid); font-family:var(--font-m); font-size:11px; text-transform:uppercase; letter-spacing:.13em; }
+    @keyframes dotPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.55;transform:scale(1.6)} }
+    .pipe-legend { display:flex; gap:28px; margin-bottom: 48px; }
+    .leg-item { display:flex; align-items:center; gap:8px; font-family:var(--font-m); font-size:10px; color:var(--text-muted); letter-spacing:.1em; }
+    .leg-dot { width:8px; height:8px; border-radius:50%; }
+
+    /* ── NEW PIPELINE FUNNEL ── */
+    .pipe-funnel { overflow-x: auto; padding-bottom: 8px; }
+    .pipe-funnel-inner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      min-width: 760px;
+      position: relative;
+    }
+    /* gradient connector line behind the stage dots */
+    .pipe-funnel-inner::before {
+      content: '';
+      position: absolute;
+      top: 19px;
+      left: calc(12.5% );
+      right: calc(12.5% );
+      height: 2px;
+      background: linear-gradient(90deg, rgba(62,228,117,0.15), var(--green), var(--green-bright));
+      z-index: 0;
+    }
+    .pipe-stage-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 0 10px;
+      position: relative;
+      z-index: 1;
+    }
+    /* vertical connector from dot down to first card */
+    .pipe-stage-col::after {
+      content: '';
+      position: absolute;
+      top: 38px;
+      left: 50%;
+      width: 1px;
+      height: 24px;
+      background: linear-gradient(to bottom, rgba(62,228,117,0.4), transparent);
+    }
+    .pipe-stage-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .pipe-stage-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      background: var(--bg2);
+      position: relative;
+      z-index: 2;
+    }
+    .pipe-stage-dot.live {
+      background: var(--green);
+      border-color: var(--green);
+      box-shadow: 0 0 18px rgba(62,228,117,0.7);
+      animation: dotPulse 2s infinite;
+    }
+    .pipe-stage-dot.warm {
+      background: #F59E0B;
+      border-color: #F59E0B;
+      box-shadow: 0 0 12px rgba(245,158,11,0.45);
+    }
+    .pipe-stage-name {
+      font-family: var(--font-m);
+      font-size: 9px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .pipe-stage-count {
+      font-family: var(--font-m);
+      font-size: 9px;
+      color: var(--green);
+      background: rgba(62,228,117,0.07);
+      border: 1px solid rgba(62,228,117,0.18);
+      border-radius: 20px;
+      padding: 2px 10px;
+      letter-spacing: .08em;
+    }
+    .pipe-client-card {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px 12px;
+      background: var(--bg3);
+      position: relative;
+      transition: border-color .3s, background .3s, transform .3s;
+    }
+    .pipe-client-card:hover { border-color: var(--border-hover); background: var(--bg4); transform: translateY(-2px); }
+    .pipe-client-card.live {
+      border-color: rgba(62,228,117,0.45);
+      background: rgba(62,228,117,0.04);
+      box-shadow: 0 0 28px rgba(62,228,117,0.1);
+    }
+    .pipe-client-logo-box {
+      width: 100%;
+      height: 48px;
+      border: 1px dashed rgba(62,228,117,0.22);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      font-family: var(--font-m);
+      font-size: 8px;
+      letter-spacing: .12em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      background: rgba(62,228,117,0.025);
+      transition: border-color .3s;
+    }
+    .pipe-client-card.live .pipe-client-logo-box {
+      border-color: rgba(62,228,117,0.4);
+      color: var(--green);
+      background: rgba(62,228,117,0.06);
+    }
+    .pipe-client-card:hover .pipe-client-logo-box { border-color: rgba(62,228,117,0.35); }
+    .pipe-client-name { font-family:var(--font-d); font-size:13px; font-weight:700; color:var(--text); margin-bottom:3px; }
+    .pipe-client-sector { font-family:var(--font-m); font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:var(--green); margin-bottom:8px; }
+    .pipe-client-value { font-family:var(--font-m); font-size:9px; color:var(--text-muted); border-top:1px solid var(--border); padding-top:8px; letter-spacing:.04em; }
+    .pipe-status-pill {
+      position: absolute; top: 11px; right: 11px;
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+    .pipe-status-pill.live { background:var(--green); box-shadow:0 0 8px var(--green); animation:dotPulse 2s infinite; }
+    .pipe-status-pill.warm { background:#F59E0B; box-shadow:0 0 6px rgba(245,158,11,.4); }
+    .pipe-status-pill.cold { background:var(--text-muted); }
+
+    /* ── DSF ── */
+    #dsf { background:var(--bg); }
+    .dsf-lead { max-width:640px; font-size:18px; line-height:1.85; color:var(--text-mid); margin-bottom:80px; }
+    .dsf-lead strong { color:var(--green); font-weight:500; }
+    .dsf-split { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; margin-bottom:80px; }
+    .dsf-svg-box { border:1px solid var(--border); background:var(--bg4); padding:48px; display:flex; align-items:center; justify-content:center; box-shadow:inset 0 0 60px rgba(62,228,117,.03); }
+
+    .dsf-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); }
+    .dsf-blk { background:var(--bg4); padding:36px 32px; position:relative; overflow:hidden; transition:background .3s,border-color .3s; border:1px solid transparent; }
+    .dsf-blk:hover { background:var(--bg3); border-color:var(--border-hover); }
+    .dsf-blk-acc { position:absolute; top:0; right:0; width:120px; height:120px; background:radial-gradient(circle at 80% 20%, rgba(62,228,117,.06) 0%, transparent 70%); }
+    .dsf-n { font-family:var(--font-d); font-size:52px; font-weight:800; color:rgba(62,228,117,.08); line-height:1; margin-bottom:10px; }
+    .dsf-bt { font-family:var(--font-d); font-size:20px; font-weight:700; color:var(--green); margin-bottom:10px; }
+    .dsf-bd { font-size:13px; line-height:1.75; color:var(--text-muted); }
+
+    /* DSF flow line details -- keep for old blocks */
+    .dsf-block.wide { grid-column:1/-1; }
+    .dsf-accent { position:absolute; top:0; right:0; width:120px; height:120px; background:radial-gradient(circle at 80% 20%, rgba(62,228,117,.08) 0%, transparent 70%); }
+    .dsf-diagram { background:var(--bg4); border:1px solid var(--border); padding:48px; display:flex; flex-direction:column; align-items:center; gap:16px; }
+    .dsf-diag-title { font-family:var(--font-m); font-size:10px; letter-spacing:.25em; text-transform:uppercase; color:var(--green); margin-bottom:8px; }
+    .dsf-flow { display:flex; align-items:center; gap:0; flex-wrap:nowrap; width:100%; }
+    .dsf-step { flex:1; background:rgba(62,228,117,.04); border:1px solid var(--border); padding:18px 12px; text-align:center; position:relative; transition:all .4s; }
+    .dsf-step:hover { background:rgba(62,228,117,.1); border-color:var(--border-hover); }
+    .dsf-step-icon { font-size:22px; margin-bottom:8px; }
+    .dsf-step-name { font-family:var(--font-m); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--green); margin-bottom:4px; }
+    .dsf-step-desc { font-size:11px; color:var(--text-muted); line-height:1.5; }
+    .dsf-arrow { font-size:14px; color:var(--green-dark); padding:0 4px; flex-shrink:0; animation:arrowPulse 2.5s infinite; }
+    @keyframes arrowPulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+
+    .dsf-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; width:100%; }
+    .dsf-kpi { background:var(--bg3); border:1px solid var(--border); padding:20px; text-align:center; }
+    .dsf-kv { font-family:var(--font-d); font-size:30px; font-weight:800; color:var(--green); line-height:1; }
+    .dsf-kl { font-family:var(--font-m); font-size:9px; letter-spacing:.12em; color:var(--text-muted); text-transform:uppercase; margin-top:5px; }
+
+    /* ── CLOSING ── */
+    #closing { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; background:var(--bg2); overflow:hidden; }
+    .cl-bg { position:absolute; inset:0; background:radial-gradient(ellipse 55% 55% at 50% 50%,rgba(62,228,117,.07) 0%,transparent 70%); pointer-events:none; }
+    .cl-grid { position:absolute; inset:0; pointer-events:none;
+      background-image: linear-gradient(rgba(62,228,117,.025) 1px,transparent 1px), linear-gradient(90deg,rgba(62,228,117,.025) 1px,transparent 1px);
+      background-size:64px 64px;
+      mask-image: radial-gradient(ellipse 70% 70% at 50% 50%,black 10%,transparent 100%); }
+    .cl-eyebrow { font-family:var(--font-m); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:var(--green); margin-bottom:32px; }
+    .cl-title { font-family:var(--font-d); font-size:clamp(52px,9vw,120px); font-weight:800; line-height:.95; letter-spacing:-.04em; margin-bottom:36px; }
+    .cl-title span { background:linear-gradient(130deg, #EEF5EE 0%, var(--green-bright) 40%, var(--green) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .cl-sub { font-size:17px; color:var(--text-muted); max-width:420px; line-height:1.75; }
+
+    /* ── GERMANY MAP ── */
+    #germany-map { background:var(--bg); position:relative; overflow:hidden; width:100%; height:100%; border-radius:12px; }
+    .portfolio-map { margin-top:42px; padding:26px; border:1px solid rgba(62,228,117,0.15); border-radius:16px; background:rgba(11,15,12,0.55); box-shadow:0 18px 40px rgba(0,0,0,0.25); }
+    .portfolio-map .sec-label { margin-bottom:10px; }
+    .portfolio-map .map-title { color:var(--text); font-family:var(--font-d); font-size:20px; margin-bottom:12px; }
+    .map-container { position:relative; width:100%; max-width:1100px; margin:0 auto; aspect-ratio:5/4; border-radius:12px; overflow:hidden; background:linear-gradient(180deg,#0a1114,#131a18); box-shadow:0 0 20px rgba(62,228,117,0.18); border:1px solid rgba(62,228,117,.25); }
+    .germany-map { width:100%; height:100%; }
+
+    .map-progress { position:absolute; top:16px; left:16px; color:var(--text); background:rgba(7,9,10,.8); border:1px solid rgba(62,228,117,.28); padding:8px 12px; border-radius:10px; font-family:var(--font-m); font-size:12px; z-index:6; }
+
+    .map-tooltip { position:absolute; top:24px; right:24px; z-index:6; min-width:220px; max-width:320px; background:rgba(10,15,13,.85); border:1px solid rgba(62,228,117,.35); border-radius:12px; padding:14px 16px; color:var(--text); font-family:var(--font-m); font-size:12px; backdrop-filter:blur(4px); }
+    .map-tooltip h4 { margin:0 0 6px; font-family:var(--font-d); font-size:14px; color:var(--green); }
+    .map-tooltip p { margin:0 0 6px; color:var(--text-mid); }
+    .map-tooltip .popup-metrics { font-family:var(--font-m); font-size:11px; color:var(--green-bright); }
+
+    .map-dot { fill:rgba(62,228,117,0.84); stroke:#9CFFB5; stroke-width:2; cursor:pointer; filter:url(#dot-glow); }
+    .map-dot.inactive { opacity:.2; transform:scale(.8); }
+    .map-dot.active { opacity:1; transform:scale(1.25); }
+    .map-dot-transition { transition: opacity .4s, transform .4s; }
+
+    /* no fallback for this custom SVG, MapLibre removed */
+    .map-marker { position:absolute; transform:translate(-50%, -50%); z-index:10; opacity:0.2; }
+    .marker-dot { width:18px; height:18px; background:rgba(62,228,117,0.86); border:2px solid rgba(62,228,117,0.9); border-radius:50%; cursor:pointer; box-shadow:0 0 18px rgba(62,228,117,.35); transition:transform .3s, opacity .3s; }
+    .marker-active .marker-dot { transform: scale(1.4); opacity:1; box-shadow:0 0 24px rgba(62,228,117,.65); }
+    @keyframes markerPulse { 0% { box-shadow:0 0 0 0 rgba(62,228,117,0.7); } 70% { box-shadow:0 0 0 10px rgba(62,228,117,0); } 100% { box-shadow:0 0 0 0 rgba(62,228,117,0); } }
+
+    .map-tooltip { position:absolute; top:24px; right:24px; z-index:6; min-width:220px; max-width:320px; background:rgba(10,15,13,.85); border:1px solid rgba(62,228,117,.35); border-radius:12px; padding:14px 16px; color:var(--text); font-family:var(--font-m); font-size:12px; backdrop-filter:blur(4px); }
+    .map-tooltip h4 { margin:0 0 6px; font-family:var(--font-d); font-size:14px; color:var(--green); }
+    .map-tooltip p { margin:0 0 6px; color:var(--text-mid); }
+    .map-tooltip .popup-metrics { font-family:var(--font-m); font-size:11px; color:var(--green-bright); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width:3px; }
+    ::-webkit-scrollbar-track { background:var(--bg); }
+    ::-webkit-scrollbar-thumb { background:var(--green-dark); }
+
+    /* ── Map Popup ── */
+    .map-popup {
+      position: absolute;
+      background: rgba(8, 18, 12, 0.82);
+      border: 1px solid rgba(62, 228, 117, 0.45);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: var(--font-m);
+      font-size: 12px;
+      backdrop-filter: blur(12px);
+      pointer-events: none;
+      width: 230px;
+      z-index: 10;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 24px rgba(62,228,117,0.07);
+    }
+    .map-popup-logo {
+      font-family: var(--font-d);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 4px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .map-popup-title {
+      font-family: var(--font-d);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .map-popup-desc {
+      font-size: 10px;
+      color: var(--text-mid);
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+    .map-popup-metrics {
+      font-size: 10px;
+      color: var(--green-bright);
+      letter-spacing: .04em;
+      border-top: 1px solid rgba(62,228,117,0.15);
+      padding-top: 7px;
+    }
+    .map-hint {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-m);
+      font-size: 10px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      pointer-events: none;
+      transition: opacity 0.6s;
+      z-index: 6;
+      white-space: nowrap;
+    }
+    .map-complete-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-family: var(--font-m);
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--green);
+      background: rgba(62,228,117,0.08);
+      border: 1px solid rgba(62,228,117,0.3);
+      border-radius: 8px;
+      padding: 6px 12px;
+      z-index: 6;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-r"></div>
+<div id="pbar"></div>
+
+<nav id="nav">
+  <ul class="nlinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#portfolio-map-section">Portfolio</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#dsf">Dark Factory</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════ HERO 1 — LOGO ══════════════ -->
+<section id="hero-logo">
+  <div class="h-bg"></div>
+  <div class="h-grid"></div>
+  <div class="hero-video-frame" id="heroVideoFrame">
+    <video class="logo-video" autoplay muted playsinline loop preload="auto" id="logoVideo">
+      <source src="BCG_Platinion_Intro.mp4" type="video/mp4">
+    </video>
+    <div class="video-vignette"></div>
+  </div>
+  <div class="scroll-cue" id="scrollCue">
+    <span class="scroll-cue-label">Scroll to start the journey</span>
+    <div class="scroll-arrows">
+      <div class="s-arr"></div>
+      <div class="s-arr"></div>
+      <div class="s-arr"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ HERO 2 — NAME ══════════════ -->
+<section id="hero-name">
+  <div class="h-bg"></div>
+  <div class="h-grid"></div>
+  <div class="hero-name-inner">
+    <div class="h-eyebrow" id="hEye">BCG Platinion · Director Promotion · 2026</div>
+    <h1 class="h-name" id="hName"><span>Markus</span><span>Prokopowicz</span></h1>
+    <p class="h-sub" id="hSub">Principal · <strong>Candidate for Director</strong> · Utilities &amp; Dark Software Factory</p>
+    <a class="h-btn" id="hBtn" href="#about">View my case →</a>
+  </div>
+</section>
+
+<!-- ══════════════ ABOUT ══════════════ -->
+<section id="about">
+  <div class="a-photo-wrap" id="aPhoto">
+    <div class="a-photo">
+      <div class="a-corner tl"></div><div class="a-corner tr"></div>
+      <div class="a-corner bl"></div><div class="a-corner br"></div>
+      <img src="ProfilePic_MP.png" alt="Profile Picture" class="a-photo-img">
+    </div>
+  </div>
+  <div>
+    <div class="sec-label" id="aLbl">01 — About Me</div>
+    <h2 class="sec-title" id="aTitle">Who I am.</h2>
+    <p class="a-bio" id="aBio">
+      <strong>[Markus P.]</strong> is a Principal at BCG Platinion based in [City], Germany.
+      With a background in [Engineering / Computer Science / etc.], they have spent [X] years
+      building deep expertise at the intersection of <strong>industrial technology, utilities,
+      and large-scale digital transformation</strong>. Outside of client work,
+      [Name] is passionate about [Hobby 1], [Hobby 2], and [Something personal].
+    </p>
+    <div class="a-tags" id="aTags">
+      <span class="tag">IT Architecture</span>
+      <span class="tag">Utilities · Energy</span>
+      <span class="tag">Digital Transformation</span>
+      <span class="tag">Agile @ Utilities</span>
+      <span class="tag">Germany Market</span>
+      <span class="tag">Software Factories</span>
+    </div>
+    <div class="a-facts" id="aFacts">
+      <div class="fact"><span class="fact-icon">🏔️</span><span class="fact-text"><strong>Hobby 1</strong> — Replace with something personal</span></div>
+      <div class="fact"><span class="fact-icon">📚</span><span class="fact-text"><strong>Hobby 2</strong> — Replace with something personal</span></div>
+      <div class="fact"><span class="fact-icon">🌍</span><span class="fact-text"><strong>Personal fact</strong> — Replace with something personal</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ PORTFOLIO MAP (full page) ══════════════ -->
+<section id="portfolio-map-section">
+  <div class="sec-label">02 — Portfolio · Market Presence</div>
+  <h2 class="sec-title" style="margin-bottom:0">Germany<br>Client Footprint.</h2>
+  <div class="map-with-logos">
+    <!-- Left logos: rhenag (scroll 0), Thüga (scroll 2), E.ON (scroll 4) -->
+    <div class="map-logos-side left" id="map-logos-left">
+      <div class="map-logo-ph" id="logo-l-0">
+        <div class="logo-ph-inner">
+          <img class="logo-ph-img" src="../../downloads/rhneag logo png.png" alt="rhenag">
+          <span class="logo-ph-city">Cologne</span>
+        </div>
+      </div>
+      <div class="map-logo-ph" id="logo-l-1">
+        <div class="logo-ph-inner">
+          <img class="logo-ph-img" src="../../downloads/Thüga_logo.svg" alt="Thüga">
+          <span class="logo-ph-city">Munich</span>
+        </div>
+      </div>
+      <div class="map-logo-ph" id="logo-l-2">
+        <div class="logo-ph-inner">
+          <img class="logo-ph-img" src="../../downloads/E.ON Logo.png" alt="E.ON">
+          <span class="logo-ph-city">Essen</span>
+        </div>
+      </div>
+    </div>
+    <!-- Map -->
+    <div class="map-container" id="map-container">
+      <svg id="germany-map" class="germany-map"></svg>
+      <div id="map-progress" class="map-progress">↕ Scroll over map</div>
+      <div class="map-hint" id="map-hint">Scroll to reveal client locations</div>
+      <div class="map-complete-badge" id="map-complete">✦ All clients mapped</div>
+    </div>
+    <!-- Right logos: Enercity (scroll 1), tap (scroll 3), 50Hertz (scroll 5) -->
+    <div class="map-logos-side right" id="map-logos-right">
+      <div class="map-logo-ph" id="logo-r-0">
+        <div class="logo-ph-inner">
+          <img class="logo-ph-img" src="../../downloads/Enercity_Logo.svg.png" alt="Enercity">
+          <span class="logo-ph-city">Hannover</span>
+        </div>
+      </div>
+      <div class="map-logo-ph" id="logo-r-1">
+        <div class="logo-ph-inner">
+          <span class="logo-ph-name">tap</span>
+          <span class="logo-ph-city">Düsseldorf</span>
+        </div>
+      </div>
+      <div class="map-logo-ph" id="logo-r-2">
+        <div class="logo-ph-inner">
+          <span class="logo-ph-name">50Hertz</span>
+          <span class="logo-ph-city">Berlin</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ PORTFOLIO CARDS ══════════════ -->
+<section id="portfolio">
+  <div class="sec-label" id="portLbl">02 — Portfolio · Key Engagements</div>
+  <h2 class="sec-title" id="portTitle">Delivered<br>Impact.</h2>
+  <div class="port-grid">
+
+    <div class="pcard" id="pc1">
+      <div class="pcard-num">01</div>
+      <div class="pcard-sector">Utilities · Germany</div>
+      <h3 class="pcard-title">Grid Digitalization Program</h3>
+      <p class="pcard-desc">End-to-end architecture design and delivery governance for a national grid operator's €XXM digital transformation initiative across 4 business units.</p>
+      <div class="pcard-metrics">
+        <div><div class="pm-val">€XXM</div><div class="pm-lbl">Budget Shaped</div></div>
+        <div><div class="pm-val">XX%</div><div class="pm-lbl">Cost Reduction</div></div>
+      </div>
+      <div class="pcard-role">Project Lead</div>
+    </div>
+
+    <div class="pcard" id="pc2">
+      <div class="pcard-num">02</div>
+      <div class="pcard-sector">Industrial Goods · DACH</div>
+      <h3 class="pcard-title">ERP Transformation</h3>
+      <p class="pcard-desc">SAP S/4HANA migration roadmap and vendor selection for a leading DACH manufacturing conglomerate with X,XXX end users across 12 countries.</p>
+      <div class="pcard-metrics">
+        <div><div class="pm-val">18mo</div><div class="pm-lbl">Delivery</div></div>
+        <div><div class="pm-val">X,XXX</div><div class="pm-lbl">Users Migrated</div></div>
+      </div>
+      <div class="pcard-role">IT Architect</div>
+    </div>
+
+    <div class="pcard" id="pc3">
+      <div class="pcard-num">03</div>
+      <div class="pcard-sector">Energy · Europe</div>
+      <h3 class="pcard-title">Dark Software Factory Pilot</h3>
+      <p class="pcard-desc">First DSF deployment in the German utilities sector — autonomous, AI-augmented software delivery with minimal human touchpoints and full observability.</p>
+      <div class="pcard-metrics">
+        <div><div class="pm-val">70%</div><div class="pm-lbl">Faster Releases</div></div>
+        <div><div class="pm-val">3×</div><div class="pm-lbl">Output Volume</div></div>
+      </div>
+      <div class="pcard-role">Concept Owner</div>
+    </div>
+
+    <div class="pcard" id="pc4">
+      <div class="pcard-num">04</div>
+      <div class="pcard-sector">Public Sector · Germany</div>
+      <h3 class="pcard-title">IT Strategy &amp; Governance</h3>
+      <p class="pcard-desc">IT target architecture and multi-year roadmap for a major German federal agency undergoing statutory digitalization mandates and procurement reform.</p>
+      <div class="pcard-metrics">
+        <div><div class="pm-val">XX</div><div class="pm-lbl">Workstreams</div></div>
+        <div><div class="pm-val">€XXM</div><div class="pm-lbl">IT Budget Shaped</div></div>
+      </div>
+      <div class="pcard-role">Principal Architect</div>
+    </div>
+
+    <div class="pcard" id="pc5">
+      <div class="pcard-num">05</div>
+      <div class="pcard-sector">TMT · DACH</div>
+      <h3 class="pcard-title">Cloud Migration at Scale</h3>
+      <p class="pcard-desc">Hybrid cloud strategy and migration execution for a Tier-1 telco, moving 400+ legacy applications to AWS and Azure with zero service degradation.</p>
+      <div class="pcard-metrics">
+        <div><div class="pm-val">400+</div><div class="pm-lbl">Apps Migrated</div></div>
+        <div><div class="pm-val">35%</div><div class="pm-lbl">OpEx Saved</div></div>
+      </div>
+      <div class="pcard-role">Workstream Lead</div>
+    </div>
+
+    <div class="pcard" id="pc6">
+      <div class="pcard-num">06</div>
+      <div class="pcard-sector">Financial Institutions · Europe</div>
+      <h3 class="pcard-title">Core Banking Modernization</h3>
+      <p class="pcard-desc">Architecture advisory for legacy-to-cloud core banking replacement covering vendor selection, integration design, and data migration governance.</p>
+      <div class="pcard-metrics">
+        <div><div class="pm-val">€XXM</div><div class="pm-lbl">Program Value</div></div>
+        <div><div class="pm-val">2yr</div><div class="pm-lbl">Timeline</div></div>
+      </div>
+      <div class="pcard-role">Senior Advisor</div>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ══════════════ PIPELINE ══════════════ -->
+<section id="pipeline">
+  <div class="sec-label" id="pipeLbl">03 — Pipeline &amp; Contacts</div>
+  <h2 class="sec-title" id="pipeTitle">What's<br>Next.</h2>
+  <p class="pipe-intro" id="pipeIntro">
+    A curated portfolio of high-potential engagements across German utilities and industrial sectors —
+    each representing a strategic entry point for the Dark Software Factory offering and long-term account development.
+  </p>
+
+  <div id="pipeNodes" style="opacity:0">
+
+    <!-- Legend -->
+    <div class="pipe-legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div>Active Engagement</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#F59E0B"></div>Warm Lead</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--text-muted)"></div>Prospect</div>
+    </div>
+
+    <!-- Pipeline funnel -->
+    <div class="pipe-funnel">
+      <div class="pipe-funnel-inner">
+
+        <!-- Stage 1: Discovery -->
+        <div class="pipe-stage-col">
+          <div class="pipe-stage-header">
+            <div class="pipe-stage-dot cold"></div>
+            <div class="pipe-stage-name">Discovery</div>
+            <div class="pipe-stage-count">3 prospects</div>
+          </div>
+          <div class="pipe-client-card">
+            <div class="pipe-status-pill cold"></div>
+            <div class="pipe-client-logo-box">+ Add Logo</div>
+            <div class="pipe-client-name">Client D AG</div>
+            <div class="pipe-client-sector">Public Utilities · NRW</div>
+            <div class="pipe-client-value">€X–XM · DSF Pilot</div>
+          </div>
+          <div class="pipe-client-card">
+            <div class="pipe-status-pill cold"></div>
+            <div class="pipe-client-logo-box">+ Add Logo</div>
+            <div class="pipe-client-name">Client E GmbH</div>
+            <div class="pipe-client-sector">Grid Operators · South DE</div>
+            <div class="pipe-client-value">€XM · Platform Build</div>
+          </div>
+          <div class="pipe-client-card">
+            <div class="pipe-status-pill cold"></div>
+            <div class="pipe-client-logo-box">+ Add Logo</div>
+            <div class="pipe-client-name">Client H AG</div>
+            <div class="pipe-client-sector">Energy Trading · Frankfurt</div>
+            <div class="pipe-client-value">€X–XM · IT Strategy</div>
+          </div>
+        </div>
+
+        <!-- Stage 2: Qualification -->
+        <div class="pipe-stage-col">
+          <div class="pipe-stage-header">
+            <div class="pipe-stage-dot cold"></div>
+            <div class="pipe-stage-name">Qualification</div>
+            <div class="pipe-stage-count">2 leads</div>
+          </div>
+          <div class="pipe-client-card">
+            <div class="pipe-status-pill cold"></div>
+            <div class="pipe-client-logo-box">+ Add Logo</div>
+            <div class="pipe-client-name">Client F AG</div>
+            <div class="pipe-client-sector">Renewables · Germany</div>
+            <div class="pipe-client-value">€X–XM · Cloud + DSF</div>
+          </div>
+          <div class="pipe-client-card">
+            <div class="pipe-status-pill warm"></div>
+            <div class="pipe-client-logo-box">+ Add Logo</div>
+            <div class="pipe-client-name">Client B AG</div>
+            <div class="pipe-client-sector">Energy · DACH</div>
+            <div class="pipe-client-value">€X–XM · IT Architecture</div>
+          </div>
+        </div>
+
+        <!-- Stage 3: Proposal -->
+        <div class="pipe-stage-col">
+          <div class="pipe-stage-header">
+            <div class="pipe-stage-dot warm"></div>
+            <div class="pipe-stage-name">Proposal</div>
+            <div class="pipe-stage-count">2 warm leads</div>
+          </div>
+          <div class="pipe-client-card">
+            <div class="pipe-status-pill warm"></div>
+            <div class="pipe-client-logo-box">+ Add Logo</div>
+            <div class="pipe-client-name">Client G SE</div>
+            <div class="pipe-client-sector">Water Utilities · Bavaria</div>
+            <div class="pipe-client-value">€XM · Digital Core</div>
+          </div>
+          <div class="pipe-client-card">
+            <div class="pipe-status-pill warm"></div>
+            <div class="pipe-client-logo-box">+ Add Logo</div>
+            <div class="pipe-client-name">Client C SE</div>
+            <div class="pipe-client-sector">Industrial · Germany</div>
+            <div class="pipe-client-value">€XM · ERP + DSF Combo</div>
+          </div>
+        </div>
+
+        <!-- Stage 4: Active -->
+        <div class="pipe-stage-col">
+          <div class="pipe-stage-header">
+            <div class="pipe-stage-dot live"></div>
+            <div class="pipe-stage-name">Active</div>
+            <div class="pipe-stage-count">1 engaged</div>
+          </div>
+          <div class="pipe-client-card live">
+            <div class="pipe-status-pill live"></div>
+            <div class="pipe-client-logo-box">+ Add Logo</div>
+            <div class="pipe-client-name">Client A GmbH</div>
+            <div class="pipe-client-sector">Utilities · Germany</div>
+            <div class="pipe-client-value">€X–XM · DSF Entry Point</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- KPI bar -->
+    <div class="pipeline-kpis">
+      <div class="kpi-card"><div class="kpi-number" data-value="1200">0</div><div class="kpi-label">Daily Deployments</div></div>
+      <div class="kpi-card"><div class="kpi-number" data-value="85">0</div><div class="kpi-label">Pipeline Conversion %</div></div>
+      <div class="kpi-card"><div class="kpi-number" data-value="56">0</div><div class="kpi-label">Active Strategic Accounts</div></div>
+      <div class="kpi-card"><div class="kpi-number" data-value="420">0</div><div class="kpi-label">Aggregate EBITDA pts</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ DSF 5 — THE DARK SOFTWARE FACTORY? ══════════════ -->
+<section id="dsf">
+  <div class="sec-label">04 — AI @ Utilities</div>
+  <h2 class="sec-title">Dark Software Factory.</h2>
+
+  <p class="dsf-lead">The Dark Software Factory is a fast, modern & factory-based cloud software delivery model for German utilities. It’s centered around a lights-out software assembly line with built-in compliance, observability and AI orchestration, supported by Platinion's delivery excellence and deep regulatory know-how.</p>
+
+  <div class="dsf-split">
+    <div class="dsf-svg-box" style="padding:0;overflow:hidden;min-height:380px;">
+      <svg id="dsf-factory" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="max-width:100%;display:block;">
+        <defs>
+          <!-- scanline overlay -->
+          <pattern id="scan" x="0" y="0" width="560" height="3" patternUnits="userSpaceOnUse">
+            <rect width="560" height="1" fill="rgba(62,228,117,0.03)"/>
+          </pattern>
+          <!-- gear clip -->
+          <clipPath id="factory-clip"><rect width="560" height="420"/></clipPath>
+          <!-- glow -->
+          <filter id="fg" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="fg2" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="8" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <!-- conveyor belt stripe -->
+          <pattern id="belt" x="0" y="0" width="24" height="12" patternUnits="userSpaceOnUse">
+            <rect width="24" height="12" fill="#0e1a15"/>
+            <rect x="0" y="4" width="24" height="4" fill="rgba(62,228,117,0.18)"/>
+          </pattern>
+        </defs>
+
+        <!-- background -->
+        <rect width="560" height="420" fill="#07100d"/>
+        <rect width="560" height="420" fill="url(#scan)"/>
+
+        <!-- === FACTORY BUILDING === -->
+        <!-- main body -->
+        <rect x="60" y="180" width="440" height="180" fill="#0d1a15" stroke="rgba(62,228,117,0.3)" stroke-width="1.5"/>
+        <!-- roof / stepped -->
+        <polygon points="60,180 160,110 260,140 360,110 460,140 500,180" fill="#0a1510" stroke="rgba(62,228,117,0.35)" stroke-width="1.5"/>
+        <!-- chimneys -->
+        <rect x="110" y="90" width="22" height="90" fill="#0d1a15" stroke="rgba(62,228,117,0.25)" stroke-width="1.2"/>
+        <rect x="190" y="105" width="18" height="75" fill="#0d1a15" stroke="rgba(62,228,117,0.25)" stroke-width="1.2"/>
+        <rect x="390" y="90" width="22" height="90" fill="#0d1a15" stroke="rgba(62,228,117,0.25)" stroke-width="1.2"/>
+        <rect x="440" y="108" width="16" height="72" fill="#0d1a15" stroke="rgba(62,228,117,0.25)" stroke-width="1.2"/>
+
+        <!-- chimney smoke (animated) -->
+        <g filter="url(#fg)">
+          <ellipse cx="121" cy="85" rx="8" ry="5" fill="rgba(62,228,117,0.55)">
+            <animate attributeName="cy" values="85;60;40" dur="2.2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.7;0.3;0" dur="2.2s" repeatCount="indefinite"/>
+            <animate attributeName="rx" values="8;13;18" dur="2.2s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="121" cy="85" rx="6" ry="4" fill="rgba(62,228,117,0.4)">
+            <animate attributeName="cy" values="85;58;35" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.6;0.25;0" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>
+            <animate attributeName="rx" values="6;11;16" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="199" cy="100" rx="6" ry="4" fill="rgba(62,228,117,0.45)">
+            <animate attributeName="cy" values="100;75;52" dur="1.9s" begin="0.3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.6;0.25;0" dur="1.9s" begin="0.3s" repeatCount="indefinite"/>
+            <animate attributeName="rx" values="6;10;14" dur="1.9s" begin="0.3s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="401" cy="85" rx="8" ry="5" fill="rgba(62,228,117,0.5)">
+            <animate attributeName="cy" values="85;62;42" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.65;0.28;0" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+            <animate attributeName="rx" values="8;12;17" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="448" cy="103" rx="6" ry="4" fill="rgba(62,228,117,0.4)">
+            <animate attributeName="cy" values="103;78;55" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.55;0.22;0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+            <animate attributeName="rx" values="6;10;15" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+          </ellipse>
+        </g>
+
+        <!-- windows row 1 (blinking) -->
+        <g filter="url(#fg)">
+          <rect x="90" y="200" width="28" height="20" rx="2" fill="rgba(62,228,117,0.12)" stroke="rgba(62,228,117,0.4)" stroke-width="1">
+            <animate attributeName="fill" values="rgba(62,228,117,0.12);rgba(62,228,117,0.55);rgba(62,228,117,0.12)" dur="3.1s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="138" y="200" width="28" height="20" rx="2" fill="rgba(62,228,117,0.45)" stroke="rgba(62,228,117,0.4)" stroke-width="1">
+            <animate attributeName="fill" values="rgba(62,228,117,0.45);rgba(62,228,117,0.1);rgba(62,228,117,0.45)" dur="2.4s" begin="0.6s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="186" y="200" width="28" height="20" rx="2" fill="rgba(62,228,117,0.3)" stroke="rgba(62,228,117,0.4)" stroke-width="1">
+            <animate attributeName="fill" values="rgba(62,228,117,0.3);rgba(62,228,117,0.6);rgba(62,228,117,0.3)" dur="4s" begin="1.2s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="330" y="200" width="28" height="20" rx="2" fill="rgba(62,228,117,0.5)" stroke="rgba(62,228,117,0.4)" stroke-width="1">
+            <animate attributeName="fill" values="rgba(62,228,117,0.5);rgba(62,228,117,0.1);rgba(62,228,117,0.5)" dur="3.6s" begin="0.3s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="378" y="200" width="28" height="20" rx="2" fill="rgba(62,228,117,0.2)" stroke="rgba(62,228,117,0.4)" stroke-width="1">
+            <animate attributeName="fill" values="rgba(62,228,117,0.2);rgba(62,228,117,0.55);rgba(62,228,117,0.2)" dur="2.8s" begin="1.8s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="426" y="200" width="28" height="20" rx="2" fill="rgba(62,228,117,0.4)" stroke="rgba(62,228,117,0.4)" stroke-width="1">
+            <animate attributeName="fill" values="rgba(62,228,117,0.4);rgba(62,228,117,0.1);rgba(62,228,117,0.4)" dur="3.3s" begin="0.9s" repeatCount="indefinite"/>
+          </rect>
+        </g>
+
+        <!-- === CONVEYOR BELT === -->
+        <rect x="60" y="318" width="440" height="22" fill="url(#belt)">
+          <animateTransform attributeName="patternTransform" type="translate" from="0 0" to="-24 0" dur="0.8s" repeatCount="indefinite" additive="sum"/>
+        </rect>
+        <rect x="60" y="316" width="440" height="2" fill="rgba(62,228,117,0.5)"/>
+        <rect x="60" y="338" width="440" height="2" fill="rgba(62,228,117,0.5)"/>
+
+        <!-- conveyor end wheels -->
+        <circle cx="62" cy="327" r="12" fill="#0d1a15" stroke="rgba(62,228,117,0.5)" stroke-width="2">
+          <animateTransform attributeName="transform" type="rotate" from="0 62 327" to="360 62 327" dur="1.2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="498" cy="327" r="12" fill="#0d1a15" stroke="rgba(62,228,117,0.5)" stroke-width="2">
+          <animateTransform attributeName="transform" type="rotate" from="0 498 327" to="360 498 327" dur="1.2s" repeatCount="indefinite"/>
+        </circle>
+        <!-- wheel spokes -->
+        <line x1="62" y1="315" x2="62" y2="339" stroke="rgba(62,228,117,0.6)" stroke-width="1.5">
+          <animateTransform attributeName="transform" type="rotate" from="0 62 327" to="360 62 327" dur="1.2s" repeatCount="indefinite"/>
+        </line>
+        <line x1="50" y1="327" x2="74" y2="327" stroke="rgba(62,228,117,0.6)" stroke-width="1.5">
+          <animateTransform attributeName="transform" type="rotate" from="0 62 327" to="360 62 327" dur="1.2s" repeatCount="indefinite"/>
+        </line>
+        <line x1="498" y1="315" x2="498" y2="339" stroke="rgba(62,228,117,0.6)" stroke-width="1.5">
+          <animateTransform attributeName="transform" type="rotate" from="0 498 327" to="360 498 327" dur="1.2s" repeatCount="indefinite"/>
+        </line>
+        <line x1="486" y1="327" x2="510" y2="327" stroke="rgba(62,228,117,0.6)" stroke-width="1.5">
+          <animateTransform attributeName="transform" type="rotate" from="0 498 327" to="360 498 327" dur="1.2s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- === PACKAGES ON BELT (moving left→right) === -->
+        <g filter="url(#fg)">
+          <!-- package 1 -->
+          <g>
+            <rect x="0" y="301" width="32" height="18" rx="3" fill="rgba(62,228,117,0.22)" stroke="rgba(62,228,117,0.7)" stroke-width="1.5"/>
+            <line x1="16" y1="301" x2="16" y2="319" stroke="rgba(62,228,117,0.5)" stroke-width="1"/>
+            <line x1="0" y1="310" x2="32" y2="310" stroke="rgba(62,228,117,0.5)" stroke-width="1"/>
+            <animateTransform attributeName="transform" type="translate" from="-40 0" to="540 0" dur="4s" repeatCount="indefinite"/>
+          </g>
+          <!-- package 2 -->
+          <g>
+            <rect x="0" y="301" width="28" height="18" rx="3" fill="rgba(62,228,117,0.18)" stroke="rgba(62,228,117,0.6)" stroke-width="1.5"/>
+            <line x1="14" y1="301" x2="14" y2="319" stroke="rgba(62,228,117,0.45)" stroke-width="1"/>
+            <line x1="0" y1="310" x2="28" y2="310" stroke="rgba(62,228,117,0.45)" stroke-width="1"/>
+            <animateTransform attributeName="transform" type="translate" from="-40 0" to="540 0" dur="4s" begin="1.3s" repeatCount="indefinite"/>
+          </g>
+          <!-- package 3 -->
+          <g>
+            <rect x="0" y="302" width="24" height="16" rx="3" fill="rgba(62,228,117,0.25)" stroke="rgba(62,228,117,0.75)" stroke-width="1.5"/>
+            <line x1="12" y1="302" x2="12" y2="318" stroke="rgba(62,228,117,0.5)" stroke-width="1"/>
+            <line x1="0" y1="310" x2="24" y2="310" stroke="rgba(62,228,117,0.5)" stroke-width="1"/>
+            <animateTransform attributeName="transform" type="translate" from="-40 0" to="540 0" dur="4s" begin="2.6s" repeatCount="indefinite"/>
+          </g>
+        </g>
+
+        <!-- === CENTRAL GEAR (large) === -->
+        <g transform="translate(280,265)" filter="url(#fg)">
+          <g>
+            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="6s" repeatCount="indefinite"/>
+            <!-- gear teeth -->
+            <polygon points="0,-38 5,-28 -5,-28" fill="rgba(62,228,117,0.7)"/>
+            <polygon points="0,-38 5,-28 -5,-28" fill="rgba(62,228,117,0.7)" transform="rotate(45)"/>
+            <polygon points="0,-38 5,-28 -5,-28" fill="rgba(62,228,117,0.7)" transform="rotate(90)"/>
+            <polygon points="0,-38 5,-28 -5,-28" fill="rgba(62,228,117,0.7)" transform="rotate(135)"/>
+            <polygon points="0,-38 5,-28 -5,-28" fill="rgba(62,228,117,0.7)" transform="rotate(180)"/>
+            <polygon points="0,-38 5,-28 -5,-28" fill="rgba(62,228,117,0.7)" transform="rotate(225)"/>
+            <polygon points="0,-38 5,-28 -5,-28" fill="rgba(62,228,117,0.7)" transform="rotate(270)"/>
+            <polygon points="0,-38 5,-28 -5,-28" fill="rgba(62,228,117,0.7)" transform="rotate(315)"/>
+            <circle r="26" fill="#0d1a15" stroke="rgba(62,228,117,0.7)" stroke-width="2"/>
+            <circle r="8" fill="rgba(62,228,117,0.25)" stroke="rgba(62,228,117,0.8)" stroke-width="2"/>
+            <!-- spokes -->
+            <line x1="0" y1="-20" x2="0" y2="20" stroke="rgba(62,228,117,0.4)" stroke-width="1.5"/>
+            <line x1="-20" y1="0" x2="20" y2="0" stroke="rgba(62,228,117,0.4)" stroke-width="1.5"/>
+          </g>
+        </g>
+
+        <!-- small gear left -->
+        <g transform="translate(195,268)" filter="url(#fg)">
+          <g>
+            <animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="3.5s" repeatCount="indefinite"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(60)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(120)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(180)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(240)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(300)"/>
+            <circle r="13" fill="#0d1a15" stroke="rgba(62,228,117,0.6)" stroke-width="1.5"/>
+            <circle r="4" fill="rgba(62,228,117,0.2)" stroke="rgba(62,228,117,0.7)" stroke-width="1.5"/>
+          </g>
+        </g>
+
+        <!-- small gear right -->
+        <g transform="translate(365,268)" filter="url(#fg)">
+          <g>
+            <animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="3.5s" repeatCount="indefinite"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(60)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(120)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(180)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(240)"/>
+            <polygon points="0,-20 3,-14 -3,-14" fill="rgba(62,228,117,0.6)" transform="rotate(300)"/>
+            <circle r="13" fill="#0d1a15" stroke="rgba(62,228,117,0.6)" stroke-width="1.5"/>
+            <circle r="4" fill="rgba(62,228,117,0.2)" stroke="rgba(62,228,117,0.7)" stroke-width="1.5"/>
+          </g>
+        </g>
+
+        <!-- === DATA FLOW LINES (left wall → right wall) === -->
+        <g opacity="0.7">
+          <!-- horizontal data pulse lines -->
+          <line x1="60" y1="248" x2="500" y2="248" stroke="rgba(62,228,117,0.15)" stroke-width="1" stroke-dasharray="6 4"/>
+          <circle r="3" fill="rgba(62,228,117,0.9)" filter="url(#fg)">
+            <animateMotion path="M60,248 H500" dur="1.8s" repeatCount="indefinite"/>
+          </circle>
+          <circle r="3" fill="rgba(62,228,117,0.9)" filter="url(#fg)">
+            <animateMotion path="M60,248 H500" dur="1.8s" begin="0.9s" repeatCount="indefinite"/>
+          </circle>
+          <line x1="60" y1="260" x2="500" y2="260" stroke="rgba(62,228,117,0.1)" stroke-width="1" stroke-dasharray="4 6"/>
+          <circle r="2" fill="rgba(62,228,117,0.7)" filter="url(#fg)">
+            <animateMotion path="M500,260 H60" dur="2.2s" begin="0.4s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- === STATUS INDICATOR (top-left HUD) === -->
+        <rect x="80" y="152" width="110" height="22" rx="4" fill="rgba(0,0,0,0.5)" stroke="rgba(62,228,117,0.3)" stroke-width="1"/>
+        <circle cx="93" cy="163" r="4" fill="rgba(62,228,117,0.9)">
+          <animate attributeName="opacity" values="1;0.2;1" dur="1.4s" repeatCount="indefinite"/>
+        </circle>
+        <text x="102" y="168" font-family="DM Mono,monospace" font-size="8" fill="rgba(62,228,117,0.8)" letter-spacing="0.08em">LIGHTS OUT</text>
+
+        <!-- deploy counter -->
+        <rect x="370" y="152" width="110" height="22" rx="4" fill="rgba(0,0,0,0.5)" stroke="rgba(62,228,117,0.3)" stroke-width="1"/>
+        <text id="dsf-counter" x="380" y="168" font-family="DM Mono,monospace" font-size="8" fill="rgba(62,228,117,0.8)" letter-spacing="0.06em">DEPLOY #0000</text>
+
+        <!-- ground line -->
+        <line x1="40" y1="360" x2="520" y2="360" stroke="rgba(62,228,117,0.2)" stroke-width="1.5"/>
+
+        <!-- scanline animation -->
+        <rect width="560" height="4" fill="rgba(62,228,117,0.04)" opacity="0.6">
+          <animateTransform attributeName="transform" type="translate" from="0 -4" to="0 424" dur="3s" repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    </div>
+
+    <div class="dsf-grid">
+      <div class="dsf-blk">
+        <div class="dsf-blk-acc"></div>
+        <div class="dsf-n">01</div>
+        <h3 class="dsf-bt">Natively built for grid, meters &amp; compliance</h3>
+        <p class="dsf-bd">Harmonized domain kit with module templates for grid ops, meter-to-cash, and Trie-basiertes compliance reporting (EnWG, MaBiS, BSI). One codebase, one governance model, built for utility risk profiles.</p>
+      </div>
+      <div class="dsf-blk">
+        <div class="dsf-blk-acc"></div>
+        <div class="dsf-n">02</div>
+        <h3 class="dsf-bt">90% pipeline automation & self-remediation</h3>
+        <p class="dsf-bd">Automated build/test/deploy workflows driven by codified runbooks and AI-driven failure triage; self-healing staging snapshots with built-in drift correction and security as code.</p>
+      </div>
+      <div class="dsf-blk">
+        <div class="dsf-blk-acc"></div>
+        <div class="dsf-n">03</div>
+        <h3 class="dsf-bt">Operational security and audit chain</h3>
+        <p class="dsf-bd">Immutable telemetry from commit-to-postDeploy, auto compliance assertions, and a governance layer aligned with German utility audits (BaFin, TÜV, BSI) for assurance and CISO confidence.</p>
+      </div>
+      <div class="dsf-blk">
+        <div class="dsf-blk-acc"></div>
+        <div class="dsf-n">04</div>
+        <h3 class="dsf-bt">Director roadmap: 8 clients in 12 months</h3>
+        <p class="dsf-bd">Scale through PDCA-connected DSF pods, utility co-innovation labs, and a shared platform core. Target: 1 central factory, 3 satellite delivery lines, 8 anchor accounts by year-end.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CLOSING ══════════════ -->
+<section id="closing">
+  <div class="cl-bg"></div>
+  <div class="cl-grid"></div>
+  <div class="cl-eyebrow" id="clEye">BCG Platinion · 2026</div>
+  <h2 class="cl-title" id="clTitle"><span>Ready<br>to Lead.</span></h2>
+  <p class="cl-sub" id="clSub">The pipeline is built. The vision is clear. The track record speaks. It's time to take the next step — to Director.</p>
+</section>
+
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ── Cursor ──
+  const cur = document.getElementById('cur'), curR = document.getElementById('cur-r');
+  let mx=0, my=0, rx=0, ry=0;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+  (function animR(){ rx+=(mx-rx)*.12; ry+=(my-ry)*.12; curR.style.left=rx+'px'; curR.style.top=ry+'px'; requestAnimationFrame(animR); })();
+
+  // ── Progress + Nav ──
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+    document.getElementById('pbar').style.width = pct + '%';
+    document.getElementById('nav').classList.toggle('vis', window.scrollY > 60);
+  });
+
+  // ── Hero 1 entrance — video flies in ──
+  gsap.fromTo('#heroVideoFrame',
+    { scale: 0.88, opacity: 0, y: 50 },
+    { scale: 1, opacity: 1, y: 0, duration: 1.1, delay: 0.15, ease: 'power3.out' }
+  );
+
+  // ── Hero 2 entrance — stagger on scroll ──
+  gsap.set(['#hEye','#hName','#hSub','#hBtn'], { y: 44, opacity: 0 });
+  gsap.timeline({
+    scrollTrigger: { trigger: '#hero-name', start: 'top 72%', once: true }
+  })
+    .to('#hEye',  { opacity:1, y:0, duration:.55, ease:'power3.out' })
+    .to('#hName', { opacity:1, y:0, duration:.75, ease:'power3.out' }, '-=0.3')
+    .to('#hSub',  { opacity:1, y:0, duration:.6,  ease:'power3.out' }, '-=0.4')
+    .to('#hBtn',  { opacity:1, y:0, duration:.55, ease:'power3.out' }, '-=0.35');
+
+  // ── Scroll animation helpers ──
+  const fu = (el, delay=0, extra={}) => {
+    gsap.set(el, { y:32, opacity:0 });
+    gsap.to(el, { scrollTrigger:{ trigger:el, start:'top 82%' }, opacity:1, y:0, duration:.65, delay, ease:'power3.out', ...extra });
+  };
+  const fi = (el, delay=0) => {
+    gsap.set(el, { opacity:0 });
+    gsap.to(el, { scrollTrigger:{ trigger:el, start:'top 80%' }, opacity:1, duration:.7, delay, ease:'power2.out' });
+  };
+
+  // About
+  gsap.set('#aPhoto', { x:-40, opacity:0 });
+  gsap.to('#aPhoto', { scrollTrigger:{ trigger:'#aPhoto', start:'top 78%' }, opacity:1, x:0, duration:.9, ease:'power3.out' });
+  fu('#aLbl', .1); fu('#aTitle', .2); fu('#aBio', .3); fu('#aTags', .4); fu('#aFacts', .5);
+
+  // Portfolio
+  fu('#portLbl'); fu('#portTitle', .1);
+  ['#pc1','#pc2','#pc3','#pc4','#pc5','#pc6'].forEach((id, i) => {
+    gsap.set(id, { y:50, opacity:0 });
+    gsap.to(id, { scrollTrigger:{ trigger:id, start:'top 88%' }, opacity:1, y:0, duration:.55, delay:(i%3)*.12, ease:'power3.out' });
+  });
+
+  // Pipeline
+  fu('#pipeLbl'); fu('#pipeTitle', .1); fu('#pipeIntro', .2);
+  gsap.to('#pipeNodes', { scrollTrigger:{ trigger:'#pipeNodes', start:'top 78%' }, opacity:1, duration:.8, ease:'power2.out' });
+
+  const kpiEls = document.querySelectorAll('.kpi-number');
+  kpiEls.forEach(el => {
+    const target = Number(el.dataset.value);
+    if (!Number.isFinite(target)) return;
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: target,
+      duration: 1.7,
+      ease: 'power2.out',
+      scrollTrigger: { trigger: '.pipeline-kpis', start: 'top 85%', once: true },
+      onUpdate: () => {
+        el.textContent = Math.round(obj.val).toLocaleString();
+      }
+    });
+  });
+
+  // DSF
+  fu('#dsfLbl'); fu('#dsfTitle', .1); fu('#dsfLead', .2);
+  gsap.set('.dsf-split', { opacity:0, y:26 });
+  gsap.to('.dsf-split', { scrollTrigger:{ trigger:'#dsf', start:'top 78%' }, opacity:1, y:0, duration:.8, ease:'power2.out' });
+  document.querySelectorAll('.dsf-blk').forEach((el, i) => {
+    gsap.set(el, { opacity:0, y:24 });
+    gsap.to(el, {
+      scrollTrigger:{ trigger: el, start:'top 88%' },
+      opacity: 1,
+      y: 0,
+      duration: 0.55,
+      delay: i * 0.12,
+      ease: 'power3.out'
+    });
+  });
+
+  // ── Germany Map — D3 + TopoJSON ──
+  (async function initGermanyMap() {
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) return;
+
+    const svgEl = document.getElementById('germany-map');
+    const svg = d3.select(svgEl);
+
+    const w = mapContainer.clientWidth  || 800;
+    const h = mapContainer.clientHeight || 620;
+
+    svg.attr('viewBox', `0 0 ${w} ${h}`)
+       .attr('width',  '100%')
+       .attr('height', '100%')
+       .attr('preserveAspectRatio', 'xMidYMid meet');
+
+    const defs = svg.append('defs');
+
+    // Glow filter — background dots
+    const gf = defs.append('filter').attr('id','dot-glow').attr('x','-80%').attr('y','-80%').attr('width','260%').attr('height','260%');
+    gf.append('feGaussianBlur').attr('stdDeviation','3').attr('result','blur');
+    const gm = gf.append('feMerge'); gm.append('feMergeNode').attr('in','blur'); gm.append('feMergeNode').attr('in','SourceGraphic');
+
+    // Glow filter — active dot
+    const gfa = defs.append('filter').attr('id','dot-glow-active').attr('x','-130%').attr('y','-130%').attr('width','360%').attr('height','360%');
+    gfa.append('feGaussianBlur').attr('stdDeviation','8').attr('result','blur');
+    const gma = gfa.append('feMerge'); gma.append('feMergeNode').attr('in','blur'); gma.append('feMergeNode').attr('in','SourceGraphic');
+
+    // Load world atlas TopoJSON
+    let world;
+    try { world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'); }
+    catch(e) { console.warn('Map data failed to load', e); return; }
+
+    const countries = topojson.feature(world, world.objects.countries);
+    const germany   = countries.features.find(f => f.id === '276');
+    if (!germany) { console.warn('Germany feature not found'); return; }
+
+    const pad = 52;
+    const projection = d3.geoMercator().fitExtent([[pad, pad], [w - pad, h - pad]], germany);
+    const geoPath    = d3.geoPath().projection(projection);
+
+    // Ocean / map background
+    svg.append('rect').attr('width', w).attr('height', h).attr('fill', '#070d0b');
+
+    // Clip Germany interior
+    defs.append('clipPath').attr('id','germany-clip')
+      .append('path').datum(germany).attr('d', geoPath);
+
+    // Subtle grid clipped to Germany shape
+    const gridG = svg.append('g').attr('clip-path','url(#germany-clip)');
+    for (let gx = 0; gx <= w; gx += 26)
+      gridG.append('line').attr('x1',gx).attr('y1',0).attr('x2',gx).attr('y2',h).attr('stroke','rgba(62,228,117,0.035)').attr('stroke-width',1);
+    for (let gy = 0; gy <= h; gy += 26)
+      gridG.append('line').attr('x1',0).attr('y1',gy).attr('x2',w).attr('y2',gy).attr('stroke','rgba(62,228,117,0.035)').attr('stroke-width',1);
+
+    // Germany fill
+    svg.append('path').datum(germany).attr('d', geoPath)
+      .attr('fill', '#131d19').attr('stroke', '#263830').attr('stroke-width', 1.5);
+
+    // Germany border glow line
+    svg.append('path').datum(germany).attr('d', geoPath)
+      .attr('fill', 'none').attr('stroke', 'rgba(62,228,117,0.2)').attr('stroke-width', 2);
+
+    // Client locations [lng, lat]
+    const mapClients = [
+      { city:'Cologne',    coords:[ 6.96, 50.94], logo:'rhenag',   title:'Grid Digitalization Program',   description:'End-to-end architecture for national grid operator digital transformation.', metrics:'€XXM Budget · XX% Cost Reduction' },
+      { city:'Hannover',   coords:[ 9.74, 52.37], logo:'Enercity', title:'Dark Software Factory Pilot',   description:'First DSF deployment in German utilities with autonomous delivery.',        metrics:'70% Faster Releases · 3× Output'  },
+      { city:'Munich',     coords:[11.58, 48.14], logo:'Thüga',    title:'IT Strategy & Governance',      description:'IT target architecture and multi-year roadmap for utilities holding.',     metrics:'XX Workstreams · €XXM IT Budget'  },
+      { city:'Düsseldorf', coords:[ 6.77, 51.23], logo:'tap',      title:'ERP Transformation',            description:'SAP S/4HANA migration roadmap for leading utility conglomerate.',         metrics:'18mo Delivery · X,XXX Users'      },
+      { city:'Essen',      coords:[ 7.01, 51.46], logo:'E.ON',     title:'Cloud Migration at Scale',      description:'Hybrid cloud strategy moving 400+ legacy applications to AWS and Azure.',  metrics:'400+ Apps · 35% OpEx Saved'       },
+      { city:'Berlin',     coords:[13.40, 52.52], logo:'50Hertz',  title:'Transmission Grid IT Overhaul', description:'Core IT modernization for Germany\'s largest transmission system operator.',metrics:'€XXM Program · 4 Workstreams'     }
+    ].map(c => ({ ...c, svgPos: projection(c.coords) }));
+
+    const dotsG = svg.append('g').attr('class','dots-g');
+
+    // Popup div (child of map-container so position:absolute works)
+    const popup = document.createElement('div');
+    popup.className = 'map-popup';
+    popup.style.cssText = 'opacity:0;display:none;';
+    mapContainer.appendChild(popup);
+
+    const progressEl  = document.getElementById('map-progress');
+    const hintEl      = document.getElementById('map-hint');
+    const completeBadge = document.getElementById('map-complete');
+
+    let stage = -1; // -1=nothing, 0..N-1=active dot, N=all shown
+
+    function positionPopup(svgPos) {
+      const cRect = mapContainer.getBoundingClientRect();
+      const sRect = svgEl.getBoundingClientRect();
+      const scaleX = sRect.width  / w;
+      const scaleY = sRect.height / h;
+      const px = svgPos[0] * scaleX + (sRect.left - cRect.left);
+      const py = svgPos[1] * scaleY + (sRect.top  - cRect.top);
+      const pw = 238, ph = 130;
+      let left = px + 20;
+      let top  = py - 55;
+      if (left + pw > cRect.width  - 8) left = px - pw - 20;
+      if (left < 8) left = 8;
+      if (top  < 8) top  = py + 18;
+      if (top  + ph > cRect.height - 8) top = cRect.height - ph - 8;
+      popup.style.left = left + 'px';
+      popup.style.top  = top  + 'px';
+    }
+
+    function showPopup(client) {
+      popup.innerHTML =
+        `<div class="map-popup-logo">${client.logo}</div>` +
+        `<div class="map-popup-title">${client.title}</div>` +
+        `<div class="map-popup-desc">${client.description}</div>` +
+        `<div class="map-popup-metrics">${client.metrics}</div>`;
+      positionPopup(client.svgPos);
+      popup.style.display   = 'block';
+      popup.style.transform = 'translateY(8px)';
+      requestAnimationFrame(() => { popup.style.opacity = '1'; popup.style.transform = 'translateY(0)'; });
+    }
+
+    function hidePopup() {
+      popup.style.opacity   = '0';
+      popup.style.transform = 'translateY(8px)';
+      setTimeout(() => { if (popup.style.opacity === '0') popup.style.display = 'none'; }, 380);
+    }
+
+    const leftLogos  = [0,1,2].map(i => document.getElementById(`logo-l-${i}`));
+    const rightLogos = [0,1,2].map(i => document.getElementById(`logo-r-${i}`));
+
+    function updateLogos(s) {
+      // Alternating: scroll 0→left-0, 1→right-0, 2→left-1, 3→right-1, 4→left-2, 5→right-2
+      leftLogos.forEach((el, i)  => { if (el) el.classList.toggle('visible', s >= i * 2); });
+      rightLogos.forEach((el, i) => { if (el) el.classList.toggle('visible', s >= i * 2 + 1); });
+    }
+
+    function renderDots(s) {
+      dotsG.selectAll('*').remove();
+      updateLogos(s);
+
+      if (s < 0) { hidePopup(); return; }
+
+      const maxShown  = Math.min(s, mapClients.length - 1);
+      const isComplete = s >= mapClients.length;
+
+      mapClients.forEach((c, i) => {
+        if (i > maxShown) return;
+        const isActive = !isComplete && i === maxShown;
+        const r      = isActive ? 9   : 5.5;
+        const fill   = isActive ? 'rgba(62,228,117,0.92)' : 'rgba(62,228,117,0.2)';
+        const stroke = isActive ? '#9CFFB5'               : 'rgba(62,228,117,0.35)';
+        const sw     = isActive ? 2    : 1.5;
+        const filt   = isActive ? 'url(#dot-glow-active)' : 'url(#dot-glow)';
+
+        dotsG.append('circle')
+          .attr('cx', c.svgPos[0]).attr('cy', c.svgPos[1])
+          .attr('r',  r).attr('fill', fill).attr('stroke', stroke).attr('stroke-width', sw)
+          .attr('filter', filt);
+
+        // City label
+        dotsG.append('text')
+          .attr('x', c.svgPos[0] + 11).attr('y', c.svgPos[1] + 4)
+          .attr('fill', isActive ? 'rgba(62,228,117,0.75)' : 'rgba(62,228,117,0.28)')
+          .attr('font-size', '9px').attr('font-family', 'DM Mono, monospace')
+          .attr('letter-spacing', '0.08em')
+          .text(c.city);
+      });
+
+      if (isComplete) {
+        hidePopup();
+        if (progressEl)    progressEl.textContent = `${mapClients.length} clients`;
+        if (completeBadge) completeBadge.style.opacity = '1';
+      } else {
+        showPopup(mapClients[maxShown]);
+        if (progressEl)    progressEl.textContent = `${s + 1} / ${mapClients.length}`;
+        if (completeBadge) completeBadge.style.opacity = '0';
+      }
+
+      if (hintEl && s >= 0) hintEl.style.opacity = '0';
+    }
+
+    // Wheel: only fires when cursor is inside map-container (mouseenter/leave guard)
+    let overMap  = false;
+    let cooldown = false;
+
+    mapContainer.addEventListener('mouseenter', () => { overMap = true;  });
+    mapContainer.addEventListener('mouseleave', () => { overMap = false; });
+
+    // Capture wheel on container; preventDefault stops page scroll
+    mapContainer.addEventListener('wheel', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (cooldown) return;
+      cooldown = true;
+      setTimeout(() => { cooldown = false; }, 460);
+      const dir = e.deltaY > 0 ? 1 : -1;
+      stage = Math.max(-1, Math.min(mapClients.length, stage + dir));
+      renderDots(stage);
+    }, { passive: false });
+
+    renderDots(-1);
+  })();
+
+  // Closing
+  fu('#clEye'); fu('#clTitle', .15); fu('#clSub', .3);
+
+  // DSF deploy counter
+  (function() {
+    const el = document.getElementById('dsf-counter');
+    if (!el) return;
+    let n = Math.floor(Math.random() * 4000) + 8000;
+    el.textContent = `DEPLOY #${String(n).padStart(5,'0')}`;
+    setInterval(() => {
+      n += Math.floor(Math.random() * 3) + 1;
+      el.textContent = `DEPLOY #${String(n).padStart(5,'0')}`;
+    }, 1400);
+  })();
+
+  // Video autoplay fallback
+  const logoVideo = document.getElementById('logoVideo');
+  if (logoVideo) {
+    logoVideo.addEventListener('loadeddata', () => {
+      logoVideo.play().catch(e => {
+        console.log('Autoplay failed, video will play on user interaction');
+      });
+    });
+  }
+</script>
+</body>
+</html>
