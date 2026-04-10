@@ -48,7 +48,7 @@
     /* transform is managed entirely by JS */
 
     /* ── Dot Progress Nav ── */
-    #dot-nav { position:fixed; top:28px; left:50%; transform:translateX(-50%); z-index:200; transition:opacity 0.4s ease; }
+    #dot-nav { position:absolute; top:28px; left:50%; transform:translateX(-50%); z-index:200; transition:opacity 0.4s ease; }
     .dot-track { position:relative; display:flex; align-items:center; gap:26px; }
     .dot-bg-line { position:absolute; top:50%; left:5px; right:5px; height:1px; background:rgba(62,228,117,0.15); transform:translateY(-50%); z-index:0; }
     .dot-fill-line { position:absolute; top:50%; left:5px; height:1px; width:0; background:var(--green); transform:translateY(-50%); z-index:0; transition:width 0.4s cubic-bezier(.4,0,.2,1); box-shadow:0 0 8px rgba(62,228,117,0.5); }
@@ -69,7 +69,7 @@
     /* ── Shared ── */
     .sec-label { font-family:var(--font-m); font-size:15px; letter-spacing:.28em; text-transform:uppercase; color:var(--green); margin-bottom:18px; }
     .sec-title { font-family:var(--font-d); font-size:clamp(36px,5.5vw,72px); font-weight:800; line-height:1.04; letter-spacing:-.02em; margin-bottom:64px; }
-    section { padding:120px 64px; position:relative; height:100vh; box-sizing:border-box; }
+    section { padding:clamp(48px,8vh,120px) clamp(28px,5vw,64px); position:relative; height:100vh; box-sizing:border-box; }
 
     /* ── HERO SHARED ── */
     .h-bg { position:absolute; inset:0; pointer-events:none;
@@ -157,7 +157,7 @@
     .ch0-a {
       height: 100vh; position:relative; display:flex; flex-direction:column;
       align-items:center; justify-content:center; text-align:center;
-      padding:0 100px; background:var(--bg);
+      padding:0 clamp(24px,7vw,100px); background:var(--bg);
       border-bottom:1px solid rgba(62,228,117,0.12);
       overflow:hidden;
     }
@@ -168,29 +168,29 @@
     .ch0-a-sub { font-family:var(--font-m); font-size:clamp(11px,1.1vw,14px); letter-spacing:.22em; text-transform:uppercase; color:var(--text-mid); margin-bottom:40px; position:relative; z-index:1; }
     .ch0-a-bottom { display:flex; align-items:center; gap:52px; position:relative; z-index:1; }
     .ch0-a-left { display:flex; flex-direction:column; align-items:center; gap:20px; flex-shrink:0; }
-    .ch0-a-profile { width:200px; height:200px; border:1px solid rgba(62,228,117,.35); overflow:hidden; flex-shrink:0; }
+    .ch0-a-profile { width:clamp(100px,14vw,200px); height:clamp(100px,14vw,200px); border:1px solid rgba(62,228,117,.35); overflow:hidden; flex-shrink:0; }
     .ch0-a-profile img { width:100%; height:100%; object-fit:cover; filter:grayscale(30%); }
     .ch0-a-name { text-align:center; }
     .ch0-a-name strong { font-family:var(--font-d); font-size:20px; font-weight:700; color:var(--text); display:block; margin-bottom:6px; }
     .ch0-a-name span { font-family:var(--font-m); font-size:11px; letter-spacing:.2em; color:var(--text-muted); text-transform:uppercase; }
-    .ch0-a-divider { width:3px; height:260px; background:linear-gradient(to bottom,transparent,var(--green) 20%,var(--green) 80%,transparent); flex-shrink:0; box-shadow:0 0 16px rgba(62,228,117,.3); }
+    .ch0-a-divider { width:3px; height:clamp(140px,22vh,260px); background:linear-gradient(to bottom,transparent,var(--green) 20%,var(--green) 80%,transparent); flex-shrink:0; box-shadow:0 0 16px rgba(62,228,117,.3); }
     .ch0-a-statement { font-family:var(--font-b); font-size:clamp(18px,1.8vw,26px); font-style:italic; font-weight:300; color:var(--text-mid); max-width:560px; line-height:1.75; text-align:left; position:relative; z-index:1; }
 
 
     /* ══ CH1 — PAGE-TURN DECK ══ */
     #ch1b { background:var(--bg); overflow:hidden; }
-    .ch1b-wrap { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; padding:48px 0 52px; }
-    .ch1b-header { text-align:center; margin-bottom:48px; flex-shrink:0; }
+    .ch1b-wrap { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; padding:clamp(24px,4vh,48px) 0 clamp(24px,4vh,52px); }
+    .ch1b-header { text-align:center; margin-bottom:clamp(20px,3vh,48px); flex-shrink:0; }
     .ch1b-label { font-family:var(--font-m); font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--green); margin-bottom:14px; }
     .ch1b-title { font-family:var(--font-d); font-size:clamp(32px,4vw,54px); font-weight:800; color:var(--text); letter-spacing:-.02em; }
 
     /* Deck area — centers the deck but allows right-side peek overflow */
     .ch1b-deck-area { flex:1; display:flex; align-items:center; justify-content:center; min-height:0; overflow:visible; position:relative; }
-    .ch1b-deck { position:relative; width:560px; height:610px; perspective:1600px; flex-shrink:0; }
+    .ch1b-deck { position:relative; width:min(560px,80vw); height:min(610px,calc(100vh - 280px)); perspective:1600px; flex-shrink:0; }
 
     /* Cards — all stacked at absolute position 0,0; JS manages transforms */
     /* transform-origin is NOT set here — GSAP sets it dynamically (left center for fold, center for idle) */
-    .ch1b-card { position:absolute; top:0; left:0; width:560px; height:610px;
+    .ch1b-card { position:absolute; top:0; left:0; width:min(560px,80vw); height:min(610px,calc(100vh - 280px));
       border:1px solid rgba(62,228,117,0.18); background:var(--bg2); overflow:hidden;
       cursor:pointer; will-change:transform;
       box-shadow:0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(62,228,117,0.05); }
@@ -213,13 +213,109 @@
     .ch1b-dot.on { background:var(--green); border-color:var(--green); width:28px; border-radius:4px; }
     .ch1b-hint { font-family:var(--font-m); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--text-muted); }
 
+    /* ── CH2 — SHARED OPTION BADGE ── */
+    .ch2-option-badge {
+      position:absolute;
+      top:clamp(16px,2.5vh,28px);
+      right:clamp(20px,3vw,48px);
+      font-family:var(--font-m);
+      font-size:clamp(9px,0.75vw,11px);
+      letter-spacing:.24em;
+      text-transform:uppercase;
+      color:var(--green);
+      background:rgba(62,228,117,0.07);
+      border:1px solid rgba(62,228,117,0.28);
+      padding:clamp(5px,0.6vh,8px) clamp(12px,1.2vw,20px);
+      border-radius:20px;
+      z-index:10;
+      pointer-events:none;
+    }
+
+    /* ── CH2A — TWO PILLARS ── */
+    #ch2a { background:var(--bg); overflow:hidden; padding:0; }
+    .ch2a-wrap { width:100%; height:100%; display:flex; flex-direction:column; padding:clamp(44px,6vh,80px) clamp(40px,6vw,100px) clamp(24px,3vh,44px); }
+    .ch2a-label { font-family:var(--font-m); font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--green); margin-bottom:12px; }
+    .ch2a-title { font-family:var(--font-d); font-size:clamp(30px,4vw,52px); font-weight:800; color:var(--text); letter-spacing:-.02em; line-height:1.05; margin-bottom:clamp(20px,3.5vh,44px); }
+    .ch2a-pillars { flex:1; display:grid; grid-template-columns:1fr 64px 1fr; align-items:stretch; min-height:0; }
+    .ch2a-pillar { background:var(--bg2); border:1px solid rgba(62,228,117,0.12); padding:clamp(20px,3vw,38px); display:flex; flex-direction:column; position:relative; overflow:hidden; transition:border-color .35s; }
+    .ch2a-pillar::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--green-dark),var(--green)); transform:scaleX(0); transform-origin:left; transition:transform .5s; }
+    .ch2a-pillar:hover::after { transform:scaleX(1); }
+    .ch2a-pillar:hover { border-color:rgba(62,228,117,0.28); }
+    .ch2a-pillar-tag { font-family:var(--font-m); font-size:9px; letter-spacing:.28em; text-transform:uppercase; color:var(--green); margin-bottom:10px; }
+    .ch2a-pillar-icon { font-size:26px; margin-bottom:10px; line-height:1; }
+    .ch2a-pillar-name { font-family:var(--font-d); font-size:clamp(17px,1.9vw,24px); font-weight:700; color:var(--text); margin-bottom:8px; }
+    .ch2a-pillar-desc { font-size:13px; color:var(--text-mid); line-height:1.7; margin-bottom:16px; }
+    .ch2a-items { display:flex; flex-direction:column; gap:9px; }
+    .ch2a-item { display:flex; align-items:flex-start; gap:10px; }
+    .ch2a-item::before { content:''; width:5px; height:5px; background:var(--green); border-radius:50%; flex-shrink:0; margin-top:7px; }
+    .ch2a-item-text { font-size:13px; color:var(--text-mid); line-height:1.6; }
+    .ch2a-item-text strong { color:var(--text); font-weight:500; }
+    .ch2a-pillar-foot { margin-top:auto; padding-top:16px; border-top:1px solid rgba(62,228,117,0.1); }
+    .ch2a-pillar-foot-label { font-family:var(--font-m); font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--text-muted); margin-bottom:5px; }
+    .ch2a-pillar-foot-value { font-family:var(--font-d); font-size:13px; font-weight:700; color:var(--green); line-height:1.45; }
+    .ch2a-mid { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; padding:0 8px; }
+    .ch2a-mid-line { flex:1; width:1px; background:linear-gradient(to bottom,transparent,rgba(62,228,117,0.25) 30%,rgba(62,228,117,0.25) 70%,transparent); }
+    .ch2a-mid-node { width:38px; height:38px; border:1px solid rgba(62,228,117,0.28); border-radius:50%; background:rgba(62,228,117,0.05); display:flex; align-items:center; justify-content:center; font-family:var(--font-d); font-size:18px; font-weight:700; color:var(--green); flex-shrink:0; }
+    .ch2a-bridge { margin-top:clamp(14px,2.5vh,28px); border-top:1px solid rgba(62,228,117,0.1); padding-top:14px; display:flex; align-items:center; gap:18px; flex-shrink:0; }
+    .ch2a-bridge-arrow { color:var(--green); font-size:20px; flex-shrink:0; }
+    .ch2a-bridge-text { font-family:var(--font-d); font-size:clamp(14px,1.5vw,19px); font-weight:700; color:var(--text); }
+    .ch2a-bridge-text span { color:var(--green); }
+
+    /* ── CH2C — STATEMENT LEFT + PROOF RIGHT ── */
+    #ch2c { background:var(--bg); overflow:hidden; padding:0; }
+    .ch2c-wrap { width:100%; height:100%; display:grid; grid-template-columns:1fr 1fr; }
+    .ch2c-left { background:var(--bg2); border-right:1px solid rgba(62,228,117,0.1); display:flex; flex-direction:column; justify-content:center; padding:clamp(40px,6vw,100px); position:relative; overflow:hidden; }
+    .ch2c-left-bg { position:absolute; inset:0; background:radial-gradient(ellipse 80% 65% at 20% 55%, rgba(62,228,117,0.07) 0%, transparent 70%); pointer-events:none; }
+    .ch2c-label { font-family:var(--font-m); font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--green); margin-bottom:18px; position:relative; z-index:1; }
+    .ch2c-title { font-family:var(--font-d); font-size:clamp(30px,4.2vw,56px); font-weight:800; color:var(--text); letter-spacing:-.02em; line-height:1.06; margin-bottom:22px; position:relative; z-index:1; }
+    .ch2c-title span { color:var(--green); }
+    .ch2c-body { font-size:clamp(13px,1.3vw,16px); color:var(--text-mid); line-height:1.8; max-width:440px; position:relative; z-index:1; margin-bottom:26px; }
+    .ch2c-tag { display:inline-flex; align-items:center; gap:8px; font-family:var(--font-m); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--green); background:rgba(62,228,117,0.07); border:1px solid rgba(62,228,117,0.2); padding:7px 16px; border-radius:20px; position:relative; z-index:1; }
+    .ch2c-right { padding:clamp(36px,5vh,72px) clamp(32px,4vw,64px); display:flex; flex-direction:column; justify-content:center; gap:clamp(28px,4vh,52px); overflow:hidden; }
+    .ch2c-col-title { font-family:var(--font-m); font-size:clamp(10px,0.85vw,12px); letter-spacing:.3em; text-transform:uppercase; color:var(--green); margin-bottom:clamp(14px,2vh,22px); padding-bottom:clamp(8px,1vh,12px); border-bottom:1px solid rgba(62,228,117,0.18); }
+    .ch2c-timeline { display:flex; flex-direction:column; gap:0; }
+    .ch2c-tl-item { display:flex; gap:clamp(16px,1.5vw,24px); padding-bottom:clamp(18px,2.5vh,28px); }
+    .ch2c-tl-item:last-child { padding-bottom:0; }
+    .ch2c-tl-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:clamp(16px,1.4vw,20px); }
+    .ch2c-tl-dot { width:clamp(10px,0.9vw,13px); height:clamp(10px,0.9vw,13px); border-radius:50%; background:var(--green); flex-shrink:0; margin-top:clamp(4px,0.5vh,6px); box-shadow:0 0 8px rgba(62,228,117,0.35); }
+    .ch2c-tl-line { width:1px; flex:1; background:rgba(62,228,117,0.18); margin-top:4px; }
+    .ch2c-tl-item:last-child .ch2c-tl-line { display:none; }
+    .ch2c-tl-year { font-family:var(--font-m); font-size:clamp(11px,0.9vw,13px); letter-spacing:.12em; color:var(--text-muted); margin-bottom:clamp(3px,0.4vh,6px); }
+    .ch2c-tl-name { font-family:var(--font-d); font-size:clamp(16px,1.5vw,20px); font-weight:700; color:var(--text); margin-bottom:clamp(4px,0.5vh,8px); line-height:1.25; }
+    .ch2c-tl-sub { font-size:clamp(13px,1.1vw,15px); color:var(--text-mid); line-height:1.6; }
+
+    /* ── CH3 — EUROPE MAP (shared) ── */
+    .ch3-map-container { position:relative; width:100%; overflow:hidden; border-radius:10px; border:1px solid rgba(62,228,117,0.14); background:#060c0a; box-shadow:0 0 60px rgba(0,0,0,0.35), inset 0 0 80px rgba(62,228,117,0.015); }
+    .ch3-map-svg { display:block; width:100%; height:100%; }
+    .eu-popup { position:absolute; min-width:230px; max-width:290px; background:rgba(6,15,10,0.95); border:1px solid rgba(62,228,117,0.42); border-radius:12px; padding:14px 16px; color:var(--text); font-family:var(--font-m); backdrop-filter:blur(18px); pointer-events:none; z-index:20; box-shadow:0 10px 44px rgba(0,0,0,0.65),0 0 22px rgba(62,228,117,0.07); transition:opacity .22s ease,transform .22s ease; }
+    .eu-popup-company { font-family:var(--font-d); font-size:clamp(13px,1.3vw,16px); font-weight:700; color:var(--green); margin-bottom:3px; letter-spacing:.01em; }
+    .eu-popup-city { font-family:var(--font-m); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--text-muted); margin-bottom:7px; }
+    .eu-popup-sector { font-family:var(--font-m); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--green); background:rgba(62,228,117,0.07); border:1px solid rgba(62,228,117,0.15); border-radius:10px; display:inline-block; padding:3px 10px; margin-bottom:9px; }
+    .eu-popup-desc { font-size:11px; color:var(--text-mid); line-height:1.62; border-top:1px solid rgba(62,228,117,0.1); padding-top:8px; }
+
+    /* ── CH3A — FULL BLEED MAP ── */
+    #ch3a { background:var(--bg); overflow:hidden; padding:0; }
+    .ch3a-wrap { width:100%; height:100%; display:flex; flex-direction:column; padding:clamp(30px,4vh,52px) clamp(36px,5vw,80px) clamp(18px,2.5vh,36px); }
+    .ch3a-head { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:clamp(8px,1.2vh,16px); flex-shrink:0; }
+    .ch3a-label { font-family:var(--font-m); font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--green); margin-bottom:8px; }
+    .ch3a-title { font-family:var(--font-d); font-size:clamp(26px,3.6vw,48px); font-weight:800; color:var(--text); letter-spacing:-.02em; line-height:1.04; }
+    /* KPI strip */
+    .ch3a-kpi-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:clamp(10px,1.2vw,16px); margin-bottom:clamp(12px,1.8vh,20px); flex-shrink:0; }
+    .ch3a-kpi-box { background:rgba(62,228,117,0.04); border:1px solid rgba(62,228,117,0.28); border-radius:8px; padding:clamp(10px,1.4vh,16px) clamp(12px,1.2vw,20px); display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; box-shadow:0 0 22px rgba(62,228,117,0.07), inset 0 0 24px rgba(62,228,117,0.03); transition:border-color .3s,box-shadow .3s; }
+    .ch3a-kpi-box::after { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent 10%,rgba(62,228,117,0.55) 50%,transparent 90%); }
+    .ch3a-kpi-box:hover { border-color:rgba(62,228,117,0.5); box-shadow:0 0 32px rgba(62,228,117,0.14), inset 0 0 28px rgba(62,228,117,0.05); }
+    .ch3a-kpi-val { font-family:var(--font-d); font-size:clamp(20px,2.2vw,30px); font-weight:800; color:var(--green); line-height:1; text-shadow:0 0 18px rgba(62,228,117,0.45); margin-bottom:4px; }
+    .ch3a-kpi-lbl { font-family:var(--font-m); font-size:clamp(8px,0.68vw,9px); letter-spacing:.22em; text-transform:uppercase; color:var(--text-muted); line-height:1.45; }
+    .ch3a-map-wrap { flex:1; min-height:0; position:relative; }
+    .ch3a-map-wrap .ch3-map-container { position:absolute; inset:0; }
+
     /* ── PORTFOLIO MAP SECTION (full page) ── */
     #portfolio-map-section {
       height: 100vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      padding: 52px 64px 36px;
+      padding: clamp(28px,4vh,52px) clamp(28px,5vw,64px) clamp(20px,3vh,36px);
       background: var(--bg);
       position: relative;
     }
@@ -228,7 +324,7 @@
       flex: 1;
       min-height: 0;
       display: grid;
-      grid-template-columns: 200px 1fr 200px;
+      grid-template-columns: clamp(80px,14vw,200px) 1fr clamp(80px,14vw,200px);
       gap: 18px;
       align-items: stretch;
       margin-top: 20px;
@@ -320,7 +416,7 @@
     .pipeline-step.start { background:var(--green-dark); border-color:var(--green); box-shadow:0 0 16px rgba(62,228,117,0.25); }
     .pipeline-targets { display:flex; justify-content:center; align-items:center; gap:14px; margin-top:18px; }
     .client-logo { border:1px solid var(--border); border-radius:10px; padding:12px 16px; background:var(--bg3); color:var(--green); font-family:var(--font-m); font-size:11px; letter-spacing:.05em; }
-    .pipeline-kpis { display:grid; grid-template-columns:repeat(4,minmax(170px,1fr)); gap:14px; margin-top:56px; }
+    .pipeline-kpis { display:grid; grid-template-columns:repeat(4,minmax(clamp(100px,12vw,170px),1fr)); gap:14px; margin-top:clamp(28px,4vh,56px); }
     .kpi-card { padding:18px 16px; border:1px solid var(--border); border-radius:10px; background:rgba(10,13,11,.7); }
     .kpi-number { font-family:var(--font-d); font-size:clamp(26px,3.5vw,46px); font-weight:800; color:var(--green); }
     .kpi-label { margin-top:8px; color:var(--text-mid); font-family:var(--font-m); font-size:11px; text-transform:uppercase; letter-spacing:.13em; }
@@ -334,7 +430,7 @@
     .pipe-funnel-inner {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      min-width: 760px;
+      min-width: min(760px, 100%);
       position: relative;
     }
     /* gradient connector line behind the stage dots */
@@ -696,12 +792,12 @@
     </div>
     <div class="ch1b-deck-area">
       <div class="ch1b-deck" id="ch1bDeck">
-        <!-- Card 0: Familienmensch -->
+        <!-- Card 0: Family Man -->
         <div class="ch1b-card" data-idx="0">
           <div class="ch1b-img"><span>[ Family Photo ]</span></div>
           <div class="ch1b-body">
             <div class="ch1b-bar"></div>
-            <div class="ch1b-name">Familienmensch</div>
+            <div class="ch1b-name">Family Man</div>
             <p class="ch1b-text">Placeholder — short text about family values and what drives you personally outside of work.</p>
           </div>
         </div>
@@ -714,12 +810,12 @@
             <p class="ch1b-text">Placeholder — short text about endurance, discipline, and the triathlete mindset that carries into your professional work.</p>
           </div>
         </div>
-        <!-- Card 2: Handwerker -->
+        <!-- Card 2: Craftsman -->
         <div class="ch1b-card" data-idx="2">
           <div class="ch1b-img"><span>[ Handcraft Photo ]</span></div>
           <div class="ch1b-body">
             <div class="ch1b-bar"></div>
-            <div class="ch1b-name">Handwerker</div>
+            <div class="ch1b-name">Craftsman</div>
             <p class="ch1b-text">Placeholder — short text about craftsmanship, building with your hands, and what this reveals about how you approach complex problems.</p>
           </div>
         </div>
@@ -737,6 +833,169 @@
         <button class="ch1b-dot"></button>
       </div>
       <span class="ch1b-hint">Click the card behind to turn the page</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CH2A — TWO PILLARS ══════════════ -->
+<section id="ch2a" class="slide">
+  <div class="ch2-option-badge">Option A · Two Pillars</div>
+  <div class="h-bg"></div>
+  <div class="h-grid"></div>
+  <div class="ch2a-wrap">
+    <div class="ch2a-label" id="ch2aLbl">02 A — Who I Am · Career</div>
+    <h2 class="ch2a-title" id="ch2aTitle">Two Foundations.<br>One Direction.</h2>
+    <div class="ch2a-pillars">
+
+      <!-- Pillar 1: Academic -->
+      <div class="ch2a-pillar" id="ch2a-p1">
+        <div class="ch2a-pillar-tag">Academic Foundation</div>
+        <div class="ch2a-pillar-icon">🎓</div>
+        <div class="ch2a-pillar-name">Science &amp; Engineering</div>
+        <p class="ch2a-pillar-desc">A rigorous academic background in [your degree] that built the analytical framework for tackling complex, ambiguous problems — the kind AI demands.</p>
+        <div class="ch2a-items">
+          <div class="ch2a-item"><span class="ch2a-item-text"><strong>[University Name]</strong> · [Degree], [Year]</span></div>
+          <div class="ch2a-item"><span class="ch2a-item-text"><strong>Thesis:</strong> [Topic — ideally connected to systems, data, or tech]</span></div>
+          <div class="ch2a-item"><span class="ch2a-item-text">Deep grounding in <strong>systems thinking</strong>, algorithms and data-driven decision-making</span></div>
+          <div class="ch2a-item"><span class="ch2a-item-text">Bridges theory to reality — knowing how concepts translate into real architectures</span></div>
+        </div>
+        <div class="ch2a-pillar-foot">
+          <div class="ch2a-pillar-foot-label">Why it matters for AI</div>
+          <div class="ch2a-pillar-foot-value">The rigor to design systems that actually work at scale</div>
+        </div>
+      </div>
+
+      <!-- Connector -->
+      <div class="ch2a-mid">
+        <div class="ch2a-mid-line"></div>
+        <div class="ch2a-mid-node">+</div>
+        <div class="ch2a-mid-line"></div>
+      </div>
+
+      <!-- Pillar 2: Engineering -->
+      <div class="ch2a-pillar" id="ch2a-p2">
+        <div class="ch2a-pillar-tag">Software Engineering</div>
+        <div class="ch2a-pillar-icon">⚙️</div>
+        <div class="ch2a-pillar-name">Code That Ships</div>
+        <p class="ch2a-pillar-desc">Real-world software engineering experience — from writing production code to architecting enterprise-grade systems across regulated industries.</p>
+        <div class="ch2a-items">
+          <div class="ch2a-item"><span class="ch2a-item-text"><strong>[X]+ years</strong> hands-on development before moving into consulting</span></div>
+          <div class="ch2a-item"><span class="ch2a-item-text">Delivered across <strong>[Java / Python / cloud-native]</strong> stacks</span></div>
+          <div class="ch2a-item"><span class="ch2a-item-text">Architecture and <strong>solution design</strong> for enterprise-grade systems in utilities &amp; beyond</span></div>
+          <div class="ch2a-item"><span class="ch2a-item-text">Understands <strong>what it costs to build</strong> — not just what to build</span></div>
+        </div>
+        <div class="ch2a-pillar-foot">
+          <div class="ch2a-pillar-foot-label">Why it matters for AI</div>
+          <div class="ch2a-pillar-foot-value">The credibility to lead AI delivery — not just advise on it</div>
+        </div>
+      </div>
+
+    </div>
+    <!-- Bridge bar -->
+    <div class="ch2a-bridge" id="ch2a-bridge">
+      <span class="ch2a-bridge-arrow">→</span>
+      <div class="ch2a-bridge-text">Together: <span>An AI practitioner who speaks the language of both business and machine.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CH2C — STATEMENT LEFT + PROOF RIGHT ══════════════ -->
+<section id="ch2c" class="slide">
+  <div class="ch2-option-badge">Option C · Statement + Proof</div>
+  <div class="ch2c-wrap">
+    <!-- Left: Statement -->
+    <div class="ch2c-left">
+      <div class="ch2c-left-bg"></div>
+      <div class="h-grid" style="opacity:0.45;"></div>
+      <div class="ch2c-label" id="ch2cLbl">02 C — Who I Am · Career</div>
+      <h2 class="ch2c-title" id="ch2cTitle">Built on Code.<br><span>Proven in Practice.</span></h2>
+      <p class="ch2c-body" id="ch2cBody">A rare profile in consulting: academic depth in engineering, combined with years of hands-on software development before moving into strategy. This is the foundation that makes AI advice credible — and delivery possible.</p>
+      <span class="ch2c-tag">✦ AI-Ready from Day One</span>
+    </div>
+    <!-- Right: Proof -->
+    <div class="ch2c-right">
+
+      <!-- Academic section -->
+      <div class="ch2c-section" id="ch2c-acad">
+        <div class="ch2c-col-title">Academic Background</div>
+        <div class="ch2c-timeline">
+          <div class="ch2c-tl-item">
+            <div class="ch2c-tl-left"><div class="ch2c-tl-dot"></div><div class="ch2c-tl-line"></div></div>
+            <div>
+              <div class="ch2c-tl-year">[Year]</div>
+              <div class="ch2c-tl-name">[Degree] · [University Name]</div>
+              <div class="ch2c-tl-sub">Specialization in [field] — thesis on [topic]</div>
+            </div>
+          </div>
+          <div class="ch2c-tl-item">
+            <div class="ch2c-tl-left"><div class="ch2c-tl-dot" style="background:rgba(62,228,117,0.4)"></div><div class="ch2c-tl-line"></div></div>
+            <div>
+              <div class="ch2c-tl-year">[Year]</div>
+              <div class="ch2c-tl-name">[Further degree / certification / MBA]</div>
+              <div class="ch2c-tl-sub">Placeholder — any additional academic credentials</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Engineering section -->
+      <div class="ch2c-section" id="ch2c-eng">
+        <div class="ch2c-col-title">Software Engineering Career</div>
+        <div class="ch2c-timeline">
+          <div class="ch2c-tl-item">
+            <div class="ch2c-tl-left"><div class="ch2c-tl-dot" style="background:rgba(62,228,117,0.4)"></div><div class="ch2c-tl-line"></div></div>
+            <div>
+              <div class="ch2c-tl-year">[Year–Year]</div>
+              <div class="ch2c-tl-name">[Role] · [Company]</div>
+              <div class="ch2c-tl-sub">Full-stack / backend / architecture work — [key stack]</div>
+            </div>
+          </div>
+          <div class="ch2c-tl-item">
+            <div class="ch2c-tl-left"><div class="ch2c-tl-dot" style="background:rgba(62,228,117,0.4)"></div><div class="ch2c-tl-line"></div></div>
+            <div>
+              <div class="ch2c-tl-year">[Year–Year]</div>
+              <div class="ch2c-tl-name">[Role] · [Company]</div>
+              <div class="ch2c-tl-sub">Enterprise architecture / solution design in [industry]</div>
+            </div>
+          </div>
+          <div class="ch2c-tl-item">
+            <div class="ch2c-tl-left"><div class="ch2c-tl-dot" style="background:var(--green);box-shadow:0 0 10px rgba(62,228,117,0.5)"></div></div>
+            <div>
+              <div class="ch2c-tl-year">[Year] → Present</div>
+              <div class="ch2c-tl-name">BCG Platinion · Principal</div>
+              <div class="ch2c-tl-sub">Translating engineering expertise into AI-driven transformation at scale</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CH3A — EUROPE MAP · FULL BLEED ══════════════ -->
+<section id="ch3a" class="slide">
+  <div class="ch2-option-badge">Option A · Full Map</div>
+  <div class="h-bg"></div>
+  <div class="h-grid"></div>
+  <div class="ch3a-wrap">
+    <div class="ch3a-head">
+      <div>
+        <div class="ch3a-label" id="ch3aLbl">03 — References · Europe</div>
+        <h2 class="ch3a-title" id="ch3aTitle">Client Footprint<br>Across Europe.</h2>
+      </div>
+    </div>
+    <div class="ch3a-kpi-strip" id="ch3aKpiStrip">
+      <div class="ch3a-kpi-box"><div class="ch3a-kpi-val">25+</div><div class="ch3a-kpi-lbl">Client<br>Engagements</div></div>
+      <div class="ch3a-kpi-box"><div class="ch3a-kpi-val">9</div><div class="ch3a-kpi-lbl">European<br>Countries</div></div>
+      <div class="ch3a-kpi-box"><div class="ch3a-kpi-val">14</div><div class="ch3a-kpi-lbl">Utility &amp;<br>Energy Clients</div></div>
+      <div class="ch3a-kpi-box"><div class="ch3a-kpi-val">€2B+</div><div class="ch3a-kpi-lbl">Revenue Impact<br>Shaped</div></div>
+      <div class="ch3a-kpi-box"><div class="ch3a-kpi-val">85%</div><div class="ch3a-kpi-lbl">Repeat Client<br>Rate</div></div>
+    </div>
+    <div class="ch3a-map-wrap" id="ch3aMapWrap">
+      <div class="ch3-map-container" id="ch3a-map-container">
+        <svg id="ch3a-map" class="ch3-map-svg"></svg>
+      </div>
     </div>
   </div>
 </section>
@@ -1300,8 +1559,8 @@
 
   // ── Slide System ──
   const slides = Array.from(document.querySelectorAll('.slide'));
-  const slideLabels = ['Intro','Ch.0','Ch.1','Portfolio Map','Portfolio','Pipeline','Dark Factory','Closing'];
-  const slideIcons  = ['▶','◆','◉','⊕','◈','⟳','⬡','★'];
+  const slideLabels = ['Intro','Ch.0','Ch.1','Ch.2 A','Ch.2 C','Ch.3 A','Portfolio Map','Portfolio','Pipeline','Dark Factory','Closing'];
+  const slideIcons  = ['▶','◆','◉','⊞','⊟','◎','⊕','◈','⟳','⬡','★'];
   let current = 0;
   let animatedSlides = new Set();
 
@@ -1387,10 +1646,12 @@
 
         // Three visual states — larger x/y offsets so peeking cards are clearly visible
         // transform-origin is center (50% 50%) at rest so scale doesn't swallow the peek
+        // Peek offsets scale with the card's actual rendered width (8% of card width)
+        const peek = Math.round(deck.offsetWidth * 0.08);
         const POS = {
-          front: { x:0,  y:0,  scale:1,    zIndex:3 },
-          mid:   { x:44, y:28, scale:0.97, zIndex:2 },
-          back:  { x:88, y:56, scale:0.94, zIndex:1 },
+          front: { x:0,        y:0,           scale:1,    zIndex:3 },
+          mid:   { x:peek,     y:Math.round(peek*0.64), scale:0.97, zIndex:2 },
+          back:  { x:peek*2,   y:Math.round(peek*1.28), scale:0.94, zIndex:1 },
         };
 
         function getOffset(i) { return (i - frontIdx + 3) % 3; }
@@ -1453,6 +1714,14 @@
           });
         });
 
+        // Recalculate peek offsets on resize
+        window.addEventListener('resize', () => {
+          const p = Math.round(deck.offsetWidth * 0.08);
+          POS.mid.x  = p;     POS.mid.y  = Math.round(p * 0.64);
+          POS.back.x = p * 2; POS.back.y = Math.round(p * 1.28);
+          if (!turning) snapAll();
+        });
+
         // Initial state + animate deck in
         snapAll();
         updateDots();
@@ -1461,8 +1730,30 @@
         gsap.fromTo(deck, {opacity:0}, {opacity:1, duration:.4});
       }
     }
-    // 3 — Portfolio Map
+    // 3 — Ch2A: Two Pillars
     if (index === 3) {
+      fu('#ch2aLbl'); fu('#ch2aTitle', .1);
+      gsap.fromTo('#ch2a-p1', {x:-40,opacity:0}, {x:0,opacity:1,duration:.65,delay:.2,ease:'power3.out'});
+      gsap.fromTo('#ch2a-p2', {x: 40,opacity:0}, {x:0,opacity:1,duration:.65,delay:.32,ease:'power3.out'});
+      gsap.fromTo('.ch2a-mid', {opacity:0,scale:.7}, {opacity:1,scale:1,duration:.5,delay:.5,ease:'back.out(1.4)'});
+      gsap.fromTo('#ch2a-bridge', {opacity:0,y:16}, {opacity:1,y:0,duration:.5,delay:.6,ease:'power2.out'});
+    }
+    // 4 — Ch2C: Statement Left + Proof Right
+    if (index === 4) {
+      gsap.fromTo('.ch2c-left', {x:-40,opacity:0}, {x:0,opacity:1,duration:.7,delay:.1,ease:'power3.out'});
+      fu('#ch2cLbl',.15); fu('#ch2cTitle',.25); fu('#ch2cBody',.35);
+      gsap.fromTo('.ch2c-tag', {opacity:0,y:10}, {opacity:1,y:0,duration:.45,delay:.5,ease:'power2.out'});
+      gsap.fromTo('#ch2c-acad', {x:40,opacity:0}, {x:0,opacity:1,duration:.65,delay:.2,ease:'power3.out'});
+      gsap.fromTo('#ch2c-eng',  {x:40,opacity:0}, {x:0,opacity:1,duration:.65,delay:.4,ease:'power3.out'});
+    }
+    // 5 — Ch3A: Europe Map Full Bleed
+    if (index === 5) {
+      fu('#ch3aLbl'); fu('#ch3aTitle',.1);
+      gsap.fromTo('#ch3aKpiStrip .ch3a-kpi-box', {opacity:0,y:18}, {opacity:1,y:0,duration:.5,delay:.15,stagger:.07,ease:'power2.out'});
+      gsap.fromTo('#ch3aMapWrap', {opacity:0,y:24}, {opacity:1,y:0,duration:.7,delay:.45,ease:'power2.out'});
+    }
+    // 6 — Portfolio Map
+    if (index === 6) {
       gsap.fromTo('#portfolio-map-section .sec-label, #portfolio-map-section .sec-title',
         {y:28,opacity:0}, {y:0,opacity:1,duration:.65,stagger:.1,ease:'power3.out'});
       setTimeout(() => {
@@ -1471,14 +1762,14 @@
         });
       }, 400);
     }
-    // 4 — Portfolio Cards
-    if (index === 4) {
+    // 7 — Portfolio Cards
+    if (index === 7) {
       fu('#portLbl'); fu('#portTitle',.1);
       ['#pc1','#pc2','#pc3','#pc4','#pc5','#pc6'].forEach((id,i) =>
         gsap.fromTo(id, {y:50,opacity:0}, {y:0,opacity:1,duration:.55,delay:.1+(i%3)*.12,ease:'power3.out'}));
     }
-    // 5 — Pipeline
-    if (index === 5) {
+    // 8 — Pipeline
+    if (index === 8) {
       fu('#pipeLbl'); fu('#pipeTitle',.1); fu('#pipeIntro',.2);
       gsap.fromTo('#pipeNodes', {opacity:0}, {opacity:1,duration:.8,delay:.3,ease:'power2.out'});
       document.querySelectorAll('.kpi-number').forEach(el => {
@@ -1489,15 +1780,15 @@
           onUpdate: () => { el.textContent = Math.round(obj.val).toLocaleString(); }});
       });
     }
-    // 6 — Dark Software Factory / AI @ Utilities
-    if (index === 6) {
+    // 9 — Dark Software Factory / AI @ Utilities
+    if (index === 9) {
       fu('#dsfLbl'); fu('#dsfTitle',.1); fu('#dsfLead',.2);
       gsap.fromTo('.dsf-split', {opacity:0,y:26}, {opacity:1,y:0,duration:.8,delay:.2,ease:'power2.out'});
       document.querySelectorAll('.dsf-blk').forEach((el,i) =>
         gsap.fromTo(el, {opacity:0,y:24}, {opacity:1,y:0,duration:.55,delay:.25+i*.12,ease:'power3.out'}));
     }
-    // 7 — Closing
-    if (index === 7) {
+    // 10 — Closing
+    if (index === 10) {
       fu('#clEye'); fu('#clTitle',.15); fu('#clSub',.3);
     }
   }
@@ -1756,6 +2047,179 @@
     renderDots(-1);
   })();
 
+  // ── Europe Map — D3 + TopoJSON (Ch.3) ──
+  (async function initEuropeMaps() {
+    const EU_PROJECTS = [
+      { city:'Cologne',    country:'DE', lat:50.938, lon: 6.960, company:'rhenag',         sector:'Municipal Utilities', desc:'Digital transformation roadmap and IT architecture across 4 business units for regional grid operator.' },
+      { city:'Munich',     country:'DE', lat:48.137, lon:11.576, company:'Thüga Group',    sector:'Utility Holding',     desc:'Multi-entity IT strategy and cloud migration for Germany\'s largest municipal energy holding group.' },
+      { city:'Essen',      country:'DE', lat:51.455, lon: 7.011, company:'E.ON',           sector:'Energy Major',        desc:'Digital core and AI platform strategy for pan-European energy company operating across 10+ countries.' },
+      { city:'Hannover',   country:'DE', lat:52.374, lon: 9.738, company:'Enercity',       sector:'Municipal Utilities', desc:'Dark Software Factory pilot — first autonomous AI-driven software delivery model in German utilities.' },
+      { city:'Berlin',     country:'DE', lat:52.520, lon:13.405, company:'50Hertz',        sector:'TSO',                 desc:'IT architecture for Germany\'s largest transmission system operator. Data platform and regulatory compliance.' },
+      { city:'Düsseldorf', country:'DE', lat:51.227, lon: 6.773, company:'tap.de',         sector:'IT Services',         desc:'AI-augmented software factory with full observability, DevSecOps pipeline and automated release gates.' },
+      { city:'Hamburg',    country:'DE', lat:53.551, lon: 9.993, company:'Hamburg Wasser', sector:'Municipal Utilities', desc:'Cloud infrastructure modernization and smart operations platform for combined municipal utility.' },
+      { city:'Frankfurt',  country:'DE', lat:50.110, lon: 8.682, company:'Mainova',        sector:'Municipal Utilities', desc:'SAP S/4HANA migration and utility billing platform modernization for Frankfurt energy supplier.' },
+      { city:'Stuttgart',  country:'DE', lat:48.775, lon: 9.182, company:'EnBW',           sector:'Energy',              desc:'Smart grid integration roadmap and IT target architecture for Baden-Württemberg energy major.' },
+      { city:'Dortmund',   country:'DE', lat:51.514, lon: 7.468, company:'DEW21',          sector:'Municipal Utilities', desc:'Cloud ERP modernization and real-time asset management platform for Ruhr area municipal utility.' },
+      { city:'Vienna',     country:'AT', lat:48.208, lon:16.373, company:'Wien Energie',   sector:'Municipal Utilities', desc:'Smart metering rollout and digital platform strategy for Austria\'s largest municipal energy company.' },
+      { city:'Zurich',     country:'CH', lat:47.376, lon: 8.541, company:'Axpo',           sector:'Energy',              desc:'Grid analytics and cloud data platform architecture for Swiss energy group with European footprint.' },
+      { city:'Amsterdam',  country:'NL', lat:52.370, lon: 4.895, company:'Alliander',      sector:'Grid Operator',       desc:'IoT and smart grid data architecture for the largest Dutch DSO managing over 3 million connections.' },
+      { city:'Rotterdam',  country:'NL', lat:51.923, lon: 4.462, company:'Stedin',         sector:'Grid Operator',       desc:'ERP modernization and real-time asset management platform for South-Holland distribution operator.' },
+      { city:'Brussels',   country:'BE', lat:50.850, lon: 4.352, company:'Elia Group',     sector:'TSO',                 desc:'Regulatory IT architecture and cross-border European grid integration strategy for Belgian TSO.' },
+      { city:'Copenhagen', country:'DK', lat:55.676, lon:12.568, company:'Ørsted',         sector:'Renewables',          desc:'Digital operations platform for offshore wind — predictive maintenance and real-time monitoring.' },
+      { city:'Stockholm',  country:'SE', lat:59.334, lon:18.063, company:'Vattenfall',     sector:'Energy Major',        desc:'Pan-European digital transformation strategy and cloud migration for Nordic energy major.' },
+      { city:'Oslo',       country:'NO', lat:59.913, lon:10.752, company:'Hafslund',       sector:'Energy',              desc:'Smart energy services platform and customer analytics solution for Norway\'s leading utility.' },
+      { city:'Prague',     country:'CZ', lat:50.075, lon:14.438, company:'ČEZ Group',      sector:'Energy',              desc:'IT governance framework and digital core architecture for Central Europe\'s largest energy group.' },
+      { city:'Warsaw',     country:'PL', lat:52.230, lon:21.012, company:'PGE Group',      sector:'Energy',              desc:'Cloud migration and enterprise data platform strategy for Poland\'s largest electricity generation group.' },
+      { city:'Milan',      country:'IT', lat:45.464, lon: 9.190, company:'A2A',            sector:'Multi-utility',       desc:'Smart city platform design and digital utility transformation for Northern Italy\'s leading multi-utility.' },
+      { city:'Rome',       country:'IT', lat:41.902, lon:12.496, company:'Enel',           sector:'Energy Major',        desc:'AI and analytics strategy for pan-European distribution grid operator and global renewables leader.' },
+      { city:'Paris',      country:'FR', lat:48.857, lon: 2.352, company:'Engie',          sector:'Energy Major',        desc:'AI and data architecture strategy for pan-European energy major. Multi-country programme across 8 markets.' },
+      { city:'Madrid',     country:'ES', lat:40.416, lon:-3.703, company:'Iberdrola',      sector:'Energy Major',        desc:'Digital grid operations platform and renewable energy management modernization for global utilities leader.' },
+      { city:'London',     country:'GB', lat:51.507, lon:-0.128, company:'National Grid',  sector:'TSO',                 desc:'Digital transformation and cloud architecture programme for UK and US transmission grid operator.' },
+    ];
+
+    const EU_IDS = new Set([
+      '008','020','040','056','070','100','112','191','196','203','208',
+      '233','246','250','276','300','348','352','372','380','428','438',
+      '440','442','470','492','498','499','528','578','616','620','642',
+      '674','688','703','705','724','752','756','804','807','826'
+    ]);
+
+    // Reuse world data already loaded by Germany map if available, else fetch
+    let worldData;
+    try { worldData = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'); }
+    catch(e) { console.warn('[Ch3] Map data failed', e); return; }
+
+    const euFeatures = topojson.feature(worldData, worldData.objects.countries)
+      .features.filter(f => EU_IDS.has(String(f.id).padStart(3,'0')));
+
+    // Europe bounding box for projection fit
+    const EUROPE_BBOX = {
+      type:'Feature',
+      geometry:{ type:'Polygon', coordinates:[[[-22,38],[48,38],[48,62],[-22,62],[-22,38]]] }
+    };
+
+    function buildEuropeMap(cfg) {
+      const container = document.getElementById(cfg.containerId);
+      const svgEl     = document.getElementById(cfg.svgId);
+      if (!container || !svgEl || svgEl.dataset.built) return;
+      svgEl.dataset.built = '1';
+
+      const W = container.clientWidth  || cfg.svgW || 900;
+      const H = container.clientHeight || cfg.svgH || 600;
+      const filtGlow  = cfg.svgId + '-g';
+      const filtHover = cfg.svgId + '-gh';
+
+      const svg = d3.select(svgEl)
+        .attr('viewBox', `0 0 ${W} ${H}`)
+        .attr('width','100%').attr('height','100%')
+        .attr('preserveAspectRatio','xMidYMid slice');
+
+      const defs = svg.append('defs');
+      const addGlow = (id, sd) => {
+        const f = defs.append('filter').attr('id',id).attr('x','-120%').attr('y','-120%').attr('width','340%').attr('height','340%');
+        f.append('feGaussianBlur').attr('stdDeviation', sd).attr('result','b');
+        const m = f.append('feMerge');
+        m.append('feMergeNode').attr('in','b');
+        m.append('feMergeNode').attr('in','SourceGraphic');
+      };
+      addGlow(filtGlow, 2.5);
+      addGlow(filtHover, 7);
+
+      const proj = d3.geoMercator().fitExtent([[22,18],[W-22,H-18]], EUROPE_BBOX);
+      const gp   = d3.geoPath().projection(proj);
+
+      svg.append('rect').attr('width',W).attr('height',H).attr('fill','#060c0a');
+
+      // Grid
+      const grid = svg.append('g');
+      for (let x=0;x<=W;x+=52)
+        grid.append('line').attr('x1',x).attr('y1',0).attr('x2',x).attr('y2',H).attr('stroke','rgba(62,228,117,0.022)').attr('stroke-width',1);
+      for (let y=0;y<=H;y+=52)
+        grid.append('line').attr('x1',0).attr('y1',y).attr('x2',W).attr('y2',y).attr('stroke','rgba(62,228,117,0.022)').attr('stroke-width',1);
+
+      // Countries
+      euFeatures.forEach(feat => {
+        const isDE = String(feat.id).padStart(3,'0') === '276';
+        svg.append('path').datum(feat).attr('d',gp)
+          .attr('fill',   isDE ? '#162419' : '#0e1813')
+          .attr('stroke', isDE ? 'rgba(62,228,117,0.28)' : 'rgba(62,228,117,0.07)')
+          .attr('stroke-width', isDE ? 1.2 : 0.5);
+      });
+
+      // Dots
+      EU_PROJECTS.forEach(p => {
+        const pos = proj([p.lon, p.lat]);
+        if (!pos) return;
+        const isDE = p.country === 'DE';
+        const r0   = isDE ? 5.5 : 4;
+        const f0   = isDE ? 'rgba(62,228,117,0.9)' : 'rgba(62,228,117,0.48)';
+
+        const g = svg.append('g').style('cursor','pointer');
+
+        // Hover ring
+        g.append('circle').attr('class','eu-ring')
+          .attr('cx',pos[0]).attr('cy',pos[1]).attr('r',r0)
+          .attr('fill','none').attr('stroke','rgba(62,228,117,0.65)').attr('stroke-width',1.5)
+          .style('opacity',0).style('pointer-events','none');
+
+        // Main dot
+        g.append('circle').attr('class','eu-dot')
+          .attr('cx',pos[0]).attr('cy',pos[1]).attr('r',r0)
+          .attr('fill',f0)
+          .attr('stroke', isDE ? '#9CFFB5' : 'rgba(62,228,117,0.5)')
+          .attr('stroke-width', isDE ? 1.5 : 1)
+          .attr('filter',`url(#${filtGlow})`);
+
+        g.on('mouseenter', function() {
+          d3.select(this).select('.eu-ring').transition().duration(180).style('opacity',1).attr('r',r0+6);
+          d3.select(this).select('.eu-dot').transition().duration(180)
+            .attr('r',r0+2).attr('fill','rgba(62,228,117,0.98)').attr('filter',`url(#${filtHover})`);
+          cfg.onHover(p, pos, container, svgEl, W, H);
+        }).on('mouseleave', function() {
+          d3.select(this).select('.eu-ring').transition().duration(180).style('opacity',0).attr('r',r0);
+          d3.select(this).select('.eu-dot').transition().duration(180)
+            .attr('r',r0).attr('fill',f0).attr('filter',`url(#${filtGlow})`);
+          cfg.onLeave();
+        });
+      });
+    }
+
+    // ── Option A: floating popup ──
+    if (document.getElementById('ch3a-map-container')) {
+      const pop = document.createElement('div');
+      pop.className = 'eu-popup';
+      Object.assign(pop.style, { position:'absolute', display:'none', opacity:'0' });
+      document.getElementById('ch3a-map-container').appendChild(pop);
+
+      buildEuropeMap({
+        containerId:'ch3a-map-container', svgId:'ch3a-map', svgW:1290, svgH:680,
+        onHover(p, pos, container, svgEl, W, H) {
+          const cr = container.getBoundingClientRect();
+          const sr = svgEl.getBoundingClientRect();
+          const sx = sr.width/W, sy = sr.height/H;
+          let l = pos[0]*sx+(sr.left-cr.left)+18;
+          let t = pos[1]*sy+(sr.top-cr.top)-100;
+          if (l+280>cr.width-8)  l = pos[0]*sx+(sr.left-cr.left)-298;
+          if (l<8) l=8;
+          if (t<8) t=pos[1]*sy+(sr.top-cr.top)+18;
+          if (t+150>cr.height-8) t=cr.height-158;
+          pop.innerHTML =
+            `<div class="eu-popup-company">${p.company}</div>` +
+            `<div class="eu-popup-city">${p.city} &middot; ${p.country}</div>` +
+            `<div class="eu-popup-sector">${p.sector}</div>` +
+            `<div class="eu-popup-desc">${p.desc}</div>`;
+          Object.assign(pop.style,{left:l+'px',top:t+'px',display:'block',transform:'translateY(6px)'});
+          requestAnimationFrame(()=>{ pop.style.opacity='1'; pop.style.transform='translateY(0)'; });
+        },
+        onLeave() {
+          pop.style.opacity='0'; pop.style.transform='translateY(6px)';
+          setTimeout(()=>{ if(pop.style.opacity==='0') pop.style.display='none'; },240);
+        }
+      });
+    }
+
+  })();
+
   // DSF deploy counter
   (function() {
     const el = document.getElementById('dsf-counter');
@@ -1778,6 +2242,33 @@
       goTo(1);
     });
   }
+
+  // ── Presentation Scale-to-Fit ──
+  // Scales the entire deck down (never up) so it fits any viewport,
+  // letterboxing with the body background colour — same approach as PowerPoint/Keynote.
+  (function() {
+    const DESIGN_W = 1440, DESIGN_H = 900;
+    const deckEl   = document.getElementById('deck');
+
+    function fit() {
+      const vw = window.innerWidth, vh = window.innerHeight;
+      // Scale to fit inside the viewport; cap at 1 (never enlarge on huge monitors)
+      const s = Math.min(vw / DESIGN_W, vh / DESIGN_H, 1);
+      if (s < 0.995) {
+        // Translate so the scaled deck is centred in the viewport
+        const tx = vw * (1 - s) / 2;
+        const ty = vh * (1 - s) / 2;
+        deckEl.style.transformOrigin = '0 0';
+        deckEl.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+      } else {
+        deckEl.style.transformOrigin = '';
+        deckEl.style.transform = '';
+      }
+    }
+
+    window.addEventListener('resize', fit);
+    fit();
+  })();
 </script>
 </body>
 </html>
