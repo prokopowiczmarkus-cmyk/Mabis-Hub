@@ -383,6 +383,94 @@
       text-align: right;
     }
 
+    /* ── COLLAPSIBLE ── */
+    .l1-header { cursor: pointer; }
+
+    .l1-chevron {
+      position: absolute;
+      top: 50%; right: 13px;
+      transform: translateY(-50%) rotate(0deg);
+      transition: transform .25s ease;
+      font-size: 0.75rem;
+      color: rgba(20,20,20,.5);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .l1-card.is-collapsed .l1-chevron { transform: translateY(-50%) rotate(-90deg); }
+
+    .l2-sections {
+      overflow: hidden;
+      max-height: 4000px;
+      transition: max-height .35s cubic-bezier(0.4,0,0.2,1),
+                  padding   .35s cubic-bezier(0.4,0,0.2,1),
+                  opacity   .25s ease;
+      opacity: 1;
+    }
+    .l1-card.is-collapsed .l2-sections {
+      max-height: 0 !important;
+      padding-top: 0;
+      padding-bottom: 0;
+      opacity: 0;
+    }
+
+    .l2-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .l2-label:hover { background: rgba(66,207,190,.06); color: #42CFBE; }
+
+    .l2-chevron {
+      font-size: 0.6rem;
+      color: #555555;
+      transition: transform .2s ease;
+      flex-shrink: 0;
+      margin-left: 4px;
+    }
+    .l2-section.is-collapsed .l2-chevron { transform: rotate(-90deg); }
+    .l2-section.is-collapsed .l2-label   { border-bottom-color: transparent; }
+
+    .l3-chips {
+      overflow: hidden;
+      max-height: 1200px;
+      transition: max-height .3s cubic-bezier(0.4,0,0.2,1),
+                  padding   .3s cubic-bezier(0.4,0,0.2,1),
+                  opacity   .2s ease;
+      opacity: 1;
+    }
+    .l2-section.is-collapsed .l3-chips {
+      max-height: 0 !important;
+      padding-top: 0;
+      padding-bottom: 0;
+      opacity: 0;
+    }
+
+    /* ── CONTROL BUTTONS ── */
+    .ctrl-buttons {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .ctrl-btn {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid #3A3A3A;
+      background: #272727;
+      color: #888888;
+      cursor: pointer;
+      transition: border-color .15s, color .15s, background .15s;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: .01em;
+    }
+    .ctrl-btn:hover {
+      border-color: #42CFBE;
+      color: #42CFBE;
+      background: rgba(66,207,190,.07);
+    }
+
     @media (max-width: 1300px) { .domains-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 960px)  { .domains-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 600px)  { .domains-grid { grid-template-columns: 1fr; } }
@@ -411,6 +499,11 @@
   <div class="ll-item"><div class="ll-swatch ll-3"></div> L3 · Einzelfähigkeit</div>
   <div class="ll-sep"></div>
   <div class="ll-item" style="font-size:.72rem;color:var(--text-muted);">IT-Badges → IT-Systemzuordnung je Capability</div>
+  <div class="ctrl-buttons">
+    <button class="ctrl-btn" id="btn-expand-all">▼ Alle aufklappen</button>
+    <button class="ctrl-btn" id="btn-collapse-l3">↕ Nur L1+L2</button>
+    <button class="ctrl-btn" id="btn-collapse-all">▲ Alle zuklappen</button>
+  </div>
 </div>
 
 <div class="domains-grid" id="cap-grid"></div>
@@ -847,11 +940,10 @@ const grid = document.getElementById('cap-grid');
 domains.forEach((d, di) => {
   let l2html = '';
   d.l2.forEach(l2 => {
-    let l3html = l2.l3.map(l3 => {
-      const badges = l3.systems.map(s => {
-        const sys = Object.values(IT).find(v => Object.keys(IT).find(k => IT[k] === v && k === s));
-        return `<span class="it-badge">${IT[s] ? IT[s].label : s}</span>`;
-      }).join('');
+    const l3html = l2.l3.map(l3 => {
+      const badges = l3.systems.map(s =>
+        `<span class="it-badge">${IT[s] ? IT[s].label : s}</span>`
+      ).join('');
       const badgeRow = badges ? `<div class="it-badges">${badges}</div>` : '';
       return `<div class="l3-chip"
         data-level="L3"
@@ -865,7 +957,10 @@ domains.forEach((d, di) => {
 
     l2html += `
       <div class="l2-section">
-        <div class="l2-label">${l2.title}</div>
+        <div class="l2-label">
+          <span>${l2.title}</span>
+          <span class="l2-chevron">▼</span>
+        </div>
         <div class="l3-chips">${l3html}</div>
       </div>`;
   });
@@ -885,7 +980,7 @@ domains.forEach((d, di) => {
         data-desc="${d.desc.replace(/"/g, '&quot;')}"
         data-systems=""
       >
-        <div class="l1-num">0${di + 1}</div>
+        <div class="l1-chevron">▼</div>
         <div class="l1-header-top">
           <div class="l1-icon">${d.icon}</div>
           <div class="l1-title">${d.title}</div>
@@ -903,6 +998,41 @@ itLegend.forEach(item => {
       <span class="it-legend-badge">${item.badge}</span>
       <span class="it-legend-name">${item.name}</span>
     </div>`;
+});
+
+/* ──────────────────────────────────────────────────
+   COLLAPSE LOGIC
+   ────────────────────────────────────────────────── */
+
+/* L1: click header → collapse/expand entire domain */
+document.querySelectorAll('.l1-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const card = header.closest('.l1-card');
+    card.classList.toggle('is-collapsed');
+    hideTooltip();
+  });
+});
+
+/* L2: click label → collapse/expand that L2's chips */
+document.querySelectorAll('.l2-label').forEach(label => {
+  label.addEventListener('click', e => {
+    e.stopPropagation();
+    label.closest('.l2-section').classList.toggle('is-collapsed');
+  });
+});
+
+/* Global control buttons */
+document.getElementById('btn-expand-all').addEventListener('click', () => {
+  document.querySelectorAll('.l1-card').forEach(c  => c.classList.remove('is-collapsed'));
+  document.querySelectorAll('.l2-section').forEach(s => s.classList.remove('is-collapsed'));
+});
+document.getElementById('btn-collapse-l3').addEventListener('click', () => {
+  document.querySelectorAll('.l1-card').forEach(c  => c.classList.remove('is-collapsed'));
+  document.querySelectorAll('.l2-section').forEach(s => s.classList.add('is-collapsed'));
+});
+document.getElementById('btn-collapse-all').addEventListener('click', () => {
+  document.querySelectorAll('.l1-card').forEach(c  => c.classList.add('is-collapsed'));
+  document.querySelectorAll('.l2-section').forEach(s => s.classList.remove('is-collapsed'));
 });
 
 /* ──────────────────────────────────────────────────
@@ -946,7 +1076,7 @@ function showTooltip(e, el) {
 
   if (systems.length) {
     ttPills.innerHTML = systems.map(s => {
-      const name = SYS_NAMES[s] || s;
+      const name  = SYS_NAMES[s] || s;
       const badge = IT[s] ? IT[s].label : s;
       return `<span class="tt-sys-pill">${badge} — ${name}</span>`;
     }).join('');
@@ -973,8 +1103,11 @@ function hideTooltip() {
   hideTimer = setTimeout(() => tt.classList.remove('visible'), 100);
 }
 
+/* Tooltip only on hover — separate from click-to-collapse */
 document.querySelectorAll('.l1-header').forEach(el => {
-  el.addEventListener('mouseenter', e => showTooltip(e, el));
+  el.addEventListener('mouseenter', e => {
+    if (!el.closest('.l1-card').classList.contains('is-collapsed')) showTooltip(e, el);
+  });
   el.addEventListener('mousemove',  positionTooltip);
   el.addEventListener('mouseleave', hideTooltip);
 });
