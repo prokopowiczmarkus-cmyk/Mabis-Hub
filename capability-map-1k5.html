@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1KOMMA5° — Capability Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #F0F2F5;
+      --card-bg:     #FFFFFF;
+      --l1-dark:     #0D1F35;
+      --l2-bg:       #F5F7FA;
+      --l2-border:   #E4E8EE;
+      --chip-bg:     #FFFFFF;
+      --chip-border: #DDE2EA;
+      --chip-hover-border: #008A52;
+      --chip-hover-bg: #F0FAF4;
+      --green:       #008A52;
+      --green-light: #E6F4EE;
+      --text-dark:   #0D1F35;
+      --text-mid:    #4A5568;
+      --text-muted:  #8898A6;
+      --badge-bg:    #EDF0F4;
+      --badge-text:  #566778;
+      --shadow-card: 0 1px 3px rgba(13,31,53,.06), 0 4px 16px rgba(13,31,53,.06);
+      --shadow-hover: 0 4px 20px rgba(0,138,82,.18);
+      --radius-card: 10px;
+      --radius-chip: 6px;
+      --radius-badge:3px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+      padding: 28px 24px 56px;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .page-header-left {}
+    .page-header-left h1 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      color: var(--l1-dark);
+      line-height: 1.1;
+    }
+    .page-header-left h1 span {
+      color: var(--green);
+    }
+    .page-header-left p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+      font-weight: 400;
+    }
+    .page-header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .stat-pill {
+      background: var(--card-bg);
+      border: 1px solid var(--chip-border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-mid);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .stat-pill strong { color: var(--l1-dark); font-weight: 700; }
+
+    /* ── LEVEL LEGEND ── */
+    .level-legend {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ll-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .ll-swatch {
+      width: 28px; height: 11px;
+      border-radius: 3px;
+    }
+    .ll-1 { background: var(--l1-dark); }
+    .ll-2 { background: var(--l2-bg); border: 1px solid var(--l2-border); }
+    .ll-3 { background: var(--chip-bg); border: 1px solid var(--chip-border); }
+    .ll-sep { width: 1px; height: 16px; background: var(--chip-border); }
+
+    /* ── MAIN GRID ── */
+    .domains-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    /* ── L1 CARD ── */
+    .l1-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      transition: box-shadow .2s;
+      border: 1px solid rgba(0,0,0,.04);
+    }
+    .l1-card:hover {
+      box-shadow: 0 2px 6px rgba(13,31,53,.08), 0 8px 28px rgba(13,31,53,.1);
+    }
+
+    .l1-header {
+      background: var(--l1-dark);
+      padding: 14px 15px 12px;
+      cursor: default;
+      position: relative;
+    }
+    .l1-header:hover { background: #162E4A; }
+    .l1-header-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin-bottom: 2px;
+    }
+    .l1-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .l1-title {
+      font-size: 0.77rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: rgba(255,255,255,.92);
+      line-height: 1.3;
+    }
+    .l1-num {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 0.62rem;
+      color: rgba(255,255,255,.2);
+      font-weight: 600;
+    }
+
+    /* ── L2 SECTIONS ── */
+    .l2-sections {
+      padding: 10px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .l2-section {
+      background: var(--l2-bg);
+      border: 1px solid var(--l2-border);
+      border-radius: 7px;
+      overflow: hidden;
+    }
+
+    .l2-label {
+      padding: 5px 9px 4px;
+      font-size: 0.64rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--l2-border);
+      background: rgba(0,0,0,.015);
+      user-select: none;
+    }
+
+    .l3-chips {
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    /* ── L3 CHIP ── */
+    .l3-chip {
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      border-radius: var(--radius-chip);
+      padding: 6px 8px 5px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, transform .15s, box-shadow .15s;
+      user-select: none;
+    }
+    .l3-chip:hover {
+      border-color: var(--chip-hover-border);
+      background: var(--chip-hover-bg);
+      transform: translateX(2px);
+      box-shadow: 0 2px 8px rgba(0,138,82,.12);
+    }
+    .l3-chip:hover .chip-name { color: var(--green); }
+
+    .chip-name {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      line-height: 1.35;
+      display: block;
+      transition: color .15s;
+    }
+
+    .it-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 4px;
+    }
+    .it-badge {
+      font-size: 0.57rem;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: var(--radius-badge);
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      letter-spacing: .02em;
+      font-family: 'Inter', monospace;
+    }
+
+    /* ── TOOLTIP ── */
+    #tooltip {
+      position: fixed;
+      z-index: 9999;
+      max-width: 320px;
+      min-width: 240px;
+      background: #0D1F35;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 15px 17px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(5px) scale(.98);
+      transition: opacity .17s, transform .17s;
+      box-shadow: 0 20px 50px rgba(0,0,0,.45);
+    }
+    #tooltip.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .tt-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 9px;
+    }
+    .tt-level {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(0,138,82,.2);
+      color: #4ADEAA;
+    }
+    .tt-domain {
+      font-size: 0.6rem;
+      color: rgba(255,255,255,.3);
+    }
+    .tt-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 7px;
+      line-height: 1.3;
+    }
+    .tt-desc {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,.62);
+      line-height: 1.6;
+    }
+    .tt-systems {
+      margin-top: 11px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .tt-sys-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: rgba(255,255,255,.3);
+      margin-bottom: 5px;
+    }
+    .tt-sys-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .tt-sys-pill {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(0,138,82,.15);
+      color: #5EE0A0;
+      font-family: 'Inter', monospace;
+    }
+
+    /* ── IT LEGEND ── */
+    .it-legend {
+      margin-top: 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--chip-border);
+      border-radius: var(--radius-card);
+      padding: 14px 18px;
+    }
+    .it-legend-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .it-legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+    }
+    .it-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+    }
+    .it-legend-badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      font-family: 'Inter', monospace;
+    }
+    .it-legend-name {
+      color: var(--text-mid);
+    }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      margin-top: 16px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    @media (max-width: 1300px) { .domains-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 960px)  { .domains-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px)  { .domains-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>1KOMMA5<span>°</span> — Capability Map</h1>
+    <p>3 Levels &nbsp;·&nbsp; L1 Domain &nbsp;›&nbsp; L2 Prozessbereich &nbsp;›&nbsp; L3 Einzelfähigkeit &nbsp;—&nbsp; Hover für Details &amp; IT-Systeme</p>
+  </div>
+  <div class="page-header-right">
+    <div class="stat-pill">⚡ <strong>500 MW</strong> Virtual Power Plant</div>
+    <div class="stat-pill">👤 <strong>120k+</strong> Kunden</div>
+    <div class="stat-pill">🌍 <strong>80</strong> Standorte</div>
+    <div class="stat-pill">💶 <strong>~520M€</strong> Umsatz 2024</div>
+  </div>
+</div>
+
+<div class="level-legend">
+  <div class="ll-item"><div class="ll-swatch ll-1"></div> L1 · Domäne</div>
+  <div class="ll-sep"></div>
+  <div class="ll-item"><div class="ll-swatch ll-2"></div> L2 · Prozessbereich</div>
+  <div class="ll-sep"></div>
+  <div class="ll-item"><div class="ll-swatch ll-3"></div> L3 · Einzelfähigkeit</div>
+  <div class="ll-sep"></div>
+  <div class="ll-item" style="font-size:.72rem;color:var(--text-muted);">IT-Badges → IT-Systemzuordnung je Capability</div>
+</div>
+
+<div class="domains-grid" id="cap-grid"></div>
+
+<div class="it-legend">
+  <div class="it-legend-title">IT-System Legende</div>
+  <div class="it-legend-items" id="it-legend-items"></div>
+</div>
+
+<div class="page-footer">BCG Platinion &nbsp;·&nbsp; April 2026 &nbsp;·&nbsp; Vertraulich</div>
+
+<div id="tooltip">
+  <div class="tt-breadcrumb">
+    <div class="tt-level" id="tt-level">L3</div>
+    <div class="tt-domain" id="tt-domain"></div>
+  </div>
+  <div class="tt-title" id="tt-title"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+  <div class="tt-systems" id="tt-systems" style="display:none">
+    <div class="tt-sys-label">IT-Systeme</div>
+    <div class="tt-sys-pills" id="tt-sys-pills"></div>
+  </div>
+</div>
+
+<script>
+/* ──────────────────────────────────────────────────
+   DATA LAYER
+   ────────────────────────────────────────────────── */
+const IT = {
+  HB:     { label: "HB",      name: "Heartbeat Platform (own)"       },
+  GCP:    { label: "GCP",     name: "Google Cloud Platform"           },
+  BQ:     { label: "BQ",      name: "BigQuery (Google)"               },
+  GRIDX:  { label: "gridX",   name: "gridX EEMS"                     },
+  LMZ:    { label: "LMZ",     name: "Lumenaza (Energy Supply/MAKO)"  },
+  AS4:    { label: "AS4",     name: "AS4 / EDIFACT Gateway (MAKO)"   },
+  SFDC:   { label: "SFDC",    name: "Salesforce CRM"                  },
+  MSB:    { label: "MSB-Sys", name: "MSB / Smart Meter System"        },
+  ERP:    { label: "ERP",     name: "ERP System"                      },
+  SB:     { label: "Storyblok",name: "Storyblok CMS"                  },
+};
+
+const domains = [
+  /* ─── 1. VERTRIEB & KUNDENAKQUISITION ─────────────── */
+  {
+    title: "Vertrieb & Kundenakquisition",
+    icon:  "🤝",
+    desc:  "Gesamte Vertriebs- und Marketingaktivitäten: von der digitalen Lead-Generierung über 26 Showrooms bis zum B2B-Partnergeschäft. Kernziel: Skalierung des Kundenwachstums in 7 Märkten.",
+    l2: [
+      {
+        title: "Digitaler Vertrieb & Marketing",
+        l3: [
+          { title: "Website & Content (SEO/SEM)", desc: "Organische und bezahlte Suchmaschinenoptimierung auf 1komma5.com. Content-Marketing über Blog und Magazin. Zentrale Quelle für qualifizierte Leads.", systems: ["SFDC", "SB"] },
+          { title: "Online-Konfigurator & Angebots-Rechner", desc: "Selbstbedienungs-Konfigurator zur Produktauswahl (PV, Speicher, WP, Wallbox). Echtzeit-Preisin­di­kation auf Basis von Verbrauch und Dachgröße.", systems: ["HB", "SFDC"] },
+          { title: "Lead-Generierung & -Qualifizierung", desc: "Mehrstufige Lead-Funnel-Steuerung: Online-Anfrage → Qualifizierung → Terminvereinbarung → Angebot. KPI: Cost per Lead, Conversion Rate.", systems: ["SFDC"] },
+          { title: "Performance Marketing & CRM-Kampagnen", desc: "Retargeting, Social Ads, E-Mail-Kampagnen zur Reaktivierung von Interessenten. A/B-Testing von Landingpages.", systems: ["SFDC"] },
+        ]
+      },
+      {
+        title: "Showroom & Direktvertrieb",
+        l3: [
+          { title: "Showroom-Betrieb (26 Standorte)", desc: "Betrieb der Showrooms in DE, SE, DK, NL, AU, FI. Demonstration von Hardware-Lösungen und Heartbeat-Plattform. Kundenerlebnis als Wettbewerbsdifferenzierung.", systems: ["SFDC"] },
+          { title: "Beratungsgespräch & Angebotserstellung", desc: "Strukturierter Beratungsprozess: Energieanalyse, Systemauslegung, Wirtschaftlichkeitsberechnung, individuelles Angebot inkl. Finanzierungsoptionen.", systems: ["SFDC"] },
+          { title: "Vertragsabschluss & Kundenonboarding", desc: "Digitaler Vertragsabschluss (Kaufvertrag, Heartbeat-Abo). Übergabe an Installations-Disposition. Anlage Kundenstamm.", systems: ["SFDC", "ERP"] },
+        ]
+      },
+      {
+        title: "B2B-Partnergeschäft",
+        l3: [
+          { title: "Installer-Partnerprogramm", desc: "Akkreditierung und Einbindung externer Installationsbetriebe in das 1KOMMA5°-Netzwerk. Schulungen, Co-Branding, Einsatz für Remote-Standorte.", systems: ["SFDC"] },
+          { title: "Heartbeat AI B2B (EVU & OEM)", desc: "Lizenzierung der Heartbeat-Plattform an Energieversorger, Gerätehersteller und Installateure als White-Label-SaaS. Wachstumspfad nach Spin-off (April 2026).", systems: ["HB"] },
+          { title: "Gewerbliche Direktkunden (C&I)", desc: "Beratung und Vertrieb von PV/Speicher-Lösungen an Gewerbe- und Industriekunden. Individuelle Angebote und Finanzierungsmodelle.", systems: ["SFDC"] },
+        ]
+      }
+    ]
+  },
+
+  /* ─── 2. PRODUKT & INSTALLATION ───────────────────── */
+  {
+    title: "Hardware & Installation",
+    icon:  "🔨",
+    desc:  "Planung, Beschaffung und Installation von PV-Anlagen, Batteriespeichern, Wärmepumpen, Klimaanlagen und Wallboxen. After-Sales und Gewährleistungsmanagement über den gesamten Produktlebenszyklus.",
+    l2: [
+      {
+        title: "Produktportfolio (Hardware)",
+        l3: [
+          { title: "PV-Module & Wechselrichter", desc: "Auswahl, Einkauf und Bereitstellung von Solarmodulen und Wechselrichtern führender Hersteller. Systemauslegung nach Dachgröße, Ausrichtung und Verbrauch.", systems: [] },
+          { title: "Batteriespeicher (inkl. PowerHarvester)", desc: "Eigenes Speichersortiment: 7,7–27,2 kWh (LiFePO₄). PowerHarvester: Stand-alone-Speicher ohne eigene PV für dynamische Strompreis-Optimierung (ab 8.900 €). Inklusive Heartbeat-Gerät.", systems: ["HB"] },
+          { title: "Wärmepumpen", desc: "Luft-Wasser- und Luft-Luft-Wärmepumpen für Neubau und Sanierung. Integration in Heartbeat AI zur Verbrauchsoptimierung (SG-Ready / Modbus).", systems: ["HB", "GRIDX"] },
+          { title: "Klimaanlagen (seit 2025)", desc: "Eintritt ins Klimaanlagen-Segment: Erstes Komplettsystem aus Kühlung, Speicher, dynamischem Tarif und Heartbeat-Steuerung. Differenzierung vs. reiner Hardware-Anbieter.", systems: ["HB"] },
+          { title: "Wallbox & Ladeinfrastruktur", desc: "AC-Wallboxen für Privatkunden. Integration in Heartbeat AI für PV-überschuss-optimiertes Laden und Vehicle-to-Grid (V2G). Kompatibilität mit ~70% aller E-Fahrzeuge.", systems: ["HB", "GRIDX"] },
+          { title: "Heartbeat IoT-Gerät (Hardware)", desc: "Einmaliger Kaufpreis 599 € + 14,99 €/Monat SaaS-Abo. Zentrale Steuer- und Messeinheit, verbindet alle Haushaltskomponenten mit der Heartbeat-Plattform.", systems: ["HB"] },
+        ]
+      },
+      {
+        title: "Installationsplanung & Disposition",
+        l3: [
+          { title: "Auftrags- & Kapazitätsplanung", desc: "Termin- und Ressourcenplanung für Montageteams. Berücksichtigung von Materialverfügbarkeit, Zertifikaten und regionaler Kapazität.", systems: ["ERP"] },
+          { title: "Techniker-Disposition & Routing", desc: "Einsatzplanung für Installateure an 80+ Standorten. Optimierung von Fahrten, Zeitfenstern und Werkzeugverfügbarkeit.", systems: ["ERP"] },
+          { title: "Netzanschluss-Koordination (Netzbetreiber)", desc: "Inbetriebnahme-Meldung beim Netzbetreiber (EEG-Einspeisung, Anlagenzertifikat). Koordination von Anschluss-Terminen und Genehmigungen.", systems: ["AS4"] },
+          { title: "Smart Meter Beauftragung (MSB)", desc: "Beauftragung des Messstellenbetreibers zur Installation eines intelligenten Messsystems (iMSys) als Voraussetzung für Heartbeat & dynamische Tarife.", systems: ["LMZ", "MSB"] },
+        ]
+      },
+      {
+        title: "Montage & Qualitätssicherung",
+        l3: [
+          { title: "PV & Batteriespeicher Installation", desc: "Dachmontage, AC/DC-Verdrahtung, Wechselrichter-Inbetriebnahme. Abnahme gemäß VDE 0126-23 und Netzanmeldung.", systems: [] },
+          { title: "Wärmepumpen & Klimaanlagen Installation", desc: "Hydraulischer Anschluss, Kältemittelinstallation (F-Gas-Zertifikat), Inbetriebnahme inkl. Heartbeat-Einbindung.", systems: ["HB"] },
+          { title: "Wallbox Installation & Heartbeat-Aktivierung", desc: "OCPP-Konfiguration, Laststromkreis, Inbetriebnahme und Aktivierung im Heartbeat-Ökosystem. Fahrzeug-API-Verknüpfung.", systems: ["HB", "GRIDX"] },
+          { title: "Qualitätssicherung & Abnahmeprotokoll", desc: "Digitales Abnahmeprotokoll, Fotodokumentation, Übergabe ans After-Sales. Kundenzufriedenheits-Tracking.", systems: ["ERP"] },
+        ]
+      },
+      {
+        title: "After-Sales & Service",
+        l3: [
+          { title: "Technischer Remote-Support (Heartbeat)", desc: "Fernzugriff auf Anlagenparameter via Heartbeat-Plattform. Proaktive Störungserkennung und -behebung ohne Vor-Ort-Termin.", systems: ["HB", "GCP"] },
+          { title: "Gewährleistung (30 J. Leistungsgarantie)", desc: "Dreistufiges Garantiesystem: Produktgarantie, Leistungsgarantie (30 Jahre PV), Installationsgarantie. Schadenabwicklung und Ersatzteilversorgung.", systems: ["ERP"] },
+          { title: "Wartungsverträge & Jahresinspektionen", desc: "Jährliche Anlageninspektion, Reinigung, Software-Updates. Langfristige Kundenbindung über Service-Abonnements.", systems: ["SFDC", "ERP"] },
+          { title: "Ersatzteil- & Logistikmanagement", desc: "Bevorratung und Beschaffung von Ersatzteilen. Steuerung der Lagerstandorte an regionalen Stützpunkten.", systems: ["ERP"] },
+        ]
+      }
+    ]
+  },
+
+  /* ─── 3. HEARTBEAT AI & ENERGIEMANAGEMENT ─────────── */
+  {
+    title: "Heartbeat AI & Energiemanagement",
+    icon:  "⚡",
+    desc:  "Kern-IP von 1KOMMA5°: Eigene KI-Plattform zur Echtzeit-Optimierung von Haushaltsenergiesystemen. Seit Ende 2024 als eigenständige Heartbeat AI GmbH ausgegründet, mit €100M Investitionsplan (2025–2027). Europas größtes privates virtuelles Kraftwerk.",
+    l2: [
+      {
+        title: "IoT-Plattform & Konnektivität",
+        l3: [
+          { title: "Geräteonboarding & Provisionierung", desc: "Automatisches Onboarding neuer Geräte (PV-Wechselrichter, Speicher, WP, Wallbox, iMSys). Plug-and-play Konfiguration und Remote-Aktivierung.", systems: ["HB", "GRIDX", "GCP"] },
+          { title: "Protokoll-Anbindung (OCPP, SG-Ready, Modbus, SunSpec)", desc: "Integration unterschiedlicher Hersteller-Protokolle über gridX EEMS. Kompatibilität mit ~60% aller PV-Anlagen, ~50% aller Heimspeicher, fast allen Wärmepumpen.", systems: ["HB", "GRIDX"] },
+          { title: "Smart Meter / iMSys-Integration", desc: "Einbindung des intelligenten Messsystems (iMSys) über Kommunikationseinheit (KME). Echtzeit-Leistungs- und Zählerdaten als Grundlage für Optimierung.", systems: ["HB", "MSB"] },
+          { title: "Telemetrie & Echtzeit-Datenstreaming", desc: "Kontinuierliches Streaming von Geräte- und Messdaten in die Cloud. Sub-Minuten-Latenz für Optimierungsalgorithmen.", systems: ["HB", "GCP"] },
+        ]
+      },
+      {
+        title: "KI-Optimierung & Algorithmen",
+        l3: [
+          { title: "Intraday-Strompreisoptimierung", desc: "Echtzeit-Optimierung von Laden/Entladen anhand von EPEX SPOT Intraday-Preissignalen. Ziel: Strom kaufen wenn günstig, einspeisen wenn teuer. Ersparnis bis 50% bei 12.000 kWh/a.", systems: ["HB", "GCP", "BQ"] },
+          { title: "Wetterprog­nose & PV-Forecasting", desc: "KI-basierte Prognose der PV-Erzeugung auf Basis von Wetterdaten. Vorausschauende Lade-/Entlade-Planung bis 24h im Voraus.", systems: ["HB", "GCP", "BQ"] },
+          { title: "Selbstverbrauchsoptimierung", desc: "Maximierung des Eigenverbrauchs durch intelligente Laststeuerung. Koordination von Speicher, Wallbox und Wärmepumpe.", systems: ["HB", "GRIDX"] },
+          { title: "§14a EnWG Steuerung (Netzampel)", desc: "Implementierung der netzdienlichen Steuerbarkeit von Wärmepumpen und Wallboxen gem. §14a EnWG. End-to-End-Prozess mit Theben (Marktführer) seit 2024.", systems: ["HB", "GRIDX", "MSB"] },
+        ]
+      },
+      {
+        title: "Virtuelles Kraftwerk (VPP)",
+        l3: [
+          { title: "Flexibilitätsmanagement (500 MW)", desc: "Aggregation und Steuerung von >500 MW Flexibilitätskapazität aus 100k+ Haushalten. Größtes privates VPP Europas. Einbindung in Regelenergiemärkte.", systems: ["HB", "GCP"] },
+          { title: "Direktvermarktung (§33 EEG)", desc: "Vermarktung von PV-Einspeisemengen an der Strombörse (EPEX SPOT) als Direct Marketer. Erlössteigerung gegenüber Einspeisevergütung.", systems: ["HB", "LMZ"] },
+          { title: "Systemdienst­leistungen & Regelenergie", desc: "Bereitstellung von negativer und positiver Regelenergie (aFRR, mFRR) durch koordiniertes Zu-/Abschalten von Speichern und Lasten.", systems: ["HB", "GCP"] },
+          { title: "Intraday-Optimierung & Bilanzkreis-Netting", desc: "Sekundengenauer Abgleich von Prognose und Ist-Einspeisung. Reduzierung von Bilanzkreis-Ausgleichsenergie-Kosten.", systems: ["HB", "LMZ", "GCP"] },
+        ]
+      },
+      {
+        title: "Kundenapp & Transparenz",
+        l3: [
+          { title: "Heartbeat App (iOS/Android)", desc: "Echtzeit-Dashboard: PV-Erzeugung, Verbrauch, Netz-Import/-Export, Speicher-SOC, Wallbox-Ladestatus. Benachrichtigungen und manuelle Steuerung.", systems: ["HB"] },
+          { title: "Energiebilanz & Savings-Reporting", desc: "Monatlicher Ersparnis-Nachweis, CO₂-Einsparbilanz, Amortisationsrechner. Grundlage für Kundenbindung und Weiterempfehlung.", systems: ["HB", "BQ"] },
+        ]
+      },
+      {
+        title: "Heartbeat B2B-Plattform (Dritte)",
+        l3: [
+          { title: "API-Plattform für EVU & Hersteller", desc: "Nach Spin-off (April 2026): Öffnung der Heartbeat-Plattform für Energieversorger, OEMs und Installateure. Schlüsselfunktionen: Energiemanagement, Smart Meter, §14a, Direktvermarktung.", systems: ["HB", "GCP"] },
+          { title: "White-Label Energiemanagement", desc: "Turnkey-SaaS-Lösung für Dritte: Heartbeat-Steuerlogik unter eigenem Branding. Inkl. Onboarding, Gerätekatalog und Kundensupport-Tier.", systems: ["HB"] },
+          { title: "SaaS-Lizenzmodell & Partner-Onboarding", desc: "API-Keys, Preistiermodell, Developer-Portal und technische Zertifizierung für Partnerunternehmen. Wachstumssegment mit mittlerer 2-stelliger Mio.-€-SaaS-Zielgröße 2025.", systems: ["HB", "SFDC"] },
+        ]
+      }
+    ]
+  },
+
+  /* ─── 4. ENERGIEVERSORGUNG & MAKO ─────────────────── */
+  {
+    title: "Energieversorgung & Marktkommunikation",
+    icon:  "🔌",
+    desc:  "1KOMMA5° agiert als zugelassener Stromlieferant in DE (via Lumenaza white-label). Alle Marktprozesse (GPKE, WiM, MaBiS, MaStR) sowie Messstellenbetrieb nach MsbG/§14a EnWG und MAKO nach BDEW-Standards (AS4/EDIFACT).",
+    l2: [
+      {
+        title: "Stromprodukt & Tarifmanagement",
+        l3: [
+          { title: "Dynamischer Tarif (Heartbeat Strom)", desc: "Börsenstromtarif mit stündlich variablem Preis (EPEX Spot). Automatische Optimierung durch Heartbeat AI. Voraussetzung: iMSys-Installation.", systems: ["LMZ", "HB"] },
+          { title: "Tarifkalkulation & Preissetzung", desc: "Laufende Kalkulation von Beschaffungs-, Netzentgelt-, Abgaben- und Margenkomponenten. Wettbewerbsbeobachtung und Preisanpassungsprozess.", systems: ["LMZ"] },
+          { title: "Produktentwicklung (neue Tarife)", desc: "Entwicklung von Flex-Tarifen, Flat-Rate-Modellen und Kombiprodukten (z.B. Strom + Heartbeat-Abo).", systems: ["LMZ"] },
+        ]
+      },
+      {
+        title: "Kundenverwaltung (Lieferantenrolle)",
+        l3: [
+          { title: "Vertragsabschluss & Stammdatenanlage", desc: "Anlage neuer Lieferverträge inkl. Zählpunkt-Zuordnung, Verbrauchsprognose und Zahlungsmittel. Synchronisierung mit Heartbeat-Kundenstamm.", systems: ["LMZ", "SFDC"] },
+          { title: "Bonitätsprüfung & Risikoabsicherung", desc: "Automatisierte Bonitätsprüfung bei Vertragsabschluss. Kautions- und Vorauszahlungsregeln für Risikokunden.", systems: ["LMZ"] },
+          { title: "Vertragsänderungs- & Kündigungsmanagement", desc: "Bearbeitung von Tarifw­echseln, Umzügen, Abmeldevorgängen und Widerrufen. GPKE-konforme Prozessabwicklung.", systems: ["LMZ", "AS4"] },
+        ]
+      },
+      {
+        title: "Marktkommunikation (MAKO) — Kernprozesse",
+        l3: [
+          { title: "Lieferantenwechsel eingehend & ausgehend (GPKE)", desc: "Steuerung der GPKE-Prozesse: Anmeldung neuer Kunden beim Netzbetreiber, Abmeldung bei Lieferantenwechsel. Fristen: 3 Werktage (Eingang) gem. BDEW Fristenkatalog.", systems: ["LMZ", "AS4"] },
+          { title: "Ein-/Ausspeise­netznutzung (WiM)", desc: "Wechselprozesse im Messwesen: Beauftragung MSB-Wechsel, Stammdatenänderungen, Bereitstellung Netznutzungsdaten vom NB an Lieferant. Format: UTILMD/MSCONS.", systems: ["LMZ", "AS4"] },
+          { title: "Bilanzkreisabrechnung (MaBiS)", desc: "Monatliche Abrechnung der Bilanzkreisverantwortung gegenüber dem Übertragungsnetzbetreiber. Übermittlung von Prognosen, Istwerten (ZP-Zeitreihen) und Mehr-/Mindermengen.", systems: ["LMZ", "AS4"] },
+          { title: "EDIFACT / MSCONS-Datenverarbeitung", desc: "Eingehende Lastgangdaten (MSCONS), Stammdatennachrichten (UTILMD), Rechnungen (INVOIC), Antworten (APERAK/CONTRL). Validierung, Transformation und Weiterverarbeitung.", systems: ["LMZ", "AS4"] },
+          { title: "Klärfälle & Reklamationsmanagement", desc: "Bearbeitung von Ablehnungen, Fehlern und Klärfällen im Nachrichtenaustausch mit NB und MSB. Fristen­überwachung und Eskalationsprozess.", systems: ["LMZ"] },
+          { title: "AS4-Nachrichtenübertragung (PEPPOL/BDEW)", desc: "Sichere, quittierte Übertragung aller MAKO-Nachrichten über AS4-Kommunikationsprotokoll (Pflicht seit 01.04.2023). Zertifikatsverwaltung und AS4-Access-Point.", systems: ["AS4"] },
+        ]
+      },
+      {
+        title: "Messstellenbetrieb (MSB) & §14a EnWG",
+        l3: [
+          { title: "Intelligentes Messsystem (iMSys) Rollout", desc: "Beauftragung und Monitoring des MSB-Rollouts (Smart Meter Gateway + Zähler). Voraussetzung für dynamische Tarife und §14a EnWG-Steuerung. Kooperation mit Theben.", systems: ["MSB", "HB"] },
+          { title: "§14a EnWG Netzdienstliche Steuerung", desc: "Registrierung steuerbarer Verbrauchseinrichtungen (WP, Wallbox) beim NB. Übermittlung Steuerungssignale via Smart Meter Gateway. End-to-End Prozess mit Theben (2024 Marktführer).", systems: ["MSB", "HB", "GRIDX"] },
+          { title: "Messdatenmanagement & -validierung", desc: "Erfassung, Plausibilisierung und Ersatzwertbildung von Zählerständen und Lastgängen gem. MPES-Prozessen. Bereitstellung für Billing und Bilanzkreis.", systems: ["MSB", "LMZ"] },
+          { title: "MSB-Wechselprozesse (WiM)", desc: "Bearbeitung eingehender und ausgehender MSB-Wechselanträge. Kommunikation mit grundzuständigem MSB und wettbewerblichem MSB.", systems: ["LMZ", "AS4", "MSB"] },
+        ]
+      },
+      {
+        title: "Bilanzkreis & Energiebeschaffung",
+        l3: [
+          { title: "Bilanzkreisführung & Fahrplan-Management", desc: "Führung des Lieferanten-Bilanzkreises bei ÜNB. Tägliche Fahrplanerstellung (Day-Ahead) und Intraday-Anpassung auf Basis PV-Prognose und Lastprognose.", systems: ["LMZ", "HB"] },
+          { title: "Energiebeschaffung & Portfolio", desc: "Einkauf von Ausgleichsenergie und Grundlastverträgen. Hedging-Strategie für Tarif­kalkulation. Zusammenspiel mit VPP-Direktvermarktung.", systems: ["LMZ"] },
+          { title: "Mehr-/Mindermengenabrechnung (MMA)", desc: "Jährliche Abrechnung der Abweichungen zwischen prognostizierter und gemessener Energiemenge mit Netzbetreibern. Prozess nach GPKE/MaBiS.", systems: ["LMZ", "AS4"] },
+        ]
+      },
+      {
+        title: "Regulierung & Compliance (Lieferant)",
+        l3: [
+          { title: "BNetzA-Lieferantenzulassung & -pflichten", desc: "Aufrechterhaltung der Lieferanteneigenschaft gem. EnWG. Meldepflichten, Standardlastprofile und Grundversorger-Abgrenzung.", systems: [] },
+          { title: "MaStR-Registrierung & -Pflege", desc: "Pflege des Marktstammdatenregisters (MaStR) für alle EZA und Verbrauchsanlagen der Kunden. Gesetzliche Meldepflicht gem. MaStRV.", systems: ["LMZ"] },
+          { title: "EnWG / EEG / MsbG Compliance", desc: "Laufendes Monitoring der regulatorischen Anforderungen. Anpassung der MAKO-Prozesse bei Formatwechseln (z.B. GPKE 2.0, MaKo 2023).", systems: ["LMZ", "AS4"] },
+        ]
+      }
+    ]
+  },
+
+  /* ─── 5. IT & DIGITALE PLATTFORM ──────────────────── */
+  {
+    title: "IT & Digitale Plattform",
+    icon:  "💻",
+    desc:  "Cloud-native Infrastruktur auf Google Cloud. Data-Plattform auf BigQuery für KI-Training und Business Intelligence. Eigenentwicklung der Heartbeat-Plattform als strategisches Differenzierungsmerkmal.",
+    l2: [
+      {
+        title: "Cloud-Infrastruktur & DevOps",
+        l3: [
+          { title: "GCP-Infrastruktur & Terraform IaC", desc: "Google Cloud als primäre Cloud-Plattform (migriert mit Partner Mineiros). Infrastructure-as-Code mit Terraform. Containerisierung (Kubernetes/GKE).", systems: ["GCP"] },
+          { title: "CI/CD & Release-Management", desc: "Automatisierte Build-, Test- und Deployment-Pipelines. Feature-Flags für schrittweise Rollouts. Mehrere Deploy-Zyklen täglich (Heartbeat-Software).", systems: ["GCP"] },
+          { title: "Monitoring, Observability & SRE", desc: "End-to-End-Monitoring von IoT-Geräten bis Cloud-Services. SLOs für Heartbeat-Plattform, Alerting und Incident-Management.", systems: ["GCP"] },
+        ]
+      },
+      {
+        title: "Datenplattform & Analytics",
+        l3: [
+          { title: "Data Warehouse & Data Lake (BigQuery)", desc: "Zentrales analytisches Fundament: Gerätedaten, Marktdaten, Kundendaten. BigQuery für OLAP-Abfragen auf Millionen von Zeitreihen.", systems: ["GCP", "BQ"] },
+          { title: "ML-Modell-Training & -Deployment", desc: "Training von PV-Forecast-, Lastprognose- und Preisoptimierungs-Modellen. Vertex AI für MLOps-Lifecycle (Training → Serving → Monitoring).", systems: ["GCP", "BQ"] },
+          { title: "Business Intelligence & Management Reporting", desc: "KPI-Dashboards für Vertrieb, Installation, Heartbeat-Nutzung, VPP-Leistung und Finanzen. Datengrundlage für Investoren-Reporting.", systems: ["BQ", "GCP"] },
+        ]
+      },
+      {
+        title: "Produktentwicklung & Software Engineering",
+        l3: [
+          { title: "Heartbeat App (iOS / Android)", desc: "Native Mobile-App-Entwicklung. Echtzeit-Energiedaten, Steuerung, Benachrichtigungen. Kern-UX für Endkundenbindung.", systems: ["HB"] },
+          { title: "Backend-Services & Microservices-Architektur", desc: "Cloud-native Backend (GCP). REST/gRPC APIs für App, B2B-Partner und interne Systeme. Microservices-Architektur für skalierbare Komponenten.", systems: ["HB", "GCP"] },
+          { title: "Integrationen & API-Management", desc: "Anbindung externer Systeme: gridX EEMS, Lumenaza, SFDC, Börsen-Daten-APIs, Wetter-APIs. API-Gateway und Orchestrierung.", systems: ["HB", "GRIDX", "LMZ", "GCP"] },
+        ]
+      },
+      {
+        title: "Unternehmenssysteme (Enterprise IT)",
+        l3: [
+          { title: "ERP (Finanzen & Auftragsabwicklung)", desc: "Zentrale Datenplattform für Auftragsmanagement, Fakturierung und Finanzbuchhaltung. Schnittstellen zu Lumenaza (Energiebilling) und Produktionsplanung.", systems: ["ERP"] },
+          { title: "CRM-Plattform (Salesforce)", desc: "Kundenstamm, Opportunity-Tracking, Service-Cases, Kampagnensteuerung. Schnittstelle zu Heartbeat-Plattform für 360°-Kundensicht.", systems: ["SFDC"] },
+          { title: "Collaboration & Dokumentenmanagement", desc: "Interne Kommunikation, Dokumentenverwaltung, Projektmanagement über cloud-basierte Tools. Onboarding und Wissensdatenbank.", systems: [] },
+        ]
+      },
+      {
+        title: "Cybersecurity & Datenschutz",
+        l3: [
+          { title: "IT-Security & SOC", desc: "Schutz der Heartbeat-Plattform und Cloud-Infrastruktur. Penetrationstests, Vulnerability-Management, SIEM.", systems: ["GCP"] },
+          { title: "DSGVO-Compliance & Datenschutz", desc: "Datenschutz-Folgeabschätzung (DSFA) für Echtzeit-Energiedaten. Technische und organisatorische Maßnahmen (TOM). DSB und Datenschutzdokumentation.", systems: [] },
+          { title: "BSI-PKI & Smart Meter Sicherheit", desc: "Sicherheitsinfrastruktur des Smart Meter Gateways (SMGW). Einhaltung BSI TR-03109 für Messdatenkommunikation und §14a-Steuerung.", systems: ["MSB"] },
+        ]
+      }
+    ]
+  },
+
+  /* ─── 6. FINANZEN & ABRECHNUNG ─────────────────────── */
+  {
+    title: "Finanzen & Abrechnung",
+    icon:  "💰",
+    desc:  "Mehrdimensionales Abrechnungsmodell: Hardware-Einmalzahlungen, SaaS-Abonnements (Heartbeat), Energielieferrechnungen und Direktvermarktungserlöse. Kapitalmarktreife im Rahmen des Pre-IPO-Vorhabens.",
+    l2: [
+      {
+        title: "Kundenfakturierung",
+        l3: [
+          { title: "Hardware-Abrechnung (Einmalig)", desc: "Fakturierung von PV-, Speicher-, WP- und Wallbox-Aufträgen nach Fertigstellung. Verwaltung von Anzahlungen, Teilzahlungen und Finanzierungen.", systems: ["ERP"] },
+          { title: "SaaS-Abonnement (Heartbeat, 14,99 €/Monat)", desc: "Monatliches Abo-Billing für Heartbeat AI-Dienst. Automatisches Lastschrift-Einzug, Rechnung und Dunning. Keine Mindestlaufzeit.", systems: ["ERP", "LMZ"] },
+          { title: "Energieabrechnung (Stromlieferant)", desc: "Jahresabrechnung und monatliche Abschlagsrechnungen für Stromkunden. Berücksichtigung von Netzentgelten, Abgaben, EEG-Umlage und Grundpreisen.", systems: ["LMZ"] },
+          { title: "Mahnwesen & Forderungsmanagement", desc: "Automatisierte Mahnstufen (1–3) mit definierten Fristen. Übergabe an Inkasso-Dienstleister. Niedrige Ausfallquote durch Bonitätsprüfung at entry.", systems: ["LMZ", "ERP"] },
+        ]
+      },
+      {
+        title: "Finanzplanung & Controlling",
+        l3: [
+          { title: "Budgetplanung & Rolling Forecast", desc: "Jährliche Budgetplanung und monatlicher Rolling Forecast je Segment (Hardware, Heartbeat SaaS, Energie). Abweichungsanalyse und Steuerungsmaßnahmen.", systems: ["ERP"] },
+          { title: "Kosten- & Erlöscontrolling je Standort", desc: "Dezentrales Controlling für 80+ Standorte: Deckungsbeitrags-Rechnung, Installationseffizienz, Umsatz pro Techniker.", systems: ["ERP", "BQ"] },
+          { title: "KPI-Reporting & Investoren-Dashboard", desc: "Aufbereitung von KPIs für Board und Investoren: GMV, ARR (SaaS), VPP-Kapazität, NPS, CAC/LTV. Monatliches Management-Reporting.", systems: ["ERP", "BQ"] },
+        ]
+      },
+      {
+        title: "Rechnungswesen & Jahresabschluss",
+        l3: [
+          { title: "Hauptbuch & Debitoren-/Kreditorenbuchhaltung", desc: "Tagesgeschäft Buchhaltung nach HGB. Konsolidierung der Tochtergesellschaften (Handwerksbetriebe, Heartbeat AI GmbH).", systems: ["ERP"] },
+          { title: "Konzern- & Jahresabschluss", desc: "Erstellung des konsolidierten Jahresabschlusses (HGB/IFRS-ready für IPO). Wirtschaftsprüfer-Koordination und Offenlegung.", systems: ["ERP"] },
+          { title: "Steuer & regulatorisches Reporting", desc: "Energiesteuer, Umsatzsteuer, Körperschaftsteuer. Meldepflichten gegenüber Bundesnetzagentur und Regulatoren.", systems: ["ERP"] },
+        ]
+      },
+      {
+        title: "M&A-Finanzierung & Pre-IPO",
+        l3: [
+          { title: "Investorenmanagement & Pre-IPO Readiness", desc: "Verwaltung von Gesellschafterstruktur und Investor-Relations. Vorbereitung auf Börsengang: Finanzkommunikation, Governance, Audit Trail.", systems: [] },
+          { title: "M&A-Deal-Finanzierung", desc: "Strukturierung von Eigen- und Fremdkapital für Akquisitionen von Handwerksbetrieben. Due-Diligence-Prozess und Post-Merger Finanzsynchronisation.", systems: ["ERP"] },
+        ]
+      }
+    ]
+  },
+
+  /* ─── 7. PERSONAL & STANDORTMANAGEMENT ────────────── */
+  {
+    title: "Personal & Standortmanagement",
+    icon:  "👥",
+    desc:  "Aufbau und Management einer verteilten Belegschaft (~2.500 MA) aus Technikern, Software-Ingenieuren und Kaufleuten an 80+ Standorten in 7 Ländern. Handwerker-Recruiting und -Ausbildung als Wachstumsengpass.",
+    l2: [
+      {
+        title: "Talent Acquisition",
+        l3: [
+          { title: "Handwerker-Recruiting (Techniker, Monteure)", desc: "Gewinnung von Elektro-, SHK- und Kältetechnikern als Engpassressource. Active Sourcing, Kooperationen mit Handwerksschulen und Berufskollegs.", systems: ["SFDC"] },
+          { title: "Tech-Recruiting (SW-Ingenieure, Data Scientists)", desc: "Gewinnung von Backend-, Mobile- und ML-Ingenieuren für Heartbeat AI GmbH. Internationale Suche, Remote-Optionen.", systems: ["SFDC"] },
+          { title: "Employer Branding & Candidate Experience", desc: "Positionierung als Klimaschutz-Arbeitgeber. Karriereseite, Glassdoor-Management, Referral-Programm.", systems: [] },
+        ]
+      },
+      {
+        title: "HR-Operations",
+        l3: [
+          { title: "Payroll & HR-Administration", desc: "Monatliche Entgeltabrechnung für ~2.500 MA in 7 Ländern (unterschiedliche Steuer-/Sozialversicherungsregeln). Zeiterfassung und Schichtplanung Monteure.", systems: ["ERP"] },
+          { title: "Onboarding & Offboarding", desc: "Strukturierter Onboarding-Prozess: Technik-Zertifizierung, Sicherheitsunterweisung, Heartbeat-Tooling. Exit-Interviews und Wissenstransfer.", systems: [] },
+        ]
+      },
+      {
+        title: "Lernen & Entwicklung",
+        l3: [
+          { title: "Handwerkliche Zertifizierungen (PV, WP, F-Gas)", desc: "Pflicht-Zertifizierungen für PV (BDEW), Wärmepumpen (SHK-Schein), F-Gas (Kältezertifikat Kat. I). Koordination externer Schulungsanbieter.", systems: [] },
+          { title: "Technische Schulungen (Neue Produkte)", desc: "Produkteinführungsschulungen bei neuen Produkten (z.B. Klimaanlage 2025, PowerHarvester). Schulungs-Content via LMS.", systems: [] },
+          { title: "Führungskräfteentwicklung", desc: "Entwicklungsprogramme für Standortleiter und Team-Leads. Coaching und 360°-Feedback.", systems: [] },
+        ]
+      },
+      {
+        title: "Standortmanagement",
+        l3: [
+          { title: "Standort-Expansion & -Steuerung (80+ Locs.)", desc: "M&A-getriebene Expansion: Akquisition und Integration lokaler Handwerksbetriebe. Monitoring der Standort-KPIs (Umsatz, Installationen/Techniker, NPS).", systems: ["ERP", "BQ"] },
+          { title: "Showroom-Operations (26 Showrooms)", desc: "Betrieb der 26 Showrooms: Flächenmanagement, Sortimentspflege, Veranstaltungen. Budgetverantwortung je Showroom-Manager.", systems: [] },
+          { title: "Fuhrpark & Werkzeugmanagement", desc: "Verwaltung des Monteur-Fuhrparks und Werkzeugbestands an allen Standorten. Elektrifizierung des Fuhrparks als ESG-Maßnahme.", systems: ["ERP"] },
+        ]
+      }
+    ]
+  },
+
+  /* ─── 8. STRATEGIE & WACHSTUM ──────────────────────── */
+  {
+    title: "Strategie, M&A & Regulierung",
+    icon:  "🚀",
+    desc:  "Wachstumsstrategie durch M&A-Akquisition von Handwerksbetrieben, organische Internationalisierung und IPO-Vorbereitung. Regulatorisches Engagement auf EU- und nationaler Ebene als Hebel für Geschäftsmodell.",
+    l2: [
+      {
+        title: "M&A & Integration",
+        l3: [
+          { title: "M&A Sourcing & Due Diligence (Handwerksbetriebe)", desc: "Systematische Identifikation und Akquisition von Elektro-/SHK-Handwerksbetrieben als Wachstumsvehikel. >80 Betriebe akquiriert. Bewertung nach Kundenpotential, Techniker-Kapazität und Region.", systems: [] },
+          { title: "Post-Merger Integration (PMI)", desc: "Standardisierter PMI-Prozess: IT-Integration (Heartbeat, ERP), Rebranding, HR-Harmonisierung, Qualitäts-Onboarding. Ziel: Break-even innerhalb 12 Monate post-Akquisition.", systems: ["ERP", "HB"] },
+          { title: "Carve-Out Management (Heartbeat AI GmbH)", desc: "Ausgliederung und eigenständige Führung der Heartbeat AI GmbH als B2B-Software-Tochter (Ende 2024). Eigene P&L, Kapitalstruktur und Marke.", systems: [] },
+        ]
+      },
+      {
+        title: "Internationale Expansion",
+        l3: [
+          { title: "Markteintritt & Länder-Rollout", desc: "Operative Expansion in SE, DK, NL, FI, AU. Lokale Regulierungs-Compliance (Netzentgeltstrukturen, Förder­programme, MSB-Anforderungen). Lokale Partnerschaften.", systems: ["LMZ"] },
+          { title: "Lokale Tarifanpassung & MAKO-Compliance", desc: "Länderspezifische Energie­markt-Anbindung (dynamische Tarife in SE, DK, NL). Lokale MAKO-Formate und Marktregeln.", systems: ["LMZ", "AS4"] },
+        ]
+      },
+      {
+        title: "Produkt- & Technologiestrategie",
+        l3: [
+          { title: "Produkt-Roadmap & Innovation", desc: "Strategische Priorisierung neuer Produkte: Klimaanlagen (2025), PowerHarvester (2025), V2G, Community-Tarife. Investitions-Roadmap Heartbeat AI: €100M (2025–2027).", systems: [] },
+          { title: "Technologie-Partnerschaften & Ökosystem", desc: "Strategische Allianzen: Google Cloud (Plattform), gridX (EEMS), Theben (§14a), Lumenaza (Energie), Qvantum (WP Schweden). Partnership-Management.", systems: ["GCP", "GRIDX", "LMZ"] },
+          { title: "IP & Patente (Heartbeat AI)", desc: "Schutz der KI-Algorithmen und Plattform-Architektur. Patent-Portfolio als Verteidigungswall gegen Wettbewerber.", systems: [] },
+        ]
+      },
+      {
+        title: "Regulatorisches Engagement & Policy",
+        l3: [
+          { title: "Energiepolitisches Lobbying (BDEW, BNetzA)", desc: "Aktive Beteiligung an BDEW-Arbeitsgruppen und BNetzA-Konsultationen zu §14a EnWG, dynamischen Tarifen, VPP-Regularien und Smart Meter Rollout.", systems: [] },
+          { title: "Normen & Standardisierung (VDE, BDEW)", desc: "Mitwirkung an technischen Standards für Gerätekommunikation, Smart Meter, §14a-Prozesse. Frühzeitige Compliance als Wettbewerbsvorteil.", systems: [] },
+        ]
+      },
+      {
+        title: "Kapitalmarkt & ESG",
+        l3: [
+          { title: "Pre-IPO Vorbereitung & IR", desc: "Kapitalmarkt-Readiness: IFRS-Abschlüsse, Corporate Governance, Investor Day. Pre-IPO Runden (Erweiterung 2024/25 auf €150M+).", systems: [] },
+          { title: "ESG-Strategie & CO₂-Bilanz", desc: "Messung und Publikation der vermiedenen CO₂-Emissionen (36,6M€ Kundeneinsparungen, >1. Mio. t CO₂ Reduktion). CSRD-Reporting-Vorbereitung.", systems: ["BQ"] },
+        ]
+      }
+    ]
+  },
+];
+
+/* ──────────────────────────────────────────────────
+   IT SYSTEM LEGEND
+   ────────────────────────────────────────────────── */
+const itLegend = [
+  { badge: "HB",       name: "Heartbeat Platform — 1K5° eigene IoT/AI Plattform" },
+  { badge: "GCP",      name: "Google Cloud Platform — Cloud-Infrastruktur & Hosting" },
+  { badge: "BQ",       name: "BigQuery — Analytische Datenplattform (Google)" },
+  { badge: "gridX",    name: "gridX EEMS — Energy & Device Management System" },
+  { badge: "LMZ",      name: "Lumenaza — White-Label Energieversorgung & MAKO" },
+  { badge: "AS4",      name: "AS4 / EDIFACT Gateway — BDEW Marktkommunikation" },
+  { badge: "SFDC",     name: "Salesforce CRM — Vertrieb, Marketing, Service" },
+  { badge: "MSB-Sys",  name: "MSB-System — Messstellenbetrieb & Smart Meter Infra" },
+  { badge: "ERP",      name: "ERP — Auftragsabwicklung, Buchhaltung, HR" },
+  { badge: "Storyblok",name: "Storyblok — Headless CMS (Website/Marketing)" },
+];
+
+/* ──────────────────────────────────────────────────
+   RENDER
+   ────────────────────────────────────────────────── */
+const grid = document.getElementById('cap-grid');
+
+domains.forEach((d, di) => {
+  let l2html = '';
+  d.l2.forEach(l2 => {
+    let l3html = l2.l3.map(l3 => {
+      const badges = l3.systems.map(s => {
+        const sys = Object.values(IT).find(v => Object.keys(IT).find(k => IT[k] === v && k === s));
+        return `<span class="it-badge">${IT[s] ? IT[s].label : s}</span>`;
+      }).join('');
+      const badgeRow = badges ? `<div class="it-badges">${badges}</div>` : '';
+      return `<div class="l3-chip"
+        data-level="L3"
+        data-domain="${d.title}"
+        data-l2="${l2.title}"
+        data-title="${l3.title}"
+        data-desc="${l3.desc.replace(/"/g, '&quot;')}"
+        data-systems="${l3.systems.join(',')}"
+      ><span class="chip-name">${l3.title}</span>${badgeRow}</div>`;
+    }).join('');
+
+    l2html += `
+      <div class="l2-section">
+        <div class="l2-label">${l2.title}</div>
+        <div class="l3-chips">${l3html}</div>
+      </div>`;
+  });
+
+  grid.innerHTML += `
+    <div class="l1-card"
+      data-level="L1"
+      data-domain="${d.title}"
+      data-title="${d.title}"
+      data-desc="${d.desc.replace(/"/g, '&quot;')}"
+      data-systems=""
+    >
+      <div class="l1-header"
+        data-level="L1"
+        data-domain="${d.title}"
+        data-title="${d.title}"
+        data-desc="${d.desc.replace(/"/g, '&quot;')}"
+        data-systems=""
+      >
+        <div class="l1-num">0${di + 1}</div>
+        <div class="l1-header-top">
+          <div class="l1-icon">${d.icon}</div>
+          <div class="l1-title">${d.title}</div>
+        </div>
+      </div>
+      <div class="l2-sections">${l2html}</div>
+    </div>`;
+});
+
+/* IT Legend */
+const legendEl = document.getElementById('it-legend-items');
+itLegend.forEach(item => {
+  legendEl.innerHTML += `
+    <div class="it-legend-item">
+      <span class="it-legend-badge">${item.badge}</span>
+      <span class="it-legend-name">${item.name}</span>
+    </div>`;
+});
+
+/* ──────────────────────────────────────────────────
+   TOOLTIP LOGIC
+   ────────────────────────────────────────────────── */
+const tt       = document.getElementById('tooltip');
+const ttLevel  = document.getElementById('tt-level');
+const ttDomain = document.getElementById('tt-domain');
+const ttTitle  = document.getElementById('tt-title');
+const ttDesc   = document.getElementById('tt-desc');
+const ttSys    = document.getElementById('tt-systems');
+const ttPills  = document.getElementById('tt-sys-pills');
+
+let hideTimer = null;
+
+const SYS_NAMES = {
+  HB:    "Heartbeat Platform",
+  GCP:   "Google Cloud",
+  BQ:    "BigQuery",
+  GRIDX: "gridX EEMS",
+  LMZ:   "Lumenaza",
+  AS4:   "AS4/EDIFACT",
+  SFDC:  "Salesforce",
+  MSB:   "MSB-System",
+  ERP:   "ERP",
+  SB:    "Storyblok",
+};
+
+function showTooltip(e, el) {
+  clearTimeout(hideTimer);
+  const level   = el.dataset.level;
+  const domain  = el.dataset.domain;
+  const title   = el.dataset.title;
+  const desc    = el.dataset.desc;
+  const systems = el.dataset.systems ? el.dataset.systems.split(',').filter(Boolean) : [];
+
+  ttLevel.textContent  = level;
+  ttDomain.textContent = level === 'L1' ? '' : '› ' + domain;
+  ttTitle.textContent  = title;
+  ttDesc.textContent   = desc;
+
+  if (systems.length) {
+    ttPills.innerHTML = systems.map(s => {
+      const name = SYS_NAMES[s] || s;
+      const badge = IT[s] ? IT[s].label : s;
+      return `<span class="tt-sys-pill">${badge} — ${name}</span>`;
+    }).join('');
+    ttSys.style.display = 'block';
+  } else {
+    ttSys.style.display = 'none';
+  }
+
+  tt.classList.add('visible');
+  positionTooltip(e);
+}
+
+function positionTooltip(e) {
+  const pad = 16, tw = 320, th = 220;
+  let x = e.clientX + 18;
+  let y = e.clientY + 14;
+  if (x + tw > window.innerWidth  - pad) x = e.clientX - tw - 12;
+  if (y + th > window.innerHeight - pad) y = e.clientY - th - 10;
+  tt.style.left = x + 'px';
+  tt.style.top  = y + 'px';
+}
+
+function hideTooltip() {
+  hideTimer = setTimeout(() => tt.classList.remove('visible'), 100);
+}
+
+document.querySelectorAll('.l1-header').forEach(el => {
+  el.addEventListener('mouseenter', e => showTooltip(e, el));
+  el.addEventListener('mousemove',  positionTooltip);
+  el.addEventListener('mouseleave', hideTooltip);
+});
+
+document.querySelectorAll('.l3-chip').forEach(el => {
+  el.addEventListener('mouseenter', e => showTooltip(e, el));
+  el.addEventListener('mousemove',  positionTooltip);
+  el.addEventListener('mouseleave', hideTooltip);
+});
+</script>
+</body>
+</html>
