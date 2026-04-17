@@ -474,9 +474,89 @@
     @media (max-width: 1300px) { .domains-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 960px)  { .domains-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 600px)  { .domains-grid { grid-template-columns: 1fr; } }
+
+    /* ── TABS ── */
+    .tab-nav {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #2A2A2A;
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      padding: 10px 22px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: #555;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: .01em;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover  { color: #D0D0D0; }
+    .tab-btn.active { color: #42CFBE; border-bottom-color: #42CFBE; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── IT DIAGRAM ── */
+    .it-diag-wrap {
+      background: #1A1A1A;
+      border: 1px solid #2A2A2A;
+      border-radius: 10px;
+      padding: 20px 16px 16px;
+      overflow-x: auto;
+    }
+    .it-diag-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: -.01em;
+      margin-bottom: 4px;
+    }
+    .it-diag-sub {
+      font-size: 0.75rem;
+      color: #555;
+      margin-bottom: 18px;
+    }
+    #it-svg { width: 100%; min-width: 900px; display: block; }
+
+    /* node hover highlight */
+    .it-node rect  { transition: filter .15s; }
+    .it-node:hover rect { filter: brightness(1.25); cursor: default; }
+    .it-edge { transition: opacity .15s; }
+    .it-edge.dimmed { opacity: .12; }
+    .it-node.dimmed rect { filter: brightness(.45); }
+    .it-node.dimmed text { opacity: .3; }
+
+    /* diagram group legend */
+    .diag-legend {
+      display: flex; flex-wrap: wrap; gap: 10px 24px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #2A2A2A;
+    }
+    .diag-legend-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.7rem; color: #666;
+    }
+    .diag-legend-dot {
+      width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
+
+<!-- ── TAB NAVIGATION ── -->
+<div class="tab-nav">
+  <button class="tab-btn active" data-tab="cap">Capability Map</button>
+  <button class="tab-btn"        data-tab="it" >IT-Systemlandschaft</button>
+</div>
+
+<!-- ── TAB 1: CAPABILITY MAP ── -->
+<div class="tab-panel active" id="panel-cap">
 
 <div class="page-header">
   <div class="page-header-left">
@@ -514,6 +594,18 @@
 </div>
 
 <div class="page-footer">BCG Platinion &nbsp;·&nbsp; April 2026 &nbsp;·&nbsp; Vertraulich</div>
+
+</div><!-- /panel-cap -->
+
+<!-- ── TAB 2: IT SYSTEMLANDSCHAFT ── -->
+<div class="tab-panel" id="panel-it">
+  <div class="it-diag-wrap">
+    <div class="it-diag-title">IT-Systemlandschaft &nbsp;·&nbsp; 1KOMMA5°</div>
+    <div class="it-diag-sub">Voraussichtliche Systemintegration &amp; Datenflüsse &nbsp;—&nbsp; Hover über Knoten für Details</div>
+    <svg id="it-svg" viewBox="0 0 1260 660" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="diag-legend" id="diag-legend"></div>
+  </div>
+</div><!-- /panel-it -->
 
 <div id="tooltip">
   <div class="tt-breadcrumb">
@@ -1117,6 +1209,280 @@ document.querySelectorAll('.l3-chip').forEach(el => {
   el.addEventListener('mousemove',  positionTooltip);
   el.addEventListener('mouseleave', hideTooltip);
 });
+
+/* ──────────────────────────────────────────────────
+   TAB SWITCHING
+   ────────────────────────────────────────────────── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ──────────────────────────────────────────────────
+   IT DIAGRAM
+   ────────────────────────────────────────────────── */
+(function() {
+
+/* ── COLOUR PALETTE ── */
+const C = {
+  core:   { fill: '#0D3330', stroke: '#42CFBE', text: '#42CFBE' },
+  cloud:  { fill: '#0D2235', stroke: '#4A9EE8', text: '#7BBCF5' },
+  device: { fill: '#1E2A1E', stroke: '#5DBB63', text: '#8DD492' },
+  energy: { fill: '#2E1E0D', stroke: '#E89B42', text: '#F5BC72' },
+  biz:    { fill: '#1E1030', stroke: '#9B6BE8', text: '#BF9CF5' },
+  ext:    { fill: '#1E1E1E', stroke: '#555555', text: '#888888' },
+};
+const GROUP_LABELS = {
+  core:   'Kernplattform',
+  cloud:  'Cloud & Daten',
+  device: 'Geräte & Metering',
+  energy: 'MAKO & Energie',
+  biz:    'Business Systems',
+  ext:    'Externe Systeme',
+};
+
+/* ── NODES ── */
+const nodes = [
+  // Cloud & Data
+  { id:'GCP',     x:415, y: 80, w:165, h:58, label:'Google Cloud Platform', sub:'GCP · Compute / DevOps / ML',      group:'cloud' },
+  { id:'BQ',      x:615, y: 80, w:145, h:58, label:'BigQuery',              sub:'BQ · Analytics / Data Warehouse',  group:'cloud' },
+  // Core Platform
+  { id:'HB',      x:440, y:265, w:220, h:72, label:'⚡ Heartbeat Platform',  sub:'Eigene IoT / AI Plattform',        group:'core' },
+  // Device & Metering
+  { id:'GRIDX',   x:195, y:190, w:160, h:58, label:'gridX EEMS',            sub:'Geräteintegration',                group:'device' },
+  { id:'MSB',     x:195, y:400, w:160, h:58, label:'MSB-System',            sub:'Smart Meter / §14a EnWG',          group:'device' },
+  { id:'DEV',     x: 30, y:295, w:130, h:62, label:'Kunden­geräte',          sub:'PV · WP · EV · Batterie',          group:'ext' },
+  // Energy / MAKO
+  { id:'LMZ',     x:800, y:190, w:170, h:58, label:'Lumenaza',              sub:'Energie / MAKO Backend',           group:'energy' },
+  { id:'AS4',     x:800, y:390, w:170, h:58, label:'AS4 / EDIFACT',         sub:'MAKO Gateway (BDEW)',              group:'energy' },
+  // External Market
+  { id:'EXT_NB',  x:1040, y:185, w:175, h:58, label:'Netzbetreiber',        sub:'NB / grundzust. MSB',              group:'ext' },
+  { id:'EXT_UNB', x:1040, y:390, w:175, h:58, label:'ÜNB / EPEX SPOT',     sub:'Regelenergie / Börse',             group:'ext' },
+  // Business Systems
+  { id:'SFDC',    x:365, y:510, w:160, h:55, label:'Salesforce CRM',        sub:'Vertrieb / Service Cloud',         group:'biz' },
+  { id:'ERP',     x:565, y:510, w:155, h:55, label:'ERP System',            sub:'Finanzen · Aufträge · HR',         group:'biz' },
+  { id:'SB',      x:185, y:525, w:145, h:52, label:'Storyblok CMS',         sub:'Website / Marketing',              group:'biz' },
+];
+
+/* ── EDGES ── */
+const edges = [
+  { s:'HB',    t:'GCP',     label:'Hosting / Compute / DevOps',           bidir:true  },
+  { s:'HB',    t:'BQ',      label:'Telemetrie → Analytics / ML-Training', bidir:true  },
+  { s:'GCP',   t:'BQ',      label:'Native Integration (GCP-intern)',       bidir:true  },
+  { s:'HB',    t:'GRIDX',   label:'OCPP · Modbus · SG-Ready · SunSpec',   bidir:true  },
+  { s:'HB',    t:'MSB',     label:'iMSys-Messdaten · §14a-Steuerung',     bidir:true  },
+  { s:'HB',    t:'LMZ',     label:'VPP · Dyn. Tarif · Direktvermarktung', bidir:true  },
+  { s:'HB',    t:'SFDC',    label:'Kundenstamm 360° · Service-Tickets',   bidir:true  },
+  { s:'LMZ',   t:'AS4',     label:'GPKE · WiM · MaBiS · UTILMD',         bidir:true  },
+  { s:'LMZ',   t:'ERP',     label:'Rechnungsdaten / Abrechnungssync',     bidir:false },
+  { s:'LMZ',   t:'EXT_NB',  label:'Lieferantenwechsel (GPKE / WiM)',      bidir:true  },
+  { s:'AS4',   t:'EXT_NB',  label:'UTILMD · MSCONS (AS4-Protokoll)',      bidir:true  },
+  { s:'AS4',   t:'EXT_UNB', label:'MaBiS · Fahrpläne · Regelenergie',    bidir:true  },
+  { s:'MSB',   t:'AS4',     label:'WiM-Wechselprozesse',                  bidir:true  },
+  { s:'MSB',   t:'LMZ',     label:'Zählerstandsdaten (MSCONS)',           bidir:false },
+  { s:'GRIDX', t:'DEV',     label:'OCPP · Modbus · SunSpec',              bidir:true  },
+  { s:'MSB',   t:'DEV',     label:'iMSys-Auslesung / BSI-PKI',            bidir:false },
+  { s:'SFDC',  t:'ERP',     label:'Auftragsübergabe nach Installation',   bidir:false },
+  { s:'SB',    t:'SFDC',    label:'Web-Leads (Formulare)',                bidir:false },
+];
+
+/* ── HELPERS ── */
+function cx(n) { return n.x + n.w / 2; }
+function cy(n) { return n.y + n.h / 2; }
+function getNode(id) { return nodes.find(n => n.id === id); }
+
+function edgePoint(nid, toward) {
+  const n = getNode(nid), t = getNode(toward);
+  const nx = cx(n), ny = cy(n), tx = cx(t), ty = cy(t);
+  const dx = tx - nx, dy = ty - ny, len = Math.hypot(dx, dy);
+  // intersect with rect border
+  const hw = n.w / 2 + 2, hh = n.h / 2 + 2;
+  const sx = (len === 0) ? 0 : dx / len;
+  const sy = (len === 0) ? 0 : dy / len;
+  const tx2 = Math.abs(sx) > 1e-9 ? hw / Math.abs(sx) : Infinity;
+  const ty2 = Math.abs(sy) > 1e-9 ? hh / Math.abs(sy) : Infinity;
+  const t2 = Math.min(tx2, ty2);
+  return { x: nx + sx * t2, y: ny + sy * t2 };
+}
+
+function bezierPath(s, t) {
+  const p1 = edgePoint(s, t), p2 = edgePoint(t, s);
+  const dx = p2.x - p1.x, dy = p2.y - p1.y;
+  const cx1 = p1.x + dx * 0.4 + dy * 0.05;
+  const cy1 = p1.y + dy * 0.4 - dx * 0.05;
+  const cx2 = p2.x - dx * 0.4 + dy * 0.05;
+  const cy2 = p2.y - dy * 0.4 - dx * 0.05;
+  return `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} C ${cx1.toFixed(1)} ${cy1.toFixed(1)} ${cx2.toFixed(1)} ${cy2.toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+}
+
+function svgEl(tag, attrs = {}, text) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = document.createElementNS(ns, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+
+/* ── RENDER ── */
+const svg = document.getElementById('it-svg');
+
+// defs: arrowhead markers
+const defs = svgEl('defs');
+['teal','gray'].forEach((name, i) => {
+  const color = name === 'teal' ? '#42CFBE' : '#3A3A3A';
+  const m = svgEl('marker', { id:'arrow-'+name, markerWidth:'8', markerHeight:'8', refX:'7', refY:'3', orient:'auto' });
+  m.appendChild(svgEl('path', { d:'M0,0 L0,6 L8,3 Z', fill: color }));
+  defs.appendChild(m);
+});
+svg.appendChild(defs);
+
+// Group background rectangles
+const groups = {
+  cloud:  { x: 390, y: 55,  w: 395, h: 105, label: 'Cloud & Daten' },
+  device: { x:  20, y: 160, w: 205, h: 320, label: 'Geräte & Metering' },
+  core:   { x: 415, y: 240, w: 240, h: 125, label: 'Kernplattform' },
+  energy: { x: 775, y: 160, w: 225, h: 310, label: 'MAKO & Energie' },
+  biz:    { x: 165, y: 490, w: 575, h: 100, label: 'Business Systems' },
+  ext:    { x:1015, y: 160, w: 225, h: 310, label: 'Externe Märkte' },
+};
+const gLayer = svgEl('g');
+for (const [key, g] of Object.entries(groups)) {
+  const col = C[key];
+  const rect = svgEl('rect', { x: g.x, y: g.y, width: g.w, height: g.h, rx:'10',
+    fill: col.fill, stroke: col.stroke, 'stroke-width':'1', opacity:'.5' });
+  const lbl = svgEl('text', { x: g.x + g.w/2, y: g.y + 16, 'text-anchor':'middle',
+    'font-size':'9', 'font-weight':'700', 'text-transform':'uppercase',
+    'letter-spacing':'1', fill: col.stroke, 'font-family':'Inter,sans-serif', opacity:'.7' }, g.label.toUpperCase());
+  gLayer.appendChild(rect);
+  gLayer.appendChild(lbl);
+}
+svg.appendChild(gLayer);
+
+// Edges
+const edgeLayer = svgEl('g');
+const edgeEls = {};
+edges.forEach((e, i) => {
+  const g = svgEl('g', { class:'it-edge', id:'edge-'+i });
+  const sNode = getNode(e.s), tNode = getNode(e.t);
+  const sGroup = sNode.group, tGroup = tNode.group;
+  const isActive = sGroup !== 'ext' && tGroup !== 'ext';
+  const strokeColor = isActive ? '#42CFBE' : '#444';
+  const opacity = isActive ? '0.5' : '0.3';
+
+  const path = svgEl('path', {
+    d: bezierPath(e.s, e.t),
+    fill: 'none', stroke: strokeColor, 'stroke-width': isActive ? '1.5' : '1',
+    opacity, 'stroke-dasharray': isActive ? 'none' : '4 3',
+    'marker-end': 'url(#arrow-' + (isActive ? 'teal' : 'gray') + ')',
+    'marker-start': e.bidir ? 'url(#arrow-' + (isActive ? 'teal' : 'gray') + ')' : 'none',
+  });
+  g.appendChild(path);
+
+  // edge label (midpoint)
+  const p1 = edgePoint(e.s, e.t), p2 = edgePoint(e.t, e.s);
+  const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+  const lbl = svgEl('text', {
+    x: mx, y: my - 5, 'text-anchor':'middle', 'font-size':'8.5',
+    fill: isActive ? '#42CFBE' : '#444', 'font-family':'Inter,sans-serif',
+    opacity:'0', class:'edge-lbl', 'pointer-events':'none',
+  }, e.label);
+  g.setAttribute('data-label', e.label);
+  g.appendChild(lbl);
+  edgeLayer.appendChild(g);
+  edgeEls[e.s + '_' + e.t] = g;
+});
+svg.appendChild(edgeLayer);
+
+// Nodes
+const nodeLayer = svgEl('g');
+const nodeEls = {};
+nodes.forEach(n => {
+  const col = C[n.group];
+  const g = svgEl('g', { class:'it-node', id:'node-' + n.id, transform:`translate(0,0)` });
+
+  // shadow / glow
+  const shadow = svgEl('rect', { x: n.x+3, y: n.y+3, width: n.w, height: n.h, rx:'8',
+    fill: col.stroke, opacity:'.12' });
+  g.appendChild(shadow);
+
+  // rect
+  const rect = svgEl('rect', { x: n.x, y: n.y, width: n.w, height: n.h, rx:'8',
+    fill: col.fill, stroke: col.stroke, 'stroke-width': n.group==='core' ? '2' : '1.5' });
+  g.appendChild(rect);
+
+  // label
+  const ly = n.sub ? n.y + n.h/2 - 8 : n.y + n.h/2 + 4;
+  const lbl = svgEl('text', { x: cx(n), y: ly, 'text-anchor':'middle',
+    'font-size': n.group==='core' ? '13' : '11.5', 'font-weight':'700',
+    fill: col.text, 'font-family':'Inter,sans-serif' }, n.label);
+  g.appendChild(lbl);
+
+  if (n.sub) {
+    const sub = svgEl('text', { x: cx(n), y: n.y + n.h/2 + 8, 'text-anchor':'middle',
+      'font-size':'9', fill: col.text, 'font-family':'Inter,sans-serif', opacity:'.65' }, n.sub);
+    g.appendChild(sub);
+  }
+
+  // badge (group name)
+  nodeLayer.appendChild(g);
+  nodeEls[n.id] = g;
+});
+svg.appendChild(nodeLayer);
+
+// ── HOVER INTERACTION ──
+const allEdges  = Array.from(edgeLayer.querySelectorAll('.it-edge'));
+const allNodes  = Array.from(nodeLayer.querySelectorAll('.it-node'));
+
+function resetHighlight() {
+  allEdges.forEach(e  => { e.classList.remove('dimmed'); e.querySelector('.edge-lbl').setAttribute('opacity','0'); });
+  allNodes.forEach(nd => nd.classList.remove('dimmed'));
+}
+
+nodes.forEach(n => {
+  const el = nodeEls[n.id];
+  el.style.cursor = 'default';
+
+  el.addEventListener('mouseenter', () => {
+    const connected = new Set([n.id]);
+    edges.forEach((e, i) => {
+      if (e.s === n.id || e.t === n.id) {
+        connected.add(e.s);
+        connected.add(e.t);
+        const eg = edgeLayer.querySelector('#edge-'+i);
+        if (eg) { eg.classList.remove('dimmed'); eg.querySelector('.edge-lbl').setAttribute('opacity','1'); }
+      }
+    });
+    allEdges.forEach((eg, i) => {
+      const e = edges[i];
+      if (e.s !== n.id && e.t !== n.id) eg.classList.add('dimmed');
+    });
+    allNodes.forEach(nd => {
+      if (!connected.has(nd.id.replace('node-',''))) nd.classList.add('dimmed');
+    });
+  });
+
+  el.addEventListener('mouseleave', resetHighlight);
+});
+
+// ── LEGEND ──
+const legendEl = document.getElementById('diag-legend');
+const groupOrder = ['core','cloud','device','energy','biz','ext'];
+groupOrder.forEach(key => {
+  const col = C[key];
+  legendEl.innerHTML += `<div class="diag-legend-item">
+    <div class="diag-legend-dot" style="background:${col.fill};border:1px solid ${col.stroke}"></div>
+    <span>${GROUP_LABELS[key]}</span>
+  </div>`;
+});
+legendEl.innerHTML += `<div class="diag-legend-item" style="margin-left:auto">
+  <span style="color:#42CFBE;font-size:.65rem;">→ Hover über Knoten hebt Verbindungen hervor</span>
+</div>`;
+
+})(); // end IT diagram IIFE
 </script>
 </body>
 </html>
