@@ -1,0 +1,31 @@
+Art;Land;Region;Größe;Jahrgang;Weingut;Wein;Verkaufspreis brutto;Parker;Verfügbar
+Rotwein;Frankreich;Pomerol;0,75l;2018;Château Pétrus;Pétrus;4800,00;100;2
+Rotwein;Frankreich;Pauillac;0,75l;2016;Château Mouton Rothschild;Mouton Rothschild Premier Cru Classé;620,00;100;4
+Rotwein;Frankreich;Margaux;0,75l;2019;Château Margaux;Château Margaux Premier Grand Cru;890,00;99;3
+Rotwein;Frankreich;Vosne-Romanée;0,75l;2017;Domaine de la Romanée-Conti;La Tâche Grand Cru;3200,00;98;1
+Rotwein;Frankreich;Vosne-Romanée;0,75l;2018;Domaine de la Romanée-Conti;Romanée-Conti Grand Cru;18500,00;100;1
+Rotwein;Frankreich;Pauillac;1,5l;2015;Château Latour;Latour Premier Cru Classé;1480,00;100;2
+Rotwein;Frankreich;Saint-Julien;0,75l;2016;Château Léoville Las Cases;Le Petit Lion de Las Cases;95,00;93;8
+Rotwein;Italien;Bolgheri;0,75l;2019;Tenuta San Guido;Sassicaia;195,00;97;6
+Rotwein;Italien;Bolgheri;0,75l;2018;Marchesi de' Frescobaldi;Ornellaia;280,00;98;5
+Rotwein;Italien;Toskana;0,75l;2017;Antinori;Tignanello;128,00;95;10
+Rotwein;Italien;Barolo;0,75l;2016;Giacomo Conterno;Barolo Monfortino Riserva;520,00;100;3
+Rotwein;Italien;Barolo;0,75l;2018;Angelo Gaja;Sperss Barolo;320,00;96;4
+Rotwein;USA;Napa Valley;0,75l;2018;Opus One Winery;Opus One;380,00;97;7
+Rotwein;USA;Napa Valley;0,75l;2019;Screaming Eagle;Screaming Eagle Cabernet Sauvignon;3600,00;100;1
+Rotwein;USA;Napa Valley;0,75l;2017;Harlan Estate;Harlan Estate Proprietary Red;1150,00;99;2
+Rotwein;USA;Santa Cruz Mountains;0,75l;2016;Ridge Vineyards;Monte Bello;180,00;96;5
+Weißwein;Frankreich;Puligny-Montrachet;0,75l;2020;Domaine Leflaive;Puligny-Montrachet Clavoillon 1er Cru;195,00;95;4
+Weißwein;Frankreich;Corton-Charlemagne;0,75l;2019;Louis Jadot;Corton-Charlemagne Grand Cru;210,00;96;3
+Weißwein;Frankreich;Mersault;0,75l;2020;Domaine des Comtes Lafon;Meursault Perrières 1er Cru;280,00;97;2
+Weißwein;Deutschland;Mosel;0,75l;2021;Egon Müller;Scharzhofberger Riesling Spätlese;145,00;96;6
+Weißwein;Deutschland;Mosel;0,375l;2020;Egon Müller;Scharzhofberger Riesling Trockenbeerenauslese;1800,00;100;1
+Weißwein;Deutschland;Pfalz;0,75l;2021;Bürklin-Wolf;Kirchenstück Riesling GG;85,00;94;8
+Weißwein;Österreich;Wachau;0,75l;2021;F.X. Pichler;Riesling Smaragd Loibenberg;120,00;97;5
+Champagner;Frankreich;Champagne;0,75l;2013;Krug;Krug Millésimé;280,00;98;6
+Champagner;Frankreich;Champagne;0,75l;2014;Dom Pérignon;Dom Pérignon Vintage;185,00;97;9
+Champagner;Frankreich;Champagne;1,5l;2012;Salon;Salon Blanc de Blancs Le Mesnil;980,00;99;2
+Champagner;Frankreich;Champagne;0,75l;NV;Louis Roederer;Cristal Brut;295,00;96;7
+Rotwein;Australien;Barossa Valley;0,75l;2018;Penfolds;Grange Bin 95;780,00;99;4
+Rotwein;Spanien;Ribera del Duero;0,75l;2016;Vega Sicilia;Único;520,00;98;3
+Rotwein;Spanien;Priorat;0,75l;2018;Álvaro Palacios;L'Ermita;850,00;100;2

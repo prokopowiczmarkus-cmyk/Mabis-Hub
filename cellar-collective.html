@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cellar Collective – Raritätenliste</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f7f4ef;
+            --surface: #ffffff;
+            --surface2: #f0ece5;
+            --border: #e0d9d0;
+            --text: #1a1a1a;
+            --text-muted: #7a7570;
+            --accent: #6e1e1e;
+            --accent-hover: #8a2828;
+            --accent-light: #f7ecec;
+            --header-bg: #150808;
+            --header-gold: #d4b896;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* ── LOGIN ─────────────────────────────────── */
+        #login-screen {
+            position: fixed; inset: 0;
+            background: var(--header-bg);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: #fff;
+            padding: 52px 48px 44px;
+            border-radius: 2px;
+            width: 100%; max-width: 360px;
+            text-align: center;
+        }
+
+        .login-eyebrow {
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .login-title {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 26px;
+            font-weight: normal;
+            color: var(--accent);
+            margin-bottom: 36px;
+        }
+
+        .login-box input[type="password"] {
+            width: 100%;
+            padding: 11px 16px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            font-size: 14px;
+            margin-bottom: 14px;
+            outline: none;
+            text-align: center;
+            letter-spacing: 4px;
+            transition: border-color 0.2s;
+        }
+
+        .login-box input[type="password"]::placeholder { letter-spacing: 0.5px; }
+        .login-box input[type="password"]:focus { border-color: var(--accent); }
+
+        .btn-primary {
+            background: var(--accent); color: #fff; border: none;
+            padding: 11px 28px; font-size: 11px;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            cursor: pointer; border-radius: 2px; width: 100%;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background: var(--accent-hover); }
+
+        #login-error {
+            color: #b92929; font-size: 12px;
+            margin-top: 12px; min-height: 18px;
+        }
+
+        /* ── HEADER ─────────────────────────────────── */
+        header {
+            background: var(--header-bg); color: #fff;
+            padding: 0 28px;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 58px;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .header-logo {
+            font-family: Georgia, serif;
+            font-size: 17px; font-weight: normal;
+            color: var(--header-gold); letter-spacing: 0.5px;
+        }
+
+        .header-logo small {
+            display: block;
+            font-size: 9px; letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #6b5040; margin-top: 1px;
+            font-family: -apple-system, sans-serif;
+        }
+
+        nav { display: flex; gap: 2px; align-items: center; }
+
+        .nav-btn {
+            background: transparent; color: #a09080;
+            border: 1px solid transparent;
+            padding: 7px 15px; font-size: 11px;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; border-radius: 2px;
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .nav-btn:hover { color: #e0d0c0; border-color: #3a2010; }
+        .nav-btn.active { color: #fff; border-color: #6b3a20; }
+
+        .cart-badge {
+            background: var(--accent); color: #fff;
+            border-radius: 50%;
+            width: 17px; height: 17px;
+            font-size: 9px; font-weight: 700;
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-left: 5px;
+        }
+        .cart-badge.hidden { display: none; }
+
+        /* ── VIEWS ─────────────────────────────────── */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        .view-container {
+            max-width: 1440px; margin: 0 auto;
+            padding: 24px 28px;
+        }
+
+        /* ── SHOP ──────────────────────────────────── */
+        .controls-bar {
+            display: flex; gap: 10px;
+            margin-bottom: 18px; flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1; min-width: 200px;
+            padding: 7px 13px;
+            border: 1px solid var(--border); border-radius: 2px;
+            font-size: 13px; background: #fff; outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: var(--accent); }
+
+        .filter-select {
+            padding: 7px 13px;
+            border: 1px solid var(--border); border-radius: 2px;
+            font-size: 13px; background: #fff; cursor: pointer;
+            outline: none; color: var(--text);
+        }
+        .filter-select:focus { border-color: var(--accent); }
+
+        .upload-label {
+            background: #fff; color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 7px 14px; font-size: 11px;
+            letter-spacing: 0.5px; text-transform: uppercase;
+            cursor: pointer; border-radius: 2px;
+            transition: all 0.2s; white-space: nowrap;
+            margin-left: auto;
+        }
+        .upload-label:hover { border-color: var(--accent); color: var(--accent); }
+
+        .results-count {
+            font-size: 11px; color: var(--text-muted);
+            white-space: nowrap; align-self: center;
+        }
+
+        /* ── TABLE ─────────────────────────────────── */
+        .table-wrapper {
+            overflow: auto;
+            max-height: calc(100vh - 175px);
+            background: #fff;
+            border: 1px solid var(--border); border-radius: 3px;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+
+        thead th {
+            padding: 9px 12px;
+            text-align: left; font-weight: 600;
+            font-size: 10px; letter-spacing: 0.5px;
+            text-transform: uppercase; color: var(--text-muted);
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap; cursor: pointer; user-select: none;
+            position: sticky; top: 0; z-index: 2;
+        }
+        thead th:hover { color: var(--accent); }
+        thead th.sorted { color: var(--accent); }
+        .sort-icon { opacity: 0.35; margin-left: 3px; font-size: 9px; }
+        thead th.sorted .sort-icon { opacity: 1; }
+
+        tbody tr { border-bottom: 1px solid #f5f1eb; transition: background 0.1s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #faf7f2; }
+
+        tbody td { padding: 9px 12px; vertical-align: middle; }
+
+        .col-art      { min-width: 65px; }
+        .col-land     { min-width: 75px; }
+        .col-region   { min-width: 110px; }
+        .col-groesse  { min-width: 65px; text-align: center; }
+        .col-jahrgang { min-width: 65px; text-align: center; font-variant-numeric: tabular-nums; }
+        .col-weingut  { min-width: 140px; font-weight: 500; }
+        .col-wein     { min-width: 170px; }
+        .col-preis    { min-width: 90px; text-align: right; font-variant-numeric: tabular-nums; }
+        .col-parker   { min-width: 65px; text-align: center; }
+        .col-avail    { min-width: 75px; text-align: center; }
+        .col-menge    { min-width: 150px; }
+
+        .badge {
+            display: inline-block; padding: 2px 7px;
+            border-radius: 10px; font-size: 11px; font-weight: 500;
+        }
+        .badge-ok  { background: #e8f4ea; color: #256330; }
+        .badge-low { background: #fff5e6; color: #c05800; }
+        .badge-nil { background: #fce8e8; color: #b72020; }
+
+        .parker-score { font-weight: 600; color: var(--accent); }
+
+        /* Qty controls */
+        .qty-wrap {
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        .qty-btn {
+            width: 24px; height: 24px;
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 2px; cursor: pointer; font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s; flex-shrink: 0; line-height: 1;
+        }
+        .qty-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        .qty-input {
+            width: 44px; text-align: center;
+            padding: 3px 4px; border: 1px solid var(--border);
+            border-radius: 2px; font-size: 13px; outline: none;
+            font-variant-numeric: tabular-nums;
+        }
+        .qty-input:focus { border-color: var(--accent); }
+
+        .atc-btn {
+            background: var(--accent); color: #fff; border: none;
+            padding: 4px 9px; font-size: 11px; border-radius: 2px;
+            cursor: pointer; white-space: nowrap;
+            transition: background 0.15s; flex-shrink: 0;
+        }
+        .atc-btn:hover { background: var(--accent-hover); }
+        .atc-btn.added { background: #2a7038; }
+
+        /* ── EMPTY / UPLOAD HINT ────────────────────── */
+        .empty-state {
+            text-align: center; padding: 80px 24px;
+        }
+        .empty-icon { font-size: 36px; opacity: 0.25; margin-bottom: 16px; }
+        .empty-title { font-size: 17px; font-weight: 400; margin-bottom: 8px; }
+        .empty-text { color: var(--text-muted); margin-bottom: 24px; }
+
+        /* ── CART ──────────────────────────────────── */
+        .section-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 20px;
+        }
+        .section-title {
+            font-family: Georgia, serif;
+            font-size: 22px; font-weight: normal;
+        }
+
+        .cart-empty {
+            text-align: center; padding: 60px 24px;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 3px;
+        }
+        .cart-empty p { color: var(--text-muted); margin-bottom: 20px; }
+
+        .cart-block {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 3px; overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .cart-total-bar {
+            display: flex; justify-content: flex-end; align-items: baseline;
+            gap: 20px; padding: 14px 20px;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 3px; margin-bottom: 20px;
+        }
+        .cart-total-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+        .cart-total-value { font-family: Georgia, serif; font-size: 22px; color: var(--accent); }
+
+        .cart-actions {
+            display: flex; justify-content: flex-end; gap: 10px;
+        }
+
+        .btn-secondary {
+            background: #fff; color: var(--text);
+            border: 1px solid var(--border);
+            padding: 10px 22px; font-size: 11px;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; border-radius: 2px;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+        .btn-cta {
+            background: var(--accent); color: #fff; border: none;
+            padding: 10px 28px; font-size: 11px;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; border-radius: 2px;
+            transition: background 0.2s;
+        }
+        .btn-cta:hover { background: var(--accent-hover); }
+
+        .remove-btn {
+            background: none; border: none;
+            color: var(--text-muted); cursor: pointer;
+            font-size: 16px; padding: 4px 6px;
+            transition: color 0.15s; line-height: 1;
+        }
+        .remove-btn:hover { color: #b92929; }
+
+        /* ── ORDER FORM ────────────────────────────── */
+        .order-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 24px; align-items: start;
+        }
+        @media (max-width: 900px) {
+            .order-layout { grid-template-columns: 1fr; }
+        }
+
+        .form-card {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 3px; padding: 32px 36px;
+        }
+        .form-title {
+            font-family: Georgia, serif;
+            font-size: 22px; font-weight: normal;
+            margin-bottom: 28px;
+        }
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block; font-size: 10px;
+            font-weight: 600; letter-spacing: 1px;
+            text-transform: uppercase; color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 9px 13px; border: 1px solid var(--border);
+            border-radius: 2px; font-size: 13px; font-family: inherit;
+            outline: none; resize: vertical;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus { border-color: var(--accent); }
+        .form-group textarea { min-height: 72px; }
+
+        .req { color: var(--accent); }
+
+        .copy-addr-btn {
+            font-size: 11px; color: var(--accent);
+            background: none; border: none; cursor: pointer;
+            padding: 0; text-decoration: underline;
+            display: block; margin: -10px 0 14px;
+        }
+
+        .form-note {
+            font-size: 11px; color: var(--text-muted);
+            margin-top: 18px; line-height: 1.7;
+        }
+
+        /* Order summary card */
+        .order-summary {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 3px; padding: 24px;
+            position: sticky; top: 80px;
+        }
+        .order-summary-title {
+            font-size: 10px; font-weight: 600;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 16px;
+        }
+        .sum-item {
+            display: flex; justify-content: space-between;
+            padding: 7px 0; border-bottom: 1px solid #f5f1eb;
+            font-size: 12px; gap: 12px;
+        }
+        .sum-item:last-of-type { border-bottom: none; }
+        .sum-item-name { flex: 1; color: var(--text); }
+        .sum-item-qty { color: var(--text-muted); white-space: nowrap; }
+        .sum-item-price { font-weight: 500; white-space: nowrap; }
+        .sum-total {
+            display: flex; justify-content: space-between;
+            padding-top: 12px; margin-top: 8px;
+            border-top: 2px solid var(--border);
+            font-weight: 600; font-size: 13px;
+        }
+
+        /* ── CONFIRMATION ───────────────────────────── */
+        .confirm-wrap {
+            text-align: center; padding: 80px 24px;
+        }
+        .confirm-icon {
+            width: 56px; height: 56px;
+            background: #e8f4ea; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: #2a7038;
+            margin: 0 auto 24px;
+        }
+        .confirm-title {
+            font-family: Georgia, serif;
+            font-size: 26px; font-weight: normal; margin-bottom: 12px;
+        }
+        .confirm-text {
+            color: var(--text-muted); margin-bottom: 32px;
+            max-width: 460px; margin-left: auto; margin-right: auto;
+            line-height: 1.7;
+        }
+
+        /* ── TOAST ──────────────────────────────────── */
+        .toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: #1a1a1a; color: #fff;
+            padding: 11px 18px; border-radius: 3px;
+            font-size: 13px; opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.25s; z-index: 999;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        /* ── RESPONSIVE ─────────────────────────────── */
+        @media (max-width: 768px) {
+            .view-container { padding: 16px; }
+            .controls-bar { flex-direction: column; align-items: stretch; }
+            .search-input { min-width: unset; }
+            .upload-label { margin-left: 0; }
+            header { padding: 0 16px; }
+            .header-logo small { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN SCREEN ══════════════ -->
+<div id="login-screen">
+    <div class="login-box">
+        <div class="login-eyebrow">Cellar Collective</div>
+        <div class="login-title">Raritätenliste</div>
+        <input type="password" id="pw-input" placeholder="Passwort eingeben"
+               autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') doLogin()">
+        <button class="btn-primary" onclick="doLogin()">Einloggen</button>
+        <div id="login-error"></div>
+    </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app" style="display:none">
+
+    <header>
+        <div class="header-logo">
+            Cellar Collective
+            <small>Raritätenliste</small>
+        </div>
+        <nav>
+            <button class="nav-btn active" id="nav-shop" onclick="showView('shop')">Liste</button>
+            <button class="nav-btn" id="nav-cart" onclick="showView('cart')">
+                Warenkorb
+                <span class="cart-badge hidden" id="cart-badge">0</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- ── SHOP ── -->
+    <div id="view-shop" class="view active">
+        <div class="view-container">
+            <div class="controls-bar">
+                <input type="search" class="search-input" id="search-input"
+                       placeholder="Suchen nach Weingut, Wein, Region …"
+                       oninput="applyFilters()">
+                <select class="filter-select" id="filter-art" onchange="applyFilters()">
+                    <option value="">Alle Weinarten</option>
+                </select>
+                <select class="filter-select" id="filter-land" onchange="onLandChange()">
+                    <option value="">Alle Länder</option>
+                </select>
+                <select class="filter-select" id="filter-region" onchange="applyFilters()">
+                    <option value="">Alle Regionen</option>
+                </select>
+                <span class="results-count" id="results-count"></span>
+                <label class="upload-label" for="file-input" title="Excel-Datei hochladen">↑ Datei laden</label>
+                <input type="file" id="file-input" accept=".xlsx,.xls,.csv"
+                       style="display:none" onchange="handleUpload(event)">
+            </div>
+            <div id="table-area"></div>
+        </div>
+    </div>
+
+    <!-- ── CART ── -->
+    <div id="view-cart" class="view">
+        <div class="view-container">
+            <div class="section-header">
+                <h2 class="section-title">Warenkorb</h2>
+                <button class="btn-secondary" id="clear-cart-btn" onclick="clearCart()">Leeren</button>
+            </div>
+            <div id="cart-area"></div>
+        </div>
+    </div>
+
+    <!-- ── ORDER ── -->
+    <div id="view-order" class="view">
+        <div class="view-container">
+            <div class="order-layout">
+                <div class="form-card">
+                    <h2 class="form-title">Unverbindliche Anfrage</h2>
+                    <form id="order-form" onsubmit="submitOrder(event)">
+                        <div class="form-group">
+                            <label>Name <span class="req">*</span></label>
+                            <input type="text" id="f-name" required placeholder="Vor- und Nachname">
+                        </div>
+                        <div class="form-group">
+                            <label>E-Mail <span class="req">*</span></label>
+                            <input type="email" id="f-email" required placeholder="ihre@email.de">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefon <span style="color:var(--text-muted);font-size:9px;letter-spacing:0">(optional)</span></label>
+                            <input type="tel" id="f-phone" placeholder="+49 …">
+                        </div>
+                        <div class="form-group">
+                            <label>Rechnungsadresse <span class="req">*</span></label>
+                            <textarea id="f-invoice" required
+                                      placeholder="Straße Nr., PLZ Ort, Land"></textarea>
+                        </div>
+                        <button type="button" class="copy-addr-btn"
+                                onclick="copyAddress()">→ Lieferadresse = Rechnungsadresse</button>
+                        <div class="form-group">
+                            <label>Lieferadresse <span class="req">*</span></label>
+                            <textarea id="f-delivery" required
+                                      placeholder="Straße Nr., PLZ Ort, Land"></textarea>
+                        </div>
+                        <button type="submit" class="btn-cta" style="width:100%;padding:12px">
+                            Anfrage absenden
+                        </button>
+                        <p class="form-note">
+                            <span class="req">*</span> Pflichtfeld.<br>
+                            Ihre Anfrage wird per E-Mail an Cellar Collective übermittelt. Es handelt sich
+                            um eine unverbindliche Anfrage ohne Kaufverpflichtung.
+                        </p>
+                    </form>
+                </div>
+
+                <div class="order-summary">
+                    <div class="order-summary-title">Ihre Anfrage</div>
+                    <div id="sum-items"></div>
+                    <div class="sum-total">
+                        <span>Gesamt</span>
+                        <span id="sum-total-val">0,00 €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CONFIRMATION ── -->
+    <div id="view-confirmation" class="view">
+        <div class="view-container">
+            <div class="confirm-wrap">
+                <div class="confirm-icon">✓</div>
+                <h2 class="confirm-title">Anfrage versendet</h2>
+                <p class="confirm-text">
+                    Ihre unverbindliche Anfrage wurde per E-Mail an Cellar Collective weitergeleitet.
+                    Eine Kopie wurde an Ihre angegebene E-Mail-Adresse gesendet.
+                    Das Team wird sich in Kürze bei Ihnen melden.
+                </p>
+                <button class="btn-primary" style="max-width:200px;margin:0 auto;display:block"
+                        onclick="startNew()">Neue Anfrage</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CONSTANTS & STATE
+══════════════════════════════════════════════════════ */
+const PASSWORD    = 'cellarcollectivecommunity';
+const EMAIL_TO    = 'mail@cellarcollective.de';
+const STORAGE_KEY = 'cc_wines_v2';
+
+let wines    = [];   // all wine objects from Excel
+let filtered = [];   // currently visible (after filter/sort)
+let cart     = {};   // { origIndex: qty }
+let sortCol  = null;
+let sortDir  = 1;    // 1=asc, -1=desc
+
+const COLS = [
+    { key: 'Art',                  label: 'Art',       cls: 'col-art' },
+    { key: 'Land',                 label: 'Land',      cls: 'col-land' },
+    { key: 'Region',               label: 'Region',    cls: 'col-region' },
+    { key: 'Größe',                label: 'Größe',     cls: 'col-groesse' },
+    { key: 'Jahrgang',             label: 'Jahrgang',  cls: 'col-jahrgang' },
+    { key: 'Weingut',              label: 'Weingut',   cls: 'col-weingut' },
+    { key: 'Wein',                 label: 'Wein',      cls: 'col-wein' },
+    { key: 'Verkaufspreis brutto', label: 'Preis',     cls: 'col-preis', fmt: 'price' },
+    { key: 'Parker',               label: 'Parker',    cls: 'col-parker', fmt: 'parker' },
+    { key: 'Verfügbar',            label: 'Verfügbar', cls: 'col-avail',  fmt: 'avail' },
+];
+
+/* ══════════════════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════════════════ */
+function doLogin() {
+    const val = document.getElementById('pw-input').value;
+    if (val === PASSWORD) {
+        sessionStorage.setItem('cc_auth', '1');
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        loadSaved();
+    } else {
+        document.getElementById('login-error').textContent = 'Falsches Passwort.';
+        document.getElementById('pw-input').value = '';
+        document.getElementById('pw-input').focus();
+    }
+}
+
+/* ══════════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════════ */
+function loadSaved() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+        try { wines = JSON.parse(raw); } catch(e) { wines = []; }
+    }
+    refreshUI();
+}
+
+function handleUpload(evt) {
+    const file = evt.target.files[0];
+    if (!file) return;
+    evt.target.value = '';
+
+    const isCSV = file.name.toLowerCase().endsWith('.csv');
+    const reader = new FileReader();
+
+    function processRows(rows) {
+        if (!rows.length) { showToast('Keine Daten in der Datei gefunden.'); return; }
+        wines = rows.map(normalizeRow);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(wines));
+        refreshUI();
+        showToast(`${wines.length} Weine geladen.`);
+    }
+
+    if (isCSV) {
+        reader.onload = e => {
+            try {
+                const text = e.target.result;
+                // Auto-detect delimiter (semicolon vs comma)
+                const firstLine = text.split(/\r?\n/)[0];
+                const semiCount  = (firstLine.match(/;/g)  || []).length;
+                const commaCount = (firstLine.match(/,/g)  || []).length;
+                const FS = semiCount > commaCount ? ';' : ',';
+                const wb    = XLSX.read(text, { type: 'string', FS });
+                const sheet = wb.Sheets[wb.SheetNames[0]];
+                const rows  = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+                processRows(rows);
+            } catch(err) {
+                showToast('Fehler beim Lesen der CSV-Datei.');
+                console.error(err);
+            }
+        };
+        reader.readAsText(file, 'UTF-8');
+    } else {
+        reader.onload = e => {
+            try {
+                const data  = new Uint8Array(e.target.result);
+                const wb    = XLSX.read(data, { type: 'array' });
+                const sheet = wb.Sheets[wb.SheetNames[0]];
+                const rows  = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+                processRows(rows);
+            } catch(err) {
+                showToast('Fehler beim Lesen – bitte Excel oder CSV verwenden.');
+                console.error(err);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+}
+
+// Map raw Excel column names → our canonical keys
+const KEY_MAP = {
+    'art': 'Art', 'typ': 'Art', 'type': 'Art', 'weinart': 'Art',
+    'land': 'Land', 'country': 'Land',
+    'region': 'Region', 'appellation': 'Region',
+    'größe': 'Größe', 'grosse': 'Größe', 'groesse': 'Größe',
+    'format': 'Größe', 'size': 'Größe', 'flaschengröße': 'Größe',
+    'jahrgang': 'Jahrgang', 'vintage': 'Jahrgang', 'jahr': 'Jahrgang',
+    'weingut': 'Weingut', 'winery': 'Weingut', 'produzent': 'Weingut',
+    'château': 'Weingut', 'chateau': 'Weingut',
+    'wein': 'Wein', 'wine': 'Wein', 'bezeichnung': 'Wein',
+    'verkaufspreis brutto': 'Verkaufspreis brutto',
+    'verkaufspreisbrutto': 'Verkaufspreis brutto',
+    'verkaufspreis': 'Verkaufspreis brutto',
+    'preis': 'Verkaufspreis brutto', 'price': 'Verkaufspreis brutto',
+    'vk brutto': 'Verkaufspreis brutto', 'vkbrutto': 'Verkaufspreis brutto',
+    'parker': 'Parker', 'punkte': 'Parker', 'bewertung': 'Parker', 'score': 'Parker',
+    'verfügbar': 'Verfügbar', 'verfuegbar': 'Verfügbar',
+    'available': 'Verfügbar', 'bestand': 'Verfügbar',
+    'lagerbestand': 'Verfügbar', 'stock': 'Verfügbar',
+};
+
+function normalizeRow(row) {
+    const out = {};
+    for (const [k, v] of Object.entries(row)) {
+        const norm = k.toLowerCase().trim()
+            .replace(/\s+/g, ' ')
+            .replace(/-/g, '')
+            .replace(/\u00ad/g, ''); // soft hyphen
+        const mapped = KEY_MAP[norm] || k;
+        out[mapped] = v;
+    }
+    return out;
+}
+
+/* ══════════════════════════════════════════════════════
+   FILTERS & RENDER
+══════════════════════════════════════════════════════ */
+function refreshUI() {
+    populateFilterDropdowns();
+    applyFilters();
+}
+
+function populateFilterDropdowns() {
+    const arts    = [...new Set(wines.map(w => w.Art).filter(Boolean))].sort();
+    const lands   = [...new Set(wines.map(w => w.Land).filter(Boolean))].sort();
+    setOptions('filter-art',  arts);
+    setOptions('filter-land', lands);
+    updateRegionDropdown();
+}
+
+function setOptions(id, vals) {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    while (sel.options.length > 1) sel.remove(1);
+    vals.forEach(v => sel.appendChild(new Option(v, v)));
+    if (vals.includes(cur)) sel.value = cur;
+}
+
+function onLandChange() { updateRegionDropdown(); applyFilters(); }
+
+function updateRegionDropdown() {
+    const land = document.getElementById('filter-land')?.value || '';
+    const regions = [...new Set(
+        wines.filter(w => !land || w.Land === land)
+             .map(w => w.Region).filter(Boolean)
+    )].sort();
+    const curRegion = document.getElementById('filter-region')?.value || '';
+    setOptions('filter-region', regions);
+    if (regions.includes(curRegion)) document.getElementById('filter-region').value = curRegion;
+}
+
+function applyFilters() {
+    const q       = (document.getElementById('search-input')?.value || '').toLowerCase();
+    const art     = document.getElementById('filter-art')?.value    || '';
+    const land    = document.getElementById('filter-land')?.value   || '';
+    const region  = document.getElementById('filter-region')?.value || '';
+
+    filtered = wines.filter(w => {
+        if (art    && w.Art    !== art)    return false;
+        if (land   && w.Land   !== land)   return false;
+        if (region && w.Region !== region) return false;
+        if (q) {
+            const hay = [w.Weingut, w.Wein, w.Region, w.Land, w.Art, w.Jahrgang]
+                .map(x => String(x || '')).join(' ').toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+        return true;
+    });
+
+    if (sortCol) {
+        filtered.sort((a, b) => {
+            let va = a[sortCol] ?? '', vb = b[sortCol] ?? '';
+            const na = parseFloat(String(va).replace(',', '.'));
+            const nb = parseFloat(String(vb).replace(',', '.'));
+            if (!isNaN(na) && !isNaN(nb)) return (na - nb) * sortDir;
+            return String(va).localeCompare(String(vb), 'de') * sortDir;
+        });
+    }
+
+    const ct = document.getElementById('results-count');
+    if (ct) ct.textContent = filtered.length === wines.length
+        ? `${wines.length} Weine`
+        : `${filtered.length} von ${wines.length}`;
+
+    renderTable();
+}
+
+function sortBy(key) {
+    sortDir = (sortCol === key) ? sortDir * -1 : 1;
+    sortCol = key;
+    applyFilters();
+}
+
+function renderTable() {
+    const area = document.getElementById('table-area');
+    if (!area) return;
+
+    if (!wines.length) {
+        area.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🍷</div>
+                <div class="empty-title">Keine Weine geladen</div>
+                <div class="empty-text">Laden Sie die Raritätenliste als Excel-Datei (.xlsx) hoch.</div>
+                <label class="btn-primary" for="file-input"
+                       style="display:inline-block;cursor:pointer;padding:11px 28px">
+                    Excel-Datei hochladen
+                </label>
+            </div>`;
+        return;
+    }
+
+    if (!filtered.length) {
+        area.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <div class="empty-title">Keine Treffer</div>
+                <div class="empty-text">Passen Sie die Filter oder Suche an.</div>
+            </div>`;
+        return;
+    }
+
+    const ths = COLS.map(c => {
+        const sorted = sortCol === c.key;
+        const icon   = sorted ? (sortDir === 1 ? '↑' : '↓') : '↕';
+        return `<th class="${c.cls}${sorted ? ' sorted' : ''}"
+                    onclick="sortBy('${c.key}')">
+                    ${c.label}<span class="sort-icon">${icon}</span>
+                </th>`;
+    }).join('') + `<th class="col-menge">Menge</th>`;
+
+    const tbody = filtered.map(wine => {
+        const oi = wines.indexOf(wine); // original index for cart
+        const cq = cart[oi] || 0;
+
+        const cells = COLS.map(c => {
+            const raw = wine[c.key] ?? '';
+            let html  = '';
+
+            if (c.fmt === 'price') {
+                const n = parseFloat(String(raw).replace(',', '.'));
+                html = isNaN(n) ? esc(String(raw) || '–') : fmtPrice(n);
+            } else if (c.fmt === 'parker') {
+                html = raw ? `<span class="parker-score">${esc(String(raw))}</span>` : '–';
+            } else if (c.fmt === 'avail') {
+                const n = parseInt(raw);
+                if (isNaN(n) || raw === '') {
+                    html = raw ? `<span class="badge badge-ok">${esc(String(raw))}</span>` : '–';
+                } else if (n <= 0) {
+                    html = `<span class="badge badge-nil">${n}</span>`;
+                } else if (n <= 3) {
+                    html = `<span class="badge badge-low">${n}</span>`;
+                } else {
+                    html = `<span class="badge badge-ok">${n}</span>`;
+                }
+            } else {
+                html = esc(String(raw));
+            }
+
+            return `<td class="${c.cls}">${html}</td>`;
+        }).join('');
+
+        const qtyCell = `
+            <td class="col-menge">
+                <div class="qty-wrap">
+                    <button class="qty-btn" onclick="chQty(${oi},-1)">−</button>
+                    <input  class="qty-input" type="number" min="0"
+                            id="qi-${oi}" value="${cq}"
+                            onchange="setQty(${oi},this.value)"
+                            onclick="this.select()">
+                    <button class="qty-btn" onclick="chQty(${oi},1)">+</button>
+                    <button class="atc-btn${cq > 0 ? ' added' : ''}"
+                            id="atcb-${oi}" onclick="atc(${oi})">
+                        ${cq > 0 ? '✓' : '+ Warenkorb'}
+                    </button>
+                </div>
+            </td>`;
+
+        return `<tr>${cells}${qtyCell}</tr>`;
+    }).join('');
+
+    area.innerHTML = `
+        <div class="table-wrapper">
+            <table>
+                <thead><tr>${ths}</tr></thead>
+                <tbody>${tbody}</tbody>
+            </table>
+        </div>`;
+}
+
+/* ══════════════════════════════════════════════════════
+   CART
+══════════════════════════════════════════════════════ */
+function chQty(oi, delta) {
+    const inp = document.getElementById(`qi-${oi}`);
+    if (!inp) return;
+    const nv = Math.max(0, (parseInt(inp.value) || 0) + delta);
+    inp.value = nv;
+    setQty(oi, nv);
+}
+
+function setQty(oi, val) {
+    const n = Math.max(0, parseInt(val) || 0);
+    if (n === 0) delete cart[oi]; else cart[oi] = n;
+    updateBadge();
+    // sync button
+    const b = document.getElementById(`atcb-${oi}`);
+    if (b) { b.className = `atc-btn${n > 0 ? ' added' : ''}`; b.textContent = n > 0 ? '✓' : '+ Warenkorb'; }
+}
+
+function atc(oi) {
+    const inp = document.getElementById(`qi-${oi}`);
+    const qty = inp ? (parseInt(inp.value) || 0) : 0;
+    const nq  = qty === 0 ? 1 : qty;
+    if (inp) inp.value = nq;
+    setQty(oi, nq);
+    showToast('In den Warenkorb gelegt');
+}
+
+function updateBadge() {
+    const total = Object.values(cart).reduce((s, v) => s + v, 0);
+    const badge = document.getElementById('cart-badge');
+    if (!badge) return;
+    badge.textContent = total;
+    badge.classList.toggle('hidden', total === 0);
+}
+
+function clearCart() {
+    if (!confirm('Warenkorb leeren?')) return;
+    cart = {};
+    updateBadge();
+    renderCart();
+    renderTable();
+}
+
+function removeItem(oi) {
+    delete cart[oi];
+    updateBadge();
+    renderCart();
+    // sync table row if visible
+    const inp = document.getElementById(`qi-${oi}`);
+    if (inp) { inp.value = 0; setQty(oi, 0); }
+}
+
+function renderCart() {
+    const area = document.getElementById('cart-area');
+    if (!area) return;
+
+    const items = Object.entries(cart).filter(([,q]) => q > 0);
+    const clearBtn = document.getElementById('clear-cart-btn');
+
+    if (!items.length) {
+        if (clearBtn) clearBtn.style.display = 'none';
+        area.innerHTML = `
+            <div class="cart-empty">
+                <p>Ihr Warenkorb ist leer.</p>
+                <button class="btn-secondary" onclick="showView('shop')">Zur Raritätenliste</button>
+            </div>`;
+        return;
+    }
+
+    if (clearBtn) clearBtn.style.display = '';
+
+    let total = 0;
+    const rows = items.map(([oi, qty]) => {
+        const w = wines[+oi];
+        if (!w) return '';
+        const p  = parsePrice(w['Verkaufspreis brutto']);
+        const st = p * qty;
+        total += st;
+        return `<tr>
+            <td>${esc(w.Weingut || '')}</td>
+            <td>${esc(w.Wein    || '')}</td>
+            <td style="text-align:center">${esc(String(w.Jahrgang || ''))}</td>
+            <td style="text-align:center">${esc(String(w.Größe    || ''))}</td>
+            <td style="text-align:right">${fmtPrice(p)}</td>
+            <td style="min-width:130px">
+                <div class="qty-wrap" style="justify-content:center">
+                    <button class="qty-btn" onclick="cartChQty(${oi},-1)">−</button>
+                    <input class="qty-input" type="number" min="0" value="${qty}"
+                           onchange="cartSetQty(${oi},this.value)">
+                    <button class="qty-btn" onclick="cartChQty(${oi},1)">+</button>
+                </div>
+            </td>
+            <td style="text-align:right;font-weight:500">${fmtPrice(st)}</td>
+            <td style="width:36px">
+                <button class="remove-btn" onclick="removeItem(${oi})" title="Entfernen">×</button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    area.innerHTML = `
+        <div class="cart-block">
+            <table>
+                <thead><tr>
+                    <th>Weingut</th><th>Wein</th>
+                    <th style="text-align:center">Jahrgang</th>
+                    <th style="text-align:center">Größe</th>
+                    <th style="text-align:right">Preis/Fl.</th>
+                    <th style="text-align:center">Menge</th>
+                    <th style="text-align:right">Gesamt</th>
+                    <th></th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>
+        <div class="cart-total-bar">
+            <span class="cart-total-label">Gesamtbetrag (unverbindlich)</span>
+            <span class="cart-total-value">${fmtPrice(total)}</span>
+        </div>
+        <div class="cart-actions">
+            <button class="btn-secondary" onclick="showView('shop')">← Weiter stöbern</button>
+            <button class="btn-cta"       onclick="showView('order')">Unverbindlich Anfragen →</button>
+        </div>`;
+}
+
+function cartChQty(oi, delta) {
+    const nv = Math.max(0, (cart[oi] || 0) + delta);
+    cartSetQty(oi, nv);
+}
+
+function cartSetQty(oi, val) {
+    const n = Math.max(0, parseInt(val) || 0);
+    if (n === 0) { removeItem(oi); return; }
+    cart[oi] = n;
+    updateBadge();
+    renderCart();
+}
+
+/* ══════════════════════════════════════════════════════
+   ORDER
+══════════════════════════════════════════════════════ */
+function renderOrderSummary() {
+    const items = Object.entries(cart).filter(([,q]) => q > 0);
+    let total = 0;
+
+    const html = items.map(([oi, qty]) => {
+        const w  = wines[+oi];
+        if (!w) return '';
+        const p  = parsePrice(w['Verkaufspreis brutto']);
+        const st = p * qty;
+        total += st;
+        const name = [w.Weingut, w.Wein, w.Jahrgang].filter(Boolean).join(' · ');
+        return `<div class="sum-item">
+            <span class="sum-item-name">${esc(name)}</span>
+            <span class="sum-item-qty">×${qty}</span>
+            <span class="sum-item-price">${fmtPrice(st)}</span>
+        </div>`;
+    }).join('');
+
+    const el = document.getElementById('sum-items');
+    if (el) el.innerHTML = html;
+    const tv = document.getElementById('sum-total-val');
+    if (tv) tv.textContent = fmtPrice(total);
+}
+
+function copyAddress() {
+    const inv = document.getElementById('f-invoice').value;
+    document.getElementById('f-delivery').value = inv;
+}
+
+function submitOrder(evt) {
+    evt.preventDefault();
+
+    const name     = document.getElementById('f-name').value.trim();
+    const email    = document.getElementById('f-email').value.trim();
+    const phone    = document.getElementById('f-phone').value.trim();
+    const invoice  = document.getElementById('f-invoice').value.trim();
+    const delivery = document.getElementById('f-delivery').value.trim();
+
+    const items = Object.entries(cart).filter(([,q]) => q > 0);
+    if (!items.length) { alert('Ihr Warenkorb ist leer.'); return; }
+
+    let total = 0;
+    const wineRows = items.map(([oi, qty]) => {
+        const w  = wines[+oi];
+        if (!w) return '';
+        const p  = parsePrice(w['Verkaufspreis brutto']);
+        const st = p * qty;
+        total += st;
+        return `${pad(w.Weingut||'',22)} | ${pad(w.Wein||'',24)} | ${pad(String(w.Jahrgang||''),6)} | ${pad(String(w.Größe||''),8)} | ${pad(String(w.Art||''),8)} | ${fmtPrice(p).padStart(10)} | ${String(qty)+'x'} | ${fmtPrice(st).padStart(10)}`;
+    }).filter(Boolean);
+
+    const header = `${pad('Weingut',22)} | ${pad('Wein',24)} | ${pad('Jg.',6)} | ${pad('Größe',8)} | ${pad('Art',8)} | ${'Preis/Fl.'.padStart(10)} | Menge | ${'Gesamt'.padStart(10)}`;
+    const divider = '-'.repeat(header.length);
+
+    const body = [
+        'UNVERBINDLICHE WEINANFRAGE – CELLAR COLLECTIVE',
+        '='.repeat(50),
+        '',
+        'KONTAKTDATEN',
+        '-'.repeat(30),
+        `Name:             ${name}`,
+        `E-Mail:           ${email}`,
+        phone ? `Telefon:          ${phone}` : null,
+        '',
+        'Rechnungsadresse:',
+        invoice,
+        '',
+        'Lieferadresse:',
+        delivery,
+        '',
+        '='.repeat(50),
+        'ANGEFRAGTE WEINE',
+        '='.repeat(50),
+        '',
+        header,
+        divider,
+        ...wineRows,
+        divider,
+        '',
+        `GESAMTBETRAG (unverbindlich): ${fmtPrice(total)}`,
+        '',
+        '='.repeat(50),
+        'Unverbindliche Anfrage über cellarcollective.de',
+    ].filter(l => l !== null).join('\n');
+
+    const subject = `Weinanfrage von ${name}`;
+    const mailto  = `mailto:${EMAIL_TO}?cc=${encodeURIComponent(email)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    if (mailto.length > 8000) {
+        // Fallback: clipboard
+        copyToClipboard(body);
+        alert(`Die Anfrage ist zu lang für das E-Mail-Programm.\n\nDer Inhalt wurde in die Zwischenablage kopiert.\nBitte manuell senden an: ${EMAIL_TO}`);
+    } else {
+        window.location.href = mailto;
+    }
+
+    showView('confirmation');
+}
+
+function startNew() {
+    cart = {};
+    updateBadge();
+    document.getElementById('order-form')?.reset();
+    showView('shop');
+    renderTable();
+}
+
+/* ══════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════ */
+function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+    document.getElementById(`view-${name}`)?.classList.add('active');
+    document.getElementById(`nav-${name}`)?.classList.add('active');
+
+    if (name === 'cart')  renderCart();
+    if (name === 'order') {
+        if (!Object.keys(cart).length) { showView('cart'); return; }
+        renderOrderSummary();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════════════ */
+function fmtPrice(n) {
+    if (isNaN(n)) return '–';
+    return n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
+function parsePrice(raw) {
+    return parseFloat(String(raw || '0').replace(',', '.')) || 0;
+}
+
+function esc(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function pad(s, n) {
+    const str = String(s);
+    return str.length >= n ? str.slice(0, n) : str + ' '.repeat(n - str.length);
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.style.position = 'fixed';
+    el.style.opacity = '0';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+(function init() {
+    if (sessionStorage.getItem('cc_auth') === '1') {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        loadSaved();
+    } else {
+        document.getElementById('pw-input')?.focus();
+    }
+})();
+</script>
+</body>
+</html>
