@@ -1,0 +1,50 @@
+{
+  "realm": "mabis",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "mabis-hub",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "serviceAccountsEnabled": true,
+      "directAccessGrantsEnabled": true
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "MSB",   "description": "Messstellenbetreiber – Messwerteinlieferung" },
+      { "name": "VNB",   "description": "Verteilnetzbetreiber – Stammdatenmeldung" },
+      { "name": "BKV",   "description": "Bilanzkreisverantwortlicher – Fahrplan & Abrechnung" },
+      { "name": "UNB",   "description": "Übertragungsnetzbetreiber – Hub-Betrieb & Abrechnungsläufe" },
+      { "name": "ADMIN", "description": "Regulierungsbehörde – Vollzugriff (lesend)" }
+    ]
+  },
+  "users": [
+    {
+      "username": "msb-testnutzer",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "mabis-test" }],
+      "realmRoles": ["MSB"]
+    },
+    {
+      "username": "vnb-testnutzer",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "mabis-test" }],
+      "realmRoles": ["VNB"]
+    },
+    {
+      "username": "bkv-testnutzer",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "mabis-test" }],
+      "realmRoles": ["BKV"]
+    },
+    {
+      "username": "unb-testnutzer",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "mabis-test" }],
+      "realmRoles": ["UNB"]
+    }
+  ]
+}

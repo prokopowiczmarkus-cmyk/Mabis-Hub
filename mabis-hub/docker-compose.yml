@@ -1,0 +1,36 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: mabis-db
+    environment:
+      POSTGRES_DB:       mabis
+      POSTGRES_USER:     mabis
+      POSTGRES_PASSWORD: mabis
+    ports:
+      - "5432:5432"
+    volumes:
+      - mabis_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mabis"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: mabis-keycloak
+    environment:
+      KEYCLOAK_ADMIN:          admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev --import-realm
+    volumes:
+      - ./src/main/resources/keycloak-realm-export.json:/opt/keycloak/data/import/mabis-realm.json
+    ports:
+      - "9090:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  mabis_pgdata:

@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaBiS-Hub · Admin Cockpit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #08090B;
+      --bg2:     #0D0F13;
+      --bg3:     #12151C;
+      --bg4:     #181C26;
+      --bg5:     #1E2333;
+      --acc:     #3EC9E0;
+      --acc2:    #2AB8D4;
+      --acc-g:   rgba(62,201,224,0.10);
+      --acc-gb:  rgba(62,201,224,0.20);
+      --green:   #34D17A;
+      --red:     #F05252;
+      --yellow:  #F5A623;
+      --purple:  #A78BFA;
+      --text:    #E8EDF5;
+      --text-m:  #8B96B0;
+      --text-d:  #3E4A63;
+      --border:  rgba(62,201,224,0.10);
+      --border2: rgba(62,201,224,0.20);
+      --font-b:  'DM Sans', sans-serif;
+      --font-m:  'DM Mono', monospace;
+      --r:       10px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-b); font-size: 14px; overflow: hidden; }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    #shell { display: flex; height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────────────────────── */
+    #sidebar {
+      width: 220px; min-width: 220px; background: var(--bg2);
+      border-right: 1px solid var(--border); display: flex; flex-direction: column;
+      padding: 0; overflow: hidden;
+    }
+    .sb-logo {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sb-logo-title {
+      font-family: var(--font-m); font-size: 11px; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--acc); font-weight: 500;
+    }
+    .sb-logo-sub {
+      font-size: 10px; color: var(--text-d); margin-top: 3px; letter-spacing: .08em;
+    }
+    .sb-status-dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 6px var(--green); margin-right: 5px;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .sb-section { padding: 16px 12px 4px; }
+    .sb-section-label {
+      font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--text-d); font-family: var(--font-m); padding: 0 8px; margin-bottom: 4px;
+    }
+    .sb-item {
+      display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+      border-radius: 7px; cursor: pointer; color: var(--text-m); font-size: 13px;
+      transition: all .18s; user-select: none; margin-bottom: 2px; position: relative;
+    }
+    .sb-item:hover { background: var(--acc-g); color: var(--text); }
+    .sb-item.active { background: var(--acc-gb); color: var(--acc); }
+    .sb-item.active::before {
+      content: ''; position: absolute; left: -12px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 18px; background: var(--acc); border-radius: 0 3px 3px 0;
+    }
+    .sb-icon { width: 16px; text-align: center; font-size: 15px; flex-shrink: 0; }
+    .sb-badge {
+      margin-left: auto; font-size: 10px; font-family: var(--font-m);
+      background: var(--bg4); color: var(--text-m); padding: 2px 7px; border-radius: 20px;
+    }
+    .sb-item.active .sb-badge { background: var(--acc-g); color: var(--acc); }
+
+    .sb-bottom {
+      margin-top: auto; padding: 14px 20px; border-top: 1px solid var(--border);
+      font-size: 11px; color: var(--text-d); font-family: var(--font-m);
+    }
+    .sb-bottom span { color: var(--text-m); }
+
+    /* ── Main ────────────────────────────────────────────────────── */
+    #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── Topbar ──────────────────────────────────────────────────── */
+    #topbar {
+      height: 56px; min-height: 56px; background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 28px; gap: 20px;
+    }
+    #topbar-title { font-size: 15px; font-weight: 600; color: var(--text); flex: 1; }
+    #topbar-title span { color: var(--text-m); font-weight: 400; font-size: 13px; margin-left: 8px; }
+    .tb-chip {
+      font-family: var(--font-m); font-size: 10px; padding: 4px 10px;
+      border-radius: 20px; border: 1px solid; letter-spacing: .06em;
+    }
+    .tb-chip.ok { border-color: rgba(52,209,122,.3); color: var(--green); background: rgba(52,209,122,.06); }
+    .tb-chip.warn { border-color: rgba(245,166,35,.3); color: var(--yellow); background: rgba(245,166,35,.06); }
+    .tb-time {
+      font-family: var(--font-m); font-size: 11px; color: var(--text-d); white-space: nowrap;
+    }
+    .tb-btn {
+      font-family: var(--font-m); font-size: 11px; padding: 6px 14px;
+      border-radius: 6px; border: 1px solid var(--border2); background: transparent;
+      color: var(--text-m); cursor: pointer; transition: all .18s; letter-spacing: .06em;
+    }
+    .tb-btn:hover { background: var(--acc-g); color: var(--acc); border-color: var(--acc); }
+
+    /* ── Content ─────────────────────────────────────────────────── */
+    #content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+    #content::-webkit-scrollbar { width: 4px; }
+    #content::-webkit-scrollbar-track { background: transparent; }
+    #content::-webkit-scrollbar-thumb { background: var(--bg5); border-radius: 4px; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── KPI Row ────────────────────────────────────────────────── */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    .kpi {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 18px 20px; position: relative; overflow: hidden; transition: border-color .2s;
+    }
+    .kpi:hover { border-color: var(--border2); }
+    .kpi::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 0% 0%, var(--acc-g) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .kpi-label { font-size: 11px; color: var(--text-m); font-family: var(--font-m); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+    .kpi-value { font-size: 30px; font-weight: 600; color: var(--text); line-height: 1; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+    .kpi-value .kpi-unit { font-size: 14px; color: var(--text-m); font-weight: 400; margin-left: 4px; }
+    .kpi-sub { font-size: 11px; color: var(--text-d); }
+    .kpi-sub .up { color: var(--green); }
+    .kpi-sub .down { color: var(--red); }
+    .kpi-icon { position: absolute; right: 16px; top: 16px; font-size: 20px; opacity: .4; }
+
+    /* ── Section title ──────────────────────────────────────────── */
+    .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .sec-title { font-size: 12px; font-family: var(--font-m); letter-spacing: .16em; text-transform: uppercase; color: var(--text-m); }
+    .sec-action { font-size: 11px; color: var(--acc); cursor: pointer; font-family: var(--font-m); }
+
+    /* ── Grid 2col ──────────────────────────────────────────────── */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 20px; }
+
+    /* ── Card ───────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 18px 20px;
+    }
+
+    /* ── Audit Table ────────────────────────────────────────────── */
+    .audit-table { width: 100%; border-collapse: collapse; }
+    .audit-table th {
+      text-align: left; font-family: var(--font-m); font-size: 10px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-d); padding: 0 12px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .audit-table td { padding: 9px 12px; border-bottom: 1px solid rgba(62,201,224,0.05); font-size: 12px; }
+    .audit-table tr:last-child td { border-bottom: none; }
+    .audit-table tr:hover td { background: var(--acc-g); }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-m); font-size: 10px; padding: 3px 8px; border-radius: 4px;
+      letter-spacing: .04em; font-weight: 500;
+    }
+    .badge.vnb  { background: rgba(62,201,224,.12); color: var(--acc); }
+    .badge.msb  { background: rgba(167,139,250,.12); color: var(--purple); }
+    .badge.bkv  { background: rgba(52,209,122,.12); color: var(--green); }
+    .badge.unb  { background: rgba(245,166,35,.12); color: var(--yellow); }
+    .badge.admin{ background: rgba(240,82,82,.12); color: var(--red); }
+    .dot-ok  { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+    .dot-err { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+    .mono { font-family: var(--font-m); font-size: 11px; color: var(--text-m); }
+
+    /* ── Rolle Matrix ───────────────────────────────────────────── */
+    .matrix { width: 100%; border-collapse: collapse; }
+    .matrix th { font-family: var(--font-m); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-d); padding: 8px 12px; text-align: center; border-bottom: 1px solid var(--border); }
+    .matrix th:first-child { text-align: left; }
+    .matrix td { padding: 10px 12px; border-bottom: 1px solid rgba(62,201,224,0.05); font-size: 12px; text-align: center; }
+    .matrix td:first-child { text-align: left; font-family: var(--font-m); font-size: 11px; color: var(--text-m); }
+    .matrix tr:last-child td { border-bottom: none; }
+    .chk { color: var(--green); font-size: 14px; }
+    .cross { color: var(--text-d); font-size: 14px; }
+    .chk-admin { color: var(--acc); font-size: 14px; }
+
+    /* ── Endpunkt List ──────────────────────────────────────────── */
+    .ep-item {
+      display: flex; align-items: center; gap: 12px; padding: 9px 0;
+      border-bottom: 1px solid rgba(62,201,224,0.05);
+    }
+    .ep-item:last-child { border-bottom: none; }
+    .ep-method {
+      font-family: var(--font-m); font-size: 10px; padding: 3px 8px; border-radius: 4px;
+      min-width: 44px; text-align: center; font-weight: 500; letter-spacing: .04em;
+    }
+    .ep-method.post { background: rgba(52,209,122,.12); color: var(--green); }
+    .ep-method.get  { background: rgba(62,201,224,.12); color: var(--acc); }
+    .ep-path { font-family: var(--font-m); font-size: 11px; color: var(--text); flex: 1; }
+    .ep-role { font-size: 11px; color: var(--text-m); }
+
+    /* ── Abrechnung Timeline ────────────────────────────────────── */
+    .lauf-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 11px 14px; border-radius: 8px; margin-bottom: 8px;
+      background: var(--bg3); border: 1px solid var(--border);
+    }
+    .lauf-icon { font-size: 18px; width: 24px; text-align: center; }
+    .lauf-info { flex: 1; }
+    .lauf-name { font-size: 13px; font-weight: 500; }
+    .lauf-sub { font-size: 11px; color: var(--text-m); margin-top: 2px; font-family: var(--font-m); }
+    .lauf-tag { font-family: var(--font-m); font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+    .lauf-tag.v { background: rgba(52,209,122,.10); color: var(--green); border: 1px solid rgba(52,209,122,.25); }
+    .lauf-tag.k { background: rgba(245,166,35,.10); color: var(--yellow); border: 1px solid rgba(245,166,35,.25); }
+    .lauf-tag.e { background: rgba(62,201,224,.10); color: var(--acc); border: 1px solid rgba(62,201,224,.25); }
+
+    /* ── Chart Canvas ───────────────────────────────────────────── */
+    canvas { display: block; }
+
+    /* ── Progress Bar ───────────────────────────────────────────── */
+    .prog-row { margin-bottom: 14px; }
+    .prog-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+    .prog-label span:last-child { font-family: var(--font-m); color: var(--text-m); }
+    .prog-bar { height: 5px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 3px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+
+    /* ── Flyway Migrations ──────────────────────────────────────── */
+    .migration-row {
+      display: flex; align-items: center; gap: 12px; padding: 9px 0;
+      border-bottom: 1px solid rgba(62,201,224,0.05);
+    }
+    .migration-row:last-child { border-bottom: none; }
+    .migration-ver { font-family: var(--font-m); font-size: 10px; color: var(--acc); min-width: 32px; }
+    .migration-desc { font-size: 12px; flex: 1; }
+    .migration-state { font-family: var(--font-m); font-size: 10px; color: var(--green); }
+
+    /* ── Mini stat ──────────────────────────────────────────────── */
+    .mini-stat { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(62,201,224,0.05); }
+    .mini-stat:last-child { border-bottom: none; }
+    .mini-stat-label { font-size: 12px; color: var(--text-m); }
+    .mini-stat-value { font-family: var(--font-m); font-size: 12px; color: var(--text); }
+
+    /* ── Tabs (within page) ─────────────────────────────────────── */
+    .tab-bar { display: flex; gap: 4px; margin-bottom: 16px; }
+    .tab-btn {
+      font-family: var(--font-m); font-size: 11px; padding: 6px 14px;
+      border-radius: 6px; border: 1px solid transparent; background: transparent;
+      color: var(--text-m); cursor: pointer; transition: all .15s; letter-spacing: .06em;
+    }
+    .tab-btn:hover { color: var(--text); background: var(--bg3); }
+    .tab-btn.active { border-color: var(--border2); background: var(--acc-g); color: var(--acc); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Scrollbar Thin ─────────────────────────────────────────── */
+    .card-scroll { overflow-y: auto; max-height: 280px; }
+    .card-scroll::-webkit-scrollbar { width: 3px; }
+    .card-scroll::-webkit-scrollbar-thumb { background: var(--bg5); }
+  </style>
+</head>
+<body>
+<div id="shell">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <nav id="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-title"><span class="sb-status-dot"></span>MaBiS-Hub</div>
+      <div class="sb-logo-sub">BK6-24-210 · Admin Cockpit</div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-label">Übersicht</div>
+      <div class="sb-item active" data-page="dashboard">
+        <span class="sb-icon">◈</span> Dashboard
+      </div>
+      <div class="sb-item" data-page="audit">
+        <span class="sb-icon">◎</span> Audit-Log <span class="sb-badge" id="badge-audit">47</span>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-label">Markt</div>
+      <div class="sb-item" data-page="rollen">
+        <span class="sb-icon">◷</span> Rollen &amp; Rechte
+      </div>
+      <div class="sb-item" data-page="abrechnung">
+        <span class="sb-icon">◑</span> Abrechnungen
+      </div>
+      <div class="sb-item" data-page="api">
+        <span class="sb-icon">◈</span> API-Endpunkte
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-label">System</div>
+      <div class="sb-item" data-page="persistenz">
+        <span class="sb-icon">◧</span> Persistenz
+      </div>
+    </div>
+
+    <div class="sb-bottom">
+      v1.0.0 · Spring Boot 3.3.5<br>
+      <span>Java 21 · PostgreSQL 16</span>
+    </div>
+  </nav>
+
+  <!-- ── Main ─────────────────────────────────────────────────── -->
+  <div id="main">
+
+    <!-- Topbar -->
+    <div id="topbar">
+      <div id="topbar-title" id="tb-title">Dashboard <span id="tb-sub">System-Übersicht</span></div>
+      <div class="tb-chip ok">● ONLINE</div>
+      <div class="tb-chip ok">Keycloak verbunden</div>
+      <div class="tb-chip ok">PostgreSQL 16</div>
+      <div class="tb-time" id="clock"></div>
+      <button class="tb-btn" onclick="refreshAll()">↻ Refresh</button>
+    </div>
+
+    <!-- Content -->
+    <div id="content">
+
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- PAGE: DASHBOARD                                            -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="page active" id="page-dashboard">
+
+        <!-- KPI Row -->
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-icon">📍</div>
+            <div class="kpi-label">Registrierte MaLos</div>
+            <div class="kpi-value" id="kpi-malos">1<span class="kpi-unit">247</span></div>
+            <div class="kpi-sub"><span class="up">+12</span> heute</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-icon">⚡</div>
+            <div class="kpi-label">Messwerte (24h)</div>
+            <div class="kpi-value">284<span class="kpi-unit">k</span></div>
+            <div class="kpi-sub"><span class="up">+8.4%</span> vs. Vortag</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-icon">📄</div>
+            <div class="kpi-label">Abrechnungen gesamt</div>
+            <div class="kpi-value">38</div>
+            <div class="kpi-sub">3 Läufe · Jan 2026</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-icon">🔐</div>
+            <div class="kpi-label">Audit-Einträge</div>
+            <div class="kpi-value" id="kpi-audit">1<span class="kpi-unit">842</span></div>
+            <div class="kpi-sub"><span class="down">3</span> Fehler heute</div>
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="grid-3-1">
+
+          <!-- Ereignisse Chart -->
+          <div class="card">
+            <div class="sec-head">
+              <div class="sec-title">Ereignisse letzte 7 Tage</div>
+              <div class="sec-action" onclick="switchPage('audit')">Alle →</div>
+            </div>
+            <canvas id="chartEreignisse" height="130"></canvas>
+          </div>
+
+          <!-- Erfolgsrate -->
+          <div class="card">
+            <div class="sec-head" style="margin-bottom:16px">
+              <div class="sec-title">Erfolgsrate</div>
+            </div>
+            <canvas id="chartDonut" width="160" height="160" style="margin:0 auto 12px;display:block"></canvas>
+            <div style="text-align:center;font-family:var(--font-m);font-size:11px;color:var(--text-m)">
+              <span style="color:var(--green)">■</span> Erfolg &nbsp;
+              <span style="color:var(--red)">■</span> Fehler
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="grid2">
+
+          <!-- Letzte Audit-Einträge -->
+          <div class="card">
+            <div class="sec-head">
+              <div class="sec-title">Letzte Ereignisse</div>
+              <div class="sec-action" onclick="switchPage('audit')">Alle →</div>
+            </div>
+            <div class="card-scroll">
+              <table class="audit-table">
+                <thead><tr>
+                  <th>Zeitpunkt</th><th>Rolle</th><th>Ereignis</th><th>Status</th>
+                </tr></thead>
+                <tbody id="audit-preview"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Rollenaktivität -->
+          <div class="card">
+            <div class="sec-head" style="margin-bottom:16px">
+              <div class="sec-title">Anfragen je Marktrolle (heute)</div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>VNB <span class="badge vnb" style="margin-left:6px">Verteilnetz</span></span><span>342</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--acc)" data-w="78"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>MSB <span class="badge msb" style="margin-left:6px">Messstelle</span></span><span>521</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--purple)" data-w="100"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>BKV <span class="badge bkv" style="margin-left:6px">Bilanzkreis</span></span><span>198</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--green)" data-w="45"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>ÜNB <span class="badge unb" style="margin-left:6px">Übertragungs&shy;netz</span></span><span>14</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--yellow)" data-w="6"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>ADMIN</span><span>6</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--red)" data-w="2"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-dashboard -->
+
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- PAGE: AUDIT                                                -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="page" id="page-audit">
+
+        <!-- Statistik KPIs -->
+        <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+          <div class="kpi">
+            <div class="kpi-label">Gesamt Einträge</div>
+            <div class="kpi-value">1<span class="kpi-unit">842</span></div>
+            <div class="kpi-sub">seit Systemstart</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Erfolgreich</div>
+            <div class="kpi-value" style="color:var(--green)">1<span class="kpi-unit">795</span></div>
+            <div class="kpi-sub"><span class="up">97.4%</span> Erfolgsrate</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Fehlgeschlagen</div>
+            <div class="kpi-value" style="color:var(--red)">47</div>
+            <div class="kpi-sub">davon <span class="down">3</span> heute</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-head">
+            <div class="sec-title">Audit-Log (letzte 20 Einträge)</div>
+            <div style="display:flex;gap:8px">
+              <button class="tab-btn active" onclick="filterAudit('alle',this)">Alle</button>
+              <button class="tab-btn" onclick="filterAudit('fehler',this)">Fehler</button>
+              <button class="tab-btn" onclick="filterAudit('stammdaten',this)">Stammdaten</button>
+              <button class="tab-btn" onclick="filterAudit('messwert',this)">Messwert</button>
+            </div>
+          </div>
+          <table class="audit-table" id="full-audit-table">
+            <thead><tr>
+              <th>Zeitpunkt</th><th>Principal</th><th>Rolle</th><th>Ereignis</th><th>MaLo-ID</th><th>Bilanzkreis</th><th>IP</th><th>Status</th>
+            </tr></thead>
+            <tbody id="full-audit-body"></tbody>
+          </table>
+        </div>
+
+      </div><!-- /page-audit -->
+
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- PAGE: ROLLEN                                               -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="page" id="page-rollen">
+
+        <div class="grid2" style="margin-bottom:20px">
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Marktparteien im System</div></div>
+            <div class="lauf-row" style="margin-bottom:6px">
+              <span style="font-size:20px">🏭</span>
+              <div class="lauf-info">
+                <div class="lauf-name"><span class="badge vnb">VNB</span>&nbsp; Verteilnetzbetreiber</div>
+                <div class="lauf-sub">Meldet Stammdaten (MaLo-Zuordnung)</div>
+              </div>
+            </div>
+            <div class="lauf-row" style="margin-bottom:6px">
+              <span style="font-size:20px">📡</span>
+              <div class="lauf-info">
+                <div class="lauf-name"><span class="badge msb">MSB</span>&nbsp; Messstellenbetreiber</div>
+                <div class="lauf-sub">Liefert Messwerte &amp; Lastgänge</div>
+              </div>
+            </div>
+            <div class="lauf-row" style="margin-bottom:6px">
+              <span style="font-size:20px">⚖️</span>
+              <div class="lauf-info">
+                <div class="lauf-name"><span class="badge bkv">BKV</span>&nbsp; Bilanzkreisverantwortlicher</div>
+                <div class="lauf-sub">Reicht Fahrpläne ein, ruft Abrechnungen ab</div>
+              </div>
+            </div>
+            <div class="lauf-row">
+              <span style="font-size:20px">🔋</span>
+              <div class="lauf-info">
+                <div class="lauf-name"><span class="badge unb">ÜNB</span>&nbsp; Übertragungsnetzbetreiber</div>
+                <div class="lauf-sub">Stößt Abrechnungsläufe an, ruft Ergebnisse ab</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Authentifizierung</div></div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Protokoll</span>
+              <span class="mini-stat-value">OAuth2 · JWT (Bearer)</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Identity Provider</span>
+              <span class="mini-stat-value">Keycloak 25</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Realm</span>
+              <span class="mini-stat-value">mabis</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Rollen-Claim</span>
+              <span class="mini-stat-value">realm_access.roles[]</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Session</span>
+              <span class="mini-stat-value">Stateless (kein State)</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">CSRF</span>
+              <span class="mini-stat-value">Deaktiviert (REST-API)</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Test-Nutzer</span>
+              <span class="mini-stat-value">msb / vnb / bkv / unb-testnutzer</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label">Test-Passwort</span>
+              <span class="mini-stat-value">mabis-test</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-head"><div class="sec-title">Zugriffsmatrix (rollenbasiert)</div></div>
+          <table class="matrix">
+            <thead><tr>
+              <th style="width:220px">Endpunkt</th>
+              <th>VNB</th><th>MSB</th><th>BKV</th><th>ÜNB</th><th>ADMIN</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td>POST /api/v1/stammdaten</td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="chk-admin">✓</span></td>
+              </tr>
+              <tr>
+                <td>POST /api/v1/messwerte</td>
+                <td><span class="cross">–</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="chk-admin">✓</span></td>
+              </tr>
+              <tr>
+                <td>POST /api/v1/fahrplaene</td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="chk-admin">✓</span></td>
+              </tr>
+              <tr>
+                <td>POST /api/v1/abrechnungen/laeufe</td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="chk-admin">✓</span></td>
+              </tr>
+              <tr>
+                <td>GET /api/v1/abrechnungen</td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="chk-admin">✓</span></td>
+              </tr>
+              <tr>
+                <td>GET /api/v1/abrechnungen/{id}</td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="chk-admin">✓</span></td>
+              </tr>
+              <tr>
+                <td>GET /api/v1/abrechnungen/status</td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="chk">✓</span></td>
+                <td><span class="chk-admin">✓</span></td>
+              </tr>
+              <tr>
+                <td>GET /api/v1/audit/**</td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="cross">–</span></td>
+                <td><span class="chk-admin">✓</span></td>
+              </tr>
+              <tr>
+                <td>/swagger-ui/** · /api-docs</td>
+                <td colspan="5" style="text-align:center;color:var(--text-m);font-size:11px;font-family:var(--font-m)">Öffentlich (kein Token erforderlich)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div><!-- /page-rollen -->
+
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- PAGE: ABRECHNUNG                                           -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="page" id="page-abrechnung">
+
+        <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+          <div class="kpi">
+            <div class="kpi-label">Aktive Periode</div>
+            <div class="kpi-value" style="font-size:22px">Jan 2026</div>
+            <div class="kpi-sub">3 Läufe abgeschlossen</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Bilanzkreise</div>
+            <div class="kpi-value">7</div>
+            <div class="kpi-sub">davon 2 in Widerspruch</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Ausgleichsenergie</div>
+            <div class="kpi-value">12<span class="kpi-unit">ct/kWh</span></div>
+            <div class="kpi-sub">aktueller AE-Preis</div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Rollierende Abrechnung (BK6-24-210)</div></div>
+            <div class="lauf-row">
+              <div class="lauf-icon">①</div>
+              <div class="lauf-info">
+                <div class="lauf-name">Vorläufige Abrechnung</div>
+                <div class="lauf-sub">Fälligkeit M+1 · Feb 2026</div>
+              </div>
+              <div class="lauf-tag v">ABGESCHLOSSEN</div>
+            </div>
+            <div class="lauf-row">
+              <div class="lauf-icon">②</div>
+              <div class="lauf-info">
+                <div class="lauf-name">Korrigierte Abrechnung</div>
+                <div class="lauf-sub">Fälligkeit M+13 · Feb 2027</div>
+              </div>
+              <div class="lauf-tag k">ABGESCHLOSSEN</div>
+            </div>
+            <div class="lauf-row">
+              <div class="lauf-icon">③</div>
+              <div class="lauf-info">
+                <div class="lauf-name">Endgültige Abrechnung</div>
+                <div class="lauf-sub">Fälligkeit M+67 · Aug 2031</div>
+              </div>
+              <div class="lauf-tag e">ENDGÜLTIG</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Abrechnungsstatus je BK</div></div>
+            <table class="audit-table">
+              <thead><tr><th>Bilanzkreis</th><th>Lauf</th><th>Abweichung</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">11YSWKW------W</td><td><span class="lauf-tag e" style="font-size:10px">ENDGÜLTIG</span></td><td class="mono" style="color:var(--green)">−0.3%</td><td><span class="dot-ok"></span></td></tr>
+                <tr><td class="mono">11YSWKW------X</td><td><span class="lauf-tag k" style="font-size:10px">KORRIGIERT</span></td><td class="mono" style="color:var(--yellow)">+2.1%</td><td><span class="dot-ok"></span></td></tr>
+                <tr><td class="mono">11YSWKW------Y</td><td><span class="lauf-tag v" style="font-size:10px">VORLÄUFIG</span></td><td class="mono" style="color:var(--red)">+8.7%</td><td><span class="dot-err"></span></td></tr>
+                <tr><td class="mono">11YSWKW------Z</td><td><span class="lauf-tag v" style="font-size:10px">VORLÄUFIG</span></td><td class="mono" style="color:var(--green)">+0.8%</td><td><span class="dot-ok"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-head"><div class="sec-title">Ausgleichsenergie-Saldo (Januar 2026 · Bilanzkreis 11YSWKW---W)</div></div>
+          <canvas id="chartAE" height="110"></canvas>
+        </div>
+
+      </div><!-- /page-abrechnung -->
+
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- PAGE: API                                                  -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="page" id="page-api">
+        <div class="grid2">
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Endpunkte</div></div>
+            <div class="ep-item">
+              <div class="ep-method post">POST</div>
+              <div class="ep-path">/api/v1/stammdaten</div>
+              <div class="ep-role"><span class="badge vnb">VNB</span></div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method post">POST</div>
+              <div class="ep-path">/api/v1/messwerte</div>
+              <div class="ep-role"><span class="badge msb">MSB</span></div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method post">POST</div>
+              <div class="ep-path">/api/v1/fahrplaene</div>
+              <div class="ep-role"><span class="badge bkv">BKV</span></div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method post">POST</div>
+              <div class="ep-path">/api/v1/abrechnungen/laeufe</div>
+              <div class="ep-role"><span class="badge unb">ÜNB</span></div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method get">GET</div>
+              <div class="ep-path">/api/v1/abrechnungen</div>
+              <div class="ep-role"><span class="badge bkv">BKV</span> <span class="badge unb">ÜNB</span></div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method get">GET</div>
+              <div class="ep-path">/api/v1/abrechnungen/{id}</div>
+              <div class="ep-role"><span class="badge bkv">BKV</span> <span class="badge unb">ÜNB</span></div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method get">GET</div>
+              <div class="ep-path">/api/v1/abrechnungen/status</div>
+              <div class="ep-role" style="color:var(--text-m);font-size:11px">alle Auth.</div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method get">GET</div>
+              <div class="ep-path">/api/v1/audit</div>
+              <div class="ep-role"><span class="badge admin">ADMIN</span></div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method get">GET</div>
+              <div class="ep-path">/api/v1/audit/fehler</div>
+              <div class="ep-role"><span class="badge admin">ADMIN</span></div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method get">GET</div>
+              <div class="ep-path">/api/v1/audit/statistik</div>
+              <div class="ep-role"><span class="badge admin">ADMIN</span></div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method get">GET</div>
+              <div class="ep-path">/swagger-ui.html</div>
+              <div class="ep-role" style="color:var(--text-m);font-size:11px">öffentlich</div>
+            </div>
+            <div class="ep-item">
+              <div class="ep-method get">GET</div>
+              <div class="ep-path">/api-docs</div>
+              <div class="ep-role" style="color:var(--text-m);font-size:11px">öffentlich</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="sec-head"><div class="sec-title">Fehlerformat (RFC 9457)</div></div>
+              <div style="background:var(--bg3);border-radius:7px;padding:14px;font-family:var(--font-m);font-size:11px;line-height:1.7;color:var(--text-m)">
+                <span style="color:var(--text-d)">{</span><br>
+                &nbsp;&nbsp;<span style="color:var(--acc)">"type"</span>: <span style="color:var(--green)">"about:blank"</span>,<br>
+                &nbsp;&nbsp;<span style="color:var(--acc)">"title"</span>: <span style="color:var(--green)">"Validierungsfehler"</span>,<br>
+                &nbsp;&nbsp;<span style="color:var(--acc)">"status"</span>: <span style="color:var(--yellow)">400</span>,<br>
+                &nbsp;&nbsp;<span style="color:var(--acc)">"detail"</span>: <span style="color:var(--green)">"viertelstundenwerte: Genau 96 ..."</span><br>
+                <span style="color:var(--text-d)">}</span>
+              </div>
+              <div style="margin-top:12px">
+                <div class="mini-stat"><span class="mini-stat-label">400</span><span class="mini-stat-value" style="font-size:11px">Validierungsfehler · IllegalArgument</span></div>
+                <div class="mini-stat"><span class="mini-stat-label">401</span><span class="mini-stat-value" style="font-size:11px">Kein / ungültiges JWT-Token</span></div>
+                <div class="mini-stat"><span class="mini-stat-label">403</span><span class="mini-stat-value" style="font-size:11px">Rolle nicht berechtigt</span></div>
+                <div class="mini-stat"><span class="mini-stat-label">404</span><span class="mini-stat-value" style="font-size:11px">Ressource nicht gefunden</span></div>
+                <div class="mini-stat"><span class="mini-stat-label">422</span><span class="mini-stat-value" style="font-size:11px">Geschäftsregel verletzt (IllegalState)</span></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="sec-head"><div class="sec-title">Audit-Ereignisse (14 Typen)</div></div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+                <span class="lauf-tag v" style="font-size:10px">STAMMDATEN_GEMELDET</span>
+                <span class="lauf-tag v" style="font-size:10px">STAMMDATEN_AKTUALISIERT</span>
+                <span class="lauf-tag e" style="font-size:10px">MESSWERT_EINGELIEFERT</span>
+                <span class="lauf-tag e" style="font-size:10px">MESSWERT_ABGELEHNT</span>
+                <span class="lauf-tag k" style="font-size:10px">FAHRPLAN_EINGEREICHT</span>
+                <span class="lauf-tag k" style="font-size:10px">FAHRPLAN_UEBERSCHRIEBEN</span>
+                <span style="background:rgba(167,139,250,.10);color:var(--purple);border:1px solid rgba(167,139,250,.25);font-family:var(--font-m);font-size:10px;padding:3px 10px;border-radius:20px">ABRECHNUNGSLAUF_GESTARTET</span>
+                <span style="background:rgba(167,139,250,.10);color:var(--purple);border:1px solid rgba(167,139,250,.25);font-family:var(--font-m);font-size:10px;padding:3px 10px;border-radius:20px">ABRECHNUNGSLAUF_ABGESCHLOSSEN</span>
+                <span style="background:rgba(240,82,82,.10);color:var(--red);border:1px solid rgba(240,82,82,.25);font-family:var(--font-m);font-size:10px;padding:3px 10px;border-radius:20px">ABRECHNUNGSLAUF_FEHLGESCHLAGEN</span>
+                <span style="background:rgba(240,82,82,.10);color:var(--red);border:1px solid rgba(240,82,82,.25);font-family:var(--font-m);font-size:10px;padding:3px 10px;border-radius:20px">ZUGRIFF_VERWEIGERT</span>
+                <span style="background:rgba(240,82,82,.10);color:var(--red);border:1px solid rgba(240,82,82,.25);font-family:var(--font-m);font-size:10px;padding:3px 10px;border-radius:20px">UNBEKANNTE_MALO_ID</span>
+                <span style="background:rgba(62,201,224,.10);color:var(--acc);border:1px solid rgba(62,201,224,.25);font-family:var(--font-m);font-size:10px;padding:3px 10px;border-radius:20px">ABRECHNUNG_ABGERUFEN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-api -->
+
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- PAGE: PERSISTENZ                                           -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <div class="page" id="page-persistenz">
+
+        <div class="grid3">
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Datenbank</div></div>
+            <div class="mini-stat"><span class="mini-stat-label">Engine</span><span class="mini-stat-value">PostgreSQL 16</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">Schema</span><span class="mini-stat-value">mabis</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">Migrations</span><span class="mini-stat-value">Flyway</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">Tabellen</span><span class="mini-stat-value">5</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">ORM</span><span class="mini-stat-value">Spring Data JPA 3.3</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">Transaktionen</span><span class="mini-stat-value">@Transactional</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">Audit-Tx</span><span class="mini-stat-value">REQUIRES_NEW + @Async</span></div>
+          </div>
+
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Tabellengrößen (simuliert)</div></div>
+            <div class="prog-row">
+              <div class="prog-label"><span>stammdaten</span><span>1.247</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="background:var(--acc)" data-w="62"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>messwerte</span><span>284.931</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="background:var(--purple)" data-w="100"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>fahrplaene</span><span>7.812</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="background:var(--green)" data-w="20"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>abrechnungen</span><span>38</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="background:var(--yellow)" data-w="2"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>audit_log</span><span>1.842</span></div>
+              <div class="prog-bar"><div class="prog-fill" style="background:var(--red)" data-w="8"></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Flyway-Migrationen</div></div>
+            <div class="migration-row">
+              <div class="migration-ver">V1</div>
+              <div class="migration-desc">init.sql — 4 Tabellen + Constraints + Indizes</div>
+              <div class="migration-state">✓ OK</div>
+            </div>
+            <div class="migration-row">
+              <div class="migration-ver">V2</div>
+              <div class="migration-desc">audit_log.sql — §257 HGB, append-only, 6 Indizes</div>
+              <div class="migration-state">✓ OK</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Datenbankschema</div></div>
+            <div style="font-family:var(--font-m);font-size:11px;line-height:1.9;color:var(--text-m)">
+              <div style="color:var(--acc);margin-bottom:4px">stammdaten</div>
+              <div style="padding-left:12px;color:var(--text-d)">malo_id VARCHAR PK · netzgebiet · verfahren<br>bilanzkreis_id · gueltig_ab DATE · gueltig_bis DATE</div>
+              <div style="color:var(--acc);margin:8px 0 4px">messwerte</div>
+              <div style="padding-left:12px;color:var(--text-d)">UNIQUE(malo_id, zeitpunkt, typ)<br>wert_kwh · qualitaet · messtyp</div>
+              <div style="color:var(--acc);margin:8px 0 4px">fahrplaene</div>
+              <div style="padding-left:12px;color:var(--text-d)">UNIQUE(bilanzkreis_id, liefertag)<br>96 Viertelstundenwerte (CSV)</div>
+              <div style="color:var(--acc);margin:8px 0 4px">abrechnungen</div>
+              <div style="padding-left:12px;color:var(--text-d)">abrechnung_id PK · ist_verbrauch_kwh<br>fahrplan_kwh · ae_kosten_eur · status</div>
+              <div style="color:var(--acc);margin:8px 0 4px">audit_log</div>
+              <div style="padding-left:12px;color:var(--text-d)">append-only · ereignis · principal<br>markt_rolle · erfolg · fehler_meldung · client_ip</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="sec-head"><div class="sec-title">Datenschutz &amp; Pseudonymisierung</div></div>
+            <div style="margin-bottom:14px">
+              <div style="font-size:12px;color:var(--text-m);line-height:1.7">
+                Der Hub speichert ausschließlich <strong style="color:var(--text)">MaLo-IDs</strong> (Marktlokations-Identifikatoren).
+                Keine Personen-zu-MaLo-Zuordnung im System. Alle Operationen referenzieren nur pseudonymisierte IDs.
+              </div>
+            </div>
+            <div class="mini-stat"><span class="mini-stat-label">Mindest-Clustergröße</span><span class="mini-stat-value" style="color:var(--acc)">5 MaLos</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">Aggregation</span><span class="mini-stat-value">AggregierterLastgang</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">Datenschutz-Check</span><span class="mini-stat-value">erfuelltDatenschutzanforderung()</span></div>
+            <div class="mini-stat"><span class="mini-stat-label">Audit-Retention</span><span class="mini-stat-value">§257 HGB (10 Jahre)</span></div>
+            <div style="margin-top:14px;padding:12px;background:var(--bg3);border-radius:7px;border-left:3px solid var(--acc)">
+              <div style="font-family:var(--font-m);font-size:10px;color:var(--acc);margin-bottom:4px">DATENSCHUTZHINWEIS</div>
+              <div style="font-size:11px;color:var(--text-m)">Aggregation nur freigegeben wenn Cluster ≥ 5 MaLos. Spitzenlasten nur aggregiert sichtbar.</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-persistenz -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+  // ── Navigation ───────────────────────────────────────────────────
+  const pages = document.querySelectorAll('.page');
+  const sbItems = document.querySelectorAll('.sb-item');
+  const titles = {
+    dashboard:   ['Dashboard',   'System-Übersicht'],
+    audit:       ['Audit-Log',   'Ereignisprotokoll'],
+    rollen:      ['Rollen & Rechte', 'JWT-basierte Zugriffskontrolle'],
+    abrechnung:  ['Abrechnungen', 'Rollierende Abrechnung BK6-24-210'],
+    api:         ['API-Endpunkte','REST-Interface'],
+    persistenz:  ['Persistenz',  'PostgreSQL · JPA · Flyway'],
+  };
+
+  function switchPage(id) {
+    pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + id));
+    sbItems.forEach(s => s.classList.toggle('active', s.dataset.page === id));
+    const t = titles[id] || [id, ''];
+    document.getElementById('topbar-title').innerHTML = t[0] + ' <span id="tb-sub">' + t[1] + '</span>';
+    if (id === 'persistenz' || id === 'dashboard') setTimeout(animateBars, 100);
+  }
+
+  sbItems.forEach(s => s.addEventListener('click', () => switchPage(s.dataset.page)));
+
+  // ── Clock ─────────────────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleDateString('de-DE') + ' · ' + now.toLocaleTimeString('de-DE');
+  }
+  updateClock(); setInterval(updateClock, 1000);
+
+  // ── Progress Bars Animation ──────────────────────────────────────
+  function animateBars() {
+    document.querySelectorAll('.prog-fill').forEach(el => {
+      el.style.width = (el.dataset.w || 0) + '%';
+    });
+  }
+  setTimeout(animateBars, 300);
+
+  // ── Audit Data ───────────────────────────────────────────────────
+  const ereignisse = [
+    'STAMMDATEN_GEMELDET','MESSWERT_EINGELIEFERT','FAHRPLAN_EINGEREICHT',
+    'ABRECHNUNGSLAUF_GESTARTET','ABRECHNUNGSLAUF_ABGESCHLOSSEN','MESSWERT_ABGELEHNT',
+    'ZUGRIFF_VERWEIGERT','STAMMDATEN_AKTUALISIERT','UNBEKANNTE_MALO_ID','ABRECHNUNG_ABGERUFEN'
+  ];
+  const rollen = ['VNB','MSB','BKV','UNB','ADMIN'];
+  const rolleClass = {VNB:'vnb',MSB:'msb',BKV:'bkv',UNB:'unb',ADMIN:'admin'};
+  const principals = ['svc-vnb-01','svc-msb-03','svc-bkv-02','svc-unb-01','admin-01'];
+  const malos = ['DE00112233445566778899AA','DE00887766554433221100BB','DE00AABBCCDDEEFF00112233'];
+
+  function rndMaLo() { return malos[Math.floor(Math.random()*malos.length)]; }
+  function rndEreignis() { return ereignisse[Math.floor(Math.random()*ereignisse.length)]; }
+  function rndRolle() { return rollen[Math.floor(Math.random()*rollen.length)]; }
+  function rndPrincipal(rolle) { return principals[rollen.indexOf(rolle)]; }
+  function rndSuccess(ereignis) {
+    const fail = ['MESSWERT_ABGELEHNT','ZUGRIFF_VERWEIGERT','UNBEKANNTE_MALO_ID'];
+    return !fail.includes(ereignis);
+  }
+  function rndTime(minsAgo) {
+    const d = new Date(Date.now() - minsAgo * 60000);
+    return d.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+  function rndIP() {
+    return '10.' + (172+Math.floor(Math.random()*10)) + '.' + Math.floor(Math.random()*254) + '.1';
+  }
+
+  const auditData = Array.from({length:40}, (_,i) => {
+    const e = rndEreignis(), r = rndRolle(), ok = rndSuccess(e);
+    return { time: rndTime(i*3), principal: rndPrincipal(r), rolle: r, ereignis: e,
+             malo: rndMaLo().substring(0,14)+'...', bk: '11YSWKW---W', ip: rndIP(), ok };
+  });
+
+  let currentFilter = 'alle';
+
+  function renderAuditPreview() {
+    const tbody = document.getElementById('audit-preview');
+    tbody.innerHTML = auditData.slice(0,8).map(r => `
+      <tr>
+        <td class="mono">${r.time}</td>
+        <td><span class="badge ${rolleClass[r.rolle]}">${r.rolle}</span></td>
+        <td style="font-size:11px;color:var(--text-m)">${r.ereignis.replace(/_/g,' ')}</td>
+        <td>${r.ok ? '<span class="dot-ok"></span>' : '<span class="dot-err"></span>'}</td>
+      </tr>`).join('');
+  }
+
+  function filterAudit(f, btn) {
+    currentFilter = f;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderFullAudit();
+  }
+
+  function renderFullAudit() {
+    let data = auditData;
+    if (currentFilter === 'fehler') data = data.filter(r => !r.ok);
+    if (currentFilter === 'stammdaten') data = data.filter(r => r.ereignis.startsWith('STAMMDATEN'));
+    if (currentFilter === 'messwert') data = data.filter(r => r.ereignis.startsWith('MESSWERT'));
+    const tbody = document.getElementById('full-audit-body');
+    tbody.innerHTML = data.slice(0,20).map(r => `
+      <tr>
+        <td class="mono">${r.time}</td>
+        <td class="mono">${r.principal}</td>
+        <td><span class="badge ${rolleClass[r.rolle]}">${r.rolle}</span></td>
+        <td style="font-size:11px;color:var(--text-m)">${r.ereignis.replace(/_/g,' ')}</td>
+        <td class="mono" style="font-size:10px">${r.malo}</td>
+        <td class="mono" style="font-size:10px">${r.bk}</td>
+        <td class="mono" style="font-size:10px">${r.ip}</td>
+        <td>${r.ok ? '<span class="dot-ok"></span> OK' : '<span class="dot-err"></span> Fehler'}</td>
+      </tr>`).join('');
+  }
+
+  renderAuditPreview();
+  renderFullAudit();
+
+  // ── Charts ───────────────────────────────────────────────────────
+  function drawEreignisseChart() {
+    const c = document.getElementById('chartEreignisse');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    c.width = c.parentElement.offsetWidth - 40;
+    const w = c.width, h = 130;
+    const days = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+    const ok   = [340,410,280,520,480,190,320];
+    const err  = [12, 8, 22, 5, 18, 3, 9];
+    const maxV = Math.max(...ok) + 30;
+    const padL = 30, padR = 10, padT = 10, padB = 28;
+    const cw = w - padL - padR, ch = h - padT - padB;
+    const barW = (cw / days.length) * 0.55;
+    ctx.clearRect(0,0,w,h);
+
+    // grid
+    for (let i=0;i<=4;i++) {
+      const y = padT + ch - (ch/4)*i;
+      ctx.beginPath(); ctx.strokeStyle='rgba(62,201,224,0.07)'; ctx.lineWidth=1;
+      ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+    }
+
+    days.forEach((d,i) => {
+      const x = padL + (cw/days.length)*i + (cw/days.length - barW)/2;
+      const hOk  = (ok[i]/maxV)*ch;
+      const hErr = (err[i]/maxV)*ch;
+
+      // ok bar
+      const gy = ctx.createLinearGradient(0, padT+ch-hOk, 0, padT+ch);
+      gy.addColorStop(0,'rgba(62,201,224,0.8)'); gy.addColorStop(1,'rgba(62,201,224,0.2)');
+      ctx.fillStyle = gy;
+      ctx.beginPath(); ctx.roundRect(x, padT+ch-hOk, barW*0.55, hOk, [3,3,0,0]); ctx.fill();
+
+      // err bar
+      ctx.fillStyle = 'rgba(240,82,82,0.7)';
+      ctx.beginPath(); ctx.roundRect(x+barW*0.6, padT+ch-hErr, barW*0.35, hErr, [3,3,0,0]); ctx.fill();
+
+      // label
+      ctx.fillStyle = 'rgba(139,150,176,0.7)'; ctx.font = '10px DM Mono,monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(d, x + barW*0.45, h - 8);
+    });
+  }
+
+  function drawDonut() {
+    const c = document.getElementById('chartDonut');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    const cx = 80, cy = 80, r = 60, rIn = 40;
+    const total = 1842, ok = 1795;
+    const errAngle = (total-ok)/total * 2*Math.PI;
+    const startAngle = -Math.PI/2;
+    ctx.clearRect(0,0,160,160);
+
+    // ok arc
+    const gy = ctx.createLinearGradient(0,0,160,0);
+    gy.addColorStop(0,'rgba(52,209,122,0.9)'); gy.addColorStop(1,'rgba(62,201,224,0.9)');
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r, startAngle, startAngle + 2*Math.PI - errAngle);
+    ctx.closePath(); ctx.fillStyle = gy; ctx.fill();
+
+    // err arc
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r, startAngle + 2*Math.PI - errAngle, startAngle + 2*Math.PI);
+    ctx.closePath(); ctx.fillStyle = 'rgba(240,82,82,0.85)'; ctx.fill();
+
+    // hole
+    ctx.beginPath(); ctx.arc(cx,cy,rIn,0,2*Math.PI);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg2').trim() || '#0D0F13';
+    ctx.fill();
+
+    // center text
+    ctx.fillStyle = '#E8EDF5'; ctx.font = 'bold 18px DM Sans,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('97.4%', cx, cy+3);
+    ctx.fillStyle = 'rgba(139,150,176,0.8)'; ctx.font = '10px DM Mono,monospace';
+    ctx.fillText('Erfolg', cx, cy+18);
+  }
+
+  function drawAEChart() {
+    const c = document.getElementById('chartAE');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    c.width = c.parentElement.offsetWidth - 40;
+    const w = c.width, h = 110;
+    const data = [8,-3,12,-8,5,20,-4,2,-10,6,15,-2,4,-6,9,3,-5,11,-1,7,14,-3,8,2];
+    const maxAbs = Math.max(...data.map(Math.abs)) + 2;
+    const padL=30,padR=10,padT=10,padB=20;
+    const cw=w-padL-padR, ch=h-padT-padB;
+    const bw = cw/data.length;
+    const mid = padT+ch/2;
+    ctx.clearRect(0,0,w,h);
+
+    // zero line
+    ctx.beginPath(); ctx.strokeStyle='rgba(62,201,224,0.15)'; ctx.lineWidth=1;
+    ctx.moveTo(padL,mid); ctx.lineTo(w-padR,mid); ctx.stroke();
+
+    data.forEach((v,i) => {
+      const barH = Math.abs(v)/maxAbs*(ch/2);
+      const x = padL + i*bw + bw*0.15;
+      const bw2 = bw*0.7;
+      if (v >= 0) {
+        ctx.fillStyle = 'rgba(52,209,122,0.7)';
+        ctx.beginPath(); ctx.roundRect(x, mid-barH, bw2, barH, [2,2,0,0]); ctx.fill();
+      } else {
+        ctx.fillStyle = 'rgba(240,82,82,0.7)';
+        ctx.beginPath(); ctx.roundRect(x, mid, bw2, barH, [0,0,2,2]); ctx.fill();
+      }
+    });
+
+    ctx.fillStyle='rgba(139,150,176,0.6)'; ctx.font='9px DM Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText('AE-Saldo je Intervall (kWh)', w/2, h-2);
+  }
+
+  function refreshAll() {
+    drawEreignisseChart(); drawDonut(); drawAEChart();
+  }
+
+  setTimeout(() => { drawEreignisseChart(); drawDonut(); drawAEChart(); }, 200);
+  window.addEventListener('resize', refreshAll);
+</script>
+</body>
+</html>
