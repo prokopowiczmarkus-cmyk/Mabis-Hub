@@ -275,7 +275,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .proc-table td.pst-optional::before,
 .proc-table td.pst-backlog::before{content:'– ';color:var(--text-d)}
 .proc-table td.pst-optional,.proc-table td.pst-backlog{color:var(--text-d)}
+.proc-table td.pknow{font-family:var(--font-m);font-size:10px;min-width:120px;letter-spacing:.02em;color:var(--text-d)}
+.proc-table td.pkn-experte::before{content:'★★★ ';color:var(--green)}
+.proc-table td.pkn-experte{color:var(--green)}
+.proc-table td.pkn-solide::before{content:'★★ ';color:var(--acc)}
+.proc-table td.pkn-solide{color:var(--acc)}
+.proc-table td.pkn-grundwissen::before{content:'★ ';color:var(--yellow)}
+.proc-table td.pkn-grundwissen{color:var(--yellow)}
+.proc-table td.pkn-lucke::before,.proc-table td.pkn-luecke::before{content:'◌ ';color:var(--red)}
+.proc-table td.pkn-lucke,.proc-table td.pkn-luecke{color:var(--red)}
 .proc-table td.paudit{font-family:var(--font-m);font-size:9.5px;color:var(--orange);min-width:170px;letter-spacing:.04em}
+
+.procs-legend{display:flex;flex-wrap:wrap;gap:8px 28px;padding:10px 24px;background:var(--bg2);border-bottom:1px solid var(--border);font-family:var(--font-m);font-size:10px}
+.plg-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.plg-label{font-weight:500;color:var(--text-d);letter-spacing:.14em;text-transform:uppercase;font-size:9px}
+.plg-item{display:inline-flex;gap:5px;align-items:baseline;color:var(--text-m)}
+.plg-sym{font-weight:600}
 .proc-table td.pactions{width:34px;text-align:center;padding:0}
 .proc-table td.pactions button{background:transparent;border:none;color:var(--text-d);cursor:pointer;font-size:14px;width:24px;height:24px;border-radius:4px;opacity:0;transition:all .15s;line-height:1}
 .proc-table tr:hover td.pactions button{opacity:1}
@@ -1017,6 +1032,23 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <button class="procs-btn danger" onclick="resetProcs()">↺ Zurücksetzen</button>
   </div>
 
+  <div class="procs-legend">
+    <div class="plg-group">
+      <span class="plg-label">Status</span>
+      <span class="plg-item"><span class="plg-sym" style="color:#34D17A">●</span> implementiert</span>
+      <span class="plg-item"><span class="plg-sym" style="color:#F5A623">◐</span> teilweise</span>
+      <span class="plg-item"><span class="plg-sym" style="color:#3EC9E0">◯</span> geplant</span>
+      <span class="plg-item"><span class="plg-sym" style="color:#3E4A63">–</span> optional</span>
+    </div>
+    <div class="plg-group">
+      <span class="plg-label">Know-how</span>
+      <span class="plg-item"><span class="plg-sym" style="color:#34D17A">★★★</span> Experte</span>
+      <span class="plg-item"><span class="plg-sym" style="color:#3EC9E0">★★</span> Solide</span>
+      <span class="plg-item"><span class="plg-sym" style="color:#F5A623">★</span> Grundwissen</span>
+      <span class="plg-item"><span class="plg-sym" style="color:#F05252">◌</span> Lücke</span>
+    </div>
+  </div>
+
   <div class="procs-table-wrap">
     <table class="proc-table">
       <thead>
@@ -1028,6 +1060,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
           <th>Akteure</th>
           <th>Frequenz</th>
           <th>Status</th>
+          <th>Know-how</th>
           <th>Audit-Event</th>
           <th></th>
         </tr>
@@ -1386,7 +1419,7 @@ window.addEventListener('resize', drawArrows);
 // ══════════════════════════════════════════════════════════════
 // TAB 5 – PROZESSLISTE (editierbar, localStorage)
 // ══════════════════════════════════════════════════════════════
-const PROCS_KEY = 'mabis-hub-procs-v3';
+const PROCS_KEY = 'mabis-hub-procs-v4';
 
 const defaultProcs = [
   // STAMMDATEN
@@ -1595,6 +1628,7 @@ function renderProcs() {
   const html = _procs.map((p, i) => {
     const catCls = 'pcat-' + normCat(p.k);
     const stCls  = 'pst-'  + normStatus(p.s);
+    const kwCls  = 'pkn-'  + normStatus(p.x || '');
     return `<tr data-idx="${i}" data-cat="${(p.k||'').toLowerCase()}">
       <td class="pnum">${i+1}</td>
       <td class="pcat ${catCls}"      contenteditable="true" data-f="k">${escapeHtml(p.k)}</td>
@@ -1603,6 +1637,7 @@ function renderProcs() {
       <td class="pact"                contenteditable="true" data-f="a">${escapeHtml(p.a)}</td>
       <td class="pfreq"               contenteditable="true" data-f="f">${escapeHtml(p.f)}</td>
       <td class="pstatus ${stCls}"    contenteditable="true" data-f="s">${escapeHtml(p.s)}</td>
+      <td class="pknow ${kwCls}"      contenteditable="true" data-f="x">${escapeHtml(p.x || '')}</td>
       <td class="paudit"              contenteditable="true" data-f="e">${escapeHtml(p.e || '')}</td>
       <td class="pactions"><button title="Zeile löschen" onclick="deleteProcRow(${i})">×</button></td>
     </tr>`;
@@ -1655,7 +1690,7 @@ function updateProcCount() {
 }
 
 function addProcRow() {
-  _procs.push({ k:'Neu', p:'', t:'', a:'', f:'', s:'geplant', e:'-' });
+  _procs.push({ k:'Neu', p:'', t:'', a:'', f:'', s:'geplant', x:'', e:'-' });
   saveProcs(_procs);
   renderProcs();
   // Fokus auf neue Zeile setzen
@@ -1686,8 +1721,8 @@ function resetProcs() {
 }
 
 function exportProcCSV() {
-  const headers = ['Nr','Kategorie','Prozess','Auslöser','Akteure','Frequenz','Status','Audit-Event'];
-  const rows = [headers, ..._procs.map((p, i) => [i+1, p.k, p.p, p.t, p.a, p.f, p.s, p.e || ''])];
+  const headers = ['Nr','Kategorie','Prozess','Auslöser','Akteure','Frequenz','Status','Know-how','Audit-Event'];
+  const rows = [headers, ..._procs.map((p, i) => [i+1, p.k, p.p, p.t, p.a, p.f, p.s, p.x || '', p.e || ''])];
   const csv = rows.map(r => r.map(c => `"${(c+'').replace(/"/g,'""')}"`).join(';')).join('\r\n');
   const blob = new Blob(['﻿' + csv], { type:'text/csv;charset=utf-8' });
   const a = document.createElement('a');
@@ -1715,6 +1750,9 @@ document.addEventListener('blur', e => {
       }
       if (f === 's') {
         e.target.className = 'pstatus pst-' + normStatus(v);
+      }
+      if (f === 'x') {
+        e.target.className = 'pknow pkn-' + normStatus(v);
       }
     }
   }
