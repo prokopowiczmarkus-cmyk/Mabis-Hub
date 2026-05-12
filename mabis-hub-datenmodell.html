@@ -212,6 +212,72 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .bpmn-legend{display:flex;flex-wrap:wrap;gap:10px 20px;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-top:6px}
 .bpmn-legend-item{display:flex;align-items:center;gap:8px;font-size:10px;font-family:var(--font-m);color:var(--text-m)}
 .bpmn-legend-icon{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center}
+
+/* ════════════════════════════════════════════
+   TAB 5 – PROZESSLISTE (editierbar)
+════════════════════════════════════════════ */
+#procs-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.procs-toolbar{display:flex;align-items:center;gap:10px;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap}
+.procs-search{flex:0 0 240px;font-family:var(--font-m);font-size:11px;padding:6px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);outline:none}
+.procs-search:focus{border-color:var(--acc)}
+.procs-search::placeholder{color:var(--text-d)}
+.procs-filter{display:flex;gap:4px;flex-wrap:wrap}
+.proc-chip{font-family:var(--font-m);font-size:10px;padding:4px 10px;border-radius:14px;border:1px solid var(--border2);background:transparent;color:var(--text-m);cursor:pointer;letter-spacing:.04em;user-select:none}
+.proc-chip:hover{color:var(--text);background:var(--bg3)}
+.proc-chip.active{background:var(--acc-g);color:var(--acc);border-color:var(--acc)}
+.procs-count{margin-left:auto;font-family:var(--font-m);font-size:11px;color:var(--text-d);white-space:nowrap}
+.procs-btn{font-family:var(--font-m);font-size:11px;padding:6px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text-m);cursor:pointer;letter-spacing:.06em}
+.procs-btn:hover{background:var(--acc-g);color:var(--acc);border-color:var(--acc)}
+.procs-btn.primary{background:var(--acc-g);color:var(--acc);border-color:var(--acc)}
+.procs-btn.danger{color:var(--red);border-color:rgba(240,82,82,.3)}
+.procs-btn.danger:hover{background:rgba(240,82,82,.08);border-color:var(--red)}
+
+.procs-table-wrap{flex:1;overflow:auto}
+.procs-table-wrap::-webkit-scrollbar{width:6px;height:6px}
+.procs-table-wrap::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+.proc-table{width:100%;border-collapse:collapse;min-width:1100px}
+.proc-table th{position:sticky;top:0;z-index:2;background:var(--bg);font-family:var(--font-m);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-d);padding:11px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.proc-table td{padding:8px 12px;border-bottom:1px solid rgba(62,201,224,.05);font-size:11.5px;color:var(--text);vertical-align:top;line-height:1.45}
+.proc-table tr:hover td{background:var(--acc-g)}
+.proc-table td.pnum{color:var(--text-d);font-family:var(--font-m);font-size:10px;width:36px;text-align:right;padding-right:14px}
+.proc-table td.pcat{font-family:var(--font-m);font-size:10px;font-weight:500;letter-spacing:.04em;width:130px;white-space:nowrap}
+.proc-table td.pcat-stammdaten{color:var(--acc)}
+.proc-table td.pcat-messwerte{color:var(--purple)}
+.proc-table td.pcat-fahrpläne,.proc-table td.pcat-fahrplaene{color:var(--green)}
+.proc-table td.pcat-aggregation{color:var(--green)}
+.proc-table td.pcat-abrechnung{color:var(--yellow)}
+.proc-table td.pcat-kommunikation{color:var(--acc)}
+.proc-table td.pcat-audit{color:var(--orange)}
+.proc-table td.pcat-betrieb{color:var(--text-m)}
+.proc-table td.pcat-onboarding{color:#84C5C5}
+.proc-table td.pcat-recovery{color:var(--red)}
+.proc-table td.pcat-default{color:var(--text-m)}
+.proc-table td.pproc{min-width:180px;font-weight:500}
+.proc-table td.ptrig{color:var(--text-m);font-size:11px;min-width:160px}
+.proc-table td.pact{color:var(--text-m);font-size:11px;min-width:130px;font-family:var(--font-m)}
+.proc-table td.pfreq{color:var(--text-m);font-size:11px;min-width:90px;font-family:var(--font-m)}
+.proc-table td.pstatus{font-family:var(--font-m);font-size:10px;min-width:100px;letter-spacing:.02em}
+.proc-table td.pst-ok::before,
+.proc-table td.pst-implementiert::before{content:'● ';color:var(--green)}
+.proc-table td.pst-ok,.proc-table td.pst-implementiert{color:var(--green)}
+.proc-table td.pst-partial::before,
+.proc-table td.pst-teilweise::before{content:'◐ ';color:var(--yellow)}
+.proc-table td.pst-partial,.proc-table td.pst-teilweise{color:var(--yellow)}
+.proc-table td.pst-planned::before,
+.proc-table td.pst-geplant::before{content:'◯ ';color:var(--acc)}
+.proc-table td.pst-planned,.proc-table td.pst-geplant{color:var(--acc)}
+.proc-table td.pst-optional::before,
+.proc-table td.pst-backlog::before{content:'– ';color:var(--text-d)}
+.proc-table td.pst-optional,.proc-table td.pst-backlog{color:var(--text-d)}
+.proc-table td.paudit{font-family:var(--font-m);font-size:9.5px;color:var(--orange);min-width:170px;letter-spacing:.04em}
+.proc-table td.pactions{width:34px;text-align:center;padding:0}
+.proc-table td.pactions button{background:transparent;border:none;color:var(--text-d);cursor:pointer;font-size:14px;width:24px;height:24px;border-radius:4px;opacity:0;transition:all .15s;line-height:1}
+.proc-table tr:hover td.pactions button{opacity:1}
+.proc-table td.pactions button:hover{color:var(--red);background:rgba(240,82,82,.1)}
+.proc-table td[contenteditable]:focus{outline:1.5px solid var(--acc);background:var(--bg3);border-radius:4px}
+.proc-table td[contenteditable]:empty:not(:focus)::before{content:'—';color:var(--text-d)}
+.proc-table tr.proc-hidden{display:none}
+.proc-table tr.proc-new td{background:rgba(62,201,224,.04)}
 </style>
 </head>
 <body>
@@ -226,6 +292,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <button class="tab" onclick="switchTab('arch')">Schichtenarchitektur</button>
     <button class="tab" onclick="switchTab('iface')">Interfaces</button>
     <button class="tab" onclick="switchTab('process')">Prozesse</button>
+    <button class="tab" onclick="switchTab('procs')">Prozessliste</button>
   </div>
   <div class="tb-right">BK6-24-210 · Java 21 · Spring Boot 3.3.5</div>
 </div>
@@ -929,6 +996,43 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 </div>
 </div>
 
+<!-- ══════════════════════════════════════════════
+     TAB 5: PROZESSLISTE (editierbar)
+══════════════════════════════════════════════ -->
+<div class="page" id="page-procs">
+<div id="procs-wrap">
+
+  <div class="procs-toolbar">
+    <input type="text" class="procs-search" id="procs-search" placeholder="Suchen…">
+    <div class="procs-filter" id="procs-filter"></div>
+    <div class="procs-count" id="procs-count">0 Prozesse</div>
+    <button class="procs-btn primary" onclick="addProcRow()">+ Neue Zeile</button>
+    <button class="procs-btn" onclick="exportProcCSV()">⇩ CSV</button>
+    <button class="procs-btn danger" onclick="resetProcs()">↺ Zurücksetzen</button>
+  </div>
+
+  <div class="procs-table-wrap">
+    <table class="proc-table">
+      <thead>
+        <tr>
+          <th>Nr</th>
+          <th>Kategorie</th>
+          <th>Prozess</th>
+          <th>Auslöser</th>
+          <th>Akteure</th>
+          <th>Frequenz</th>
+          <th>Status</th>
+          <th>Audit-Event</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="proc-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
 </div><!-- /body -->
 </div><!-- /shell -->
 
@@ -1272,6 +1376,243 @@ function showDetail(n) {
 renderNodes();
 setTimeout(drawArrows, 120);
 window.addEventListener('resize', drawArrows);
+
+// ══════════════════════════════════════════════════════════════
+// TAB 5 – PROZESSLISTE (editierbar, localStorage)
+// ══════════════════════════════════════════════════════════════
+const PROCS_KEY = 'mabis-hub-procs-v1';
+
+const defaultProcs = [
+  // STAMMDATEN
+  { k:'Stammdaten', p:'Stammdatenmeldung MaLo', t:'Neue Marktlokation aktiviert', a:'VNB → Hub', f:'Bei Bedarf', s:'implementiert', e:'STAMMDATEN_GEMELDET' },
+  { k:'Stammdaten', p:'Stammdatenänderung', t:'Bilanzkreis-/Verfahrenswechsel', a:'VNB → Hub', f:'Bei Bedarf', s:'implementiert', e:'STAMMDATEN_AKTUALISIERT' },
+  { k:'Stammdaten', p:'MaLo-Stilllegung', t:'Vertragsende, Stilllegung', a:'VNB → Hub', f:'Bei Bedarf', s:'teilweise', e:'STAMMDATEN_AKTUALISIERT' },
+  { k:'Stammdaten', p:'Lieferantenwechsel', t:'Kundenwechsel zu neuem Lieferant', a:'VNB → Hub, BKV alt/neu', f:'Häufig', s:'geplant', e:'STAMMDATEN_AKTUALISIERT' },
+  { k:'Stammdaten', p:'Wechsel Bilanzierungsverfahren', t:'SLP → RLM, RLM → iMSys', a:'VNB → Hub', f:'Bei Bedarf', s:'geplant', e:'STAMMDATEN_AKTUALISIERT' },
+  { k:'Stammdaten', p:'Wechsel Bilanzkreiszuordnung', t:'BKV-Wechsel der MaLo', a:'VNB → Hub', f:'Bei Bedarf', s:'geplant', e:'STAMMDATEN_AKTUALISIERT' },
+  // MESSWERTE
+  { k:'Messwerte', p:'Lastgang-Lieferung 15min (RLM/iMSys)', t:'Tägliche Messwertlieferung', a:'MSB → Hub', f:'Täglich', s:'implementiert', e:'MESSWERT_EINGELIEFERT' },
+  { k:'Messwerte', p:'Zählerstands-Lieferung (SLP)', t:'Monatliche/jährliche Ablesung', a:'MSB → Hub', f:'Monatlich', s:'geplant', e:'MESSWERT_EINGELIEFERT' },
+  { k:'Messwerte', p:'Tagesgang-Lieferung', t:'Aggregierte Tageswerte', a:'MSB → Hub', f:'Täglich', s:'optional', e:'MESSWERT_EINGELIEFERT' },
+  { k:'Messwerte', p:'Ersatzwertbildung', t:'Fehlende oder unplausible Werte', a:'MSB → Hub', f:'Bei Bedarf', s:'teilweise', e:'MESSWERT_EINGELIEFERT' },
+  { k:'Messwerte', p:'Ersatzwert → Gemessen korrigieren', t:'Echte Messwerte nachgereicht', a:'MSB → Hub', f:'Bei Bedarf', s:'teilweise', e:'MESSWERT_EINGELIEFERT' },
+  { k:'Messwerte', p:'Plausibilisierung', t:'Eingang neuer Messwert', a:'Hub intern', f:'Pro Messwert', s:'teilweise', e:'MESSWERT_ABGELEHNT' },
+  { k:'Messwerte', p:'Nacherfassung nach Stichtag', t:'Verspätete Messwertlieferung', a:'MSB → Hub', f:'Bei Bedarf', s:'geplant', e:'MESSWERT_EINGELIEFERT' },
+  // FAHRPLÄNE
+  { k:'Fahrpläne', p:'Fahrplananmeldung Vortag', t:'Lieferung bis 14:30 Vortag', a:'BKV → Hub', f:'Täglich', s:'implementiert', e:'FAHRPLAN_EINGEREICHT' },
+  { k:'Fahrpläne', p:'Fahrplankorrektur', t:'Überschreiben bestehender Fahrplan', a:'BKV → Hub', f:'Bei Bedarf', s:'implementiert', e:'FAHRPLAN_UEBERSCHRIEBEN' },
+  { k:'Fahrpläne', p:'Intraday-Fahrplanänderung', t:'BK6-15-002 Intraday-Anpassung', a:'BKV → Hub', f:'Bei Bedarf', s:'optional', e:'FAHRPLAN_UEBERSCHRIEBEN' },
+  { k:'Fahrpläne', p:'Fehlende Fahrplantage prüfen', t:'Pre-Aggregation Check', a:'Hub intern', f:'Pro Lauf', s:'implementiert', e:'-' },
+  // AGGREGATION
+  { k:'Aggregation', p:'Lastgang-Aggregation je Bilanzkreis', t:'Abrechnungslauf', a:'Hub intern', f:'Pro Lauf', s:'implementiert', e:'-' },
+  { k:'Aggregation', p:'Datenschutz-Cluster-Check (≥ 5 MaLos)', t:'Vor jeder Aggregation', a:'Hub intern', f:'Pro Aggregation', s:'implementiert', e:'-' },
+  { k:'Aggregation', p:'Differenzierung nach Verfahren', t:'SLP/RLM/iMSys getrennt aggregieren', a:'Hub intern', f:'Pro Lauf', s:'geplant', e:'-' },
+  // ABRECHNUNG
+  { k:'Abrechnung', p:'Vorläufige Bilanzkreisabrechnung M+1', t:'Monatsende + 1 Monat', a:'ÜNB → Hub → BKV', f:'Monatlich', s:'implementiert', e:'ABRECHNUNGSLAUF_ABGESCHLOSSEN' },
+  { k:'Abrechnung', p:'Korrigierte Bilanzkreisabrechnung M+13', t:'13 Monate nach Liefermonat', a:'ÜNB → Hub → BKV', f:'Monatlich', s:'implementiert', e:'ABRECHNUNGSLAUF_ABGESCHLOSSEN' },
+  { k:'Abrechnung', p:'Endgültige Bilanzkreisabrechnung M+67', t:'67 Monate nach Liefermonat', a:'ÜNB → Hub → BKV', f:'Monatlich', s:'implementiert', e:'ABRECHNUNGSLAUF_ABGESCHLOSSEN' },
+  { k:'Abrechnung', p:'Ausgleichsenergiekosten-Berechnung', t:'Pro Abrechnungslauf', a:'Hub intern', f:'Pro Lauf', s:'implementiert', e:'-' },
+  { k:'Abrechnung', p:'Spitzenabweichungs-Berechnung', t:'Pro Abrechnungslauf', a:'Hub intern', f:'Pro Lauf', s:'implementiert', e:'-' },
+  { k:'Abrechnung', p:'Abrechnungsabruf', t:'BKV/ÜNB ruft Abrechnung ab', a:'BKV / ÜNB → Hub', f:'Häufig', s:'implementiert', e:'ABRECHNUNG_ABGERUFEN' },
+  { k:'Abrechnung', p:'Widerspruch gegen Abrechnung', t:'BKV erkennt Diskrepanz', a:'BKV → Hub', f:'Selten', s:'geplant', e:'ABRECHNUNGSLAUF_FEHLGESCHLAGEN' },
+  { k:'Abrechnung', p:'Status-Übergang ANERKANNT', t:'BKV akzeptiert Abrechnung', a:'BKV → Hub', f:'Pro Abrechnung', s:'geplant', e:'-' },
+  { k:'Abrechnung', p:'Abrechnungsabschluss', t:'M+67 + finale Anerkennung', a:'Hub intern', f:'Pro Periode', s:'geplant', e:'-' },
+  // KOMMUNIKATION
+  { k:'Kommunikation', p:'Marktpartner-Authentifizierung', t:'API-Aufruf ohne Token', a:'MP → Keycloak → Hub', f:'Pro Session', s:'implementiert', e:'-' },
+  { k:'Kommunikation', p:'Rollenbasierte Autorisierung', t:'Pro Request', a:'Hub intern (JWT)', f:'Pro Request', s:'implementiert', e:'ZUGRIFF_VERWEIGERT' },
+  { k:'Kommunikation', p:'EDIFACT/UTILMD-Übersetzung', t:'Externe Marktnachricht', a:'Gateway → Hub', f:'Pro Nachricht', s:'optional', e:'-' },
+  { k:'Kommunikation', p:'AS4-Übertragung (BNetzA-konform)', t:'Externe Kommunikation', a:'MP ↔ Hub', f:'Pro Nachricht', s:'optional', e:'-' },
+  // AUDIT
+  { k:'Audit', p:'Audit-Logging je Operation', t:'@Auditiert-Methode aufgerufen', a:'Hub intern (AOP)', f:'Pro Operation', s:'implementiert', e:'(alle 14 Events)' },
+  { k:'Audit', p:'§257 HGB Aufbewahrung 10 Jahre', t:'Compliance-Vorgabe', a:'Hub intern', f:'Dauerhaft', s:'implementiert', e:'-' },
+  { k:'Audit', p:'DSGVO Art. 32 Pseudonymisierung', t:'Datenmodell-Design', a:'Hub intern', f:'Strukturell', s:'implementiert', e:'-' },
+  { k:'Audit', p:'BNetzA-Reporting', t:'Regulatorische Auflage', a:'Hub → BNetzA', f:'Jährlich', s:'geplant', e:'-' },
+  { k:'Audit', p:'Audit-Auswertung (Erfolg/Fehler)', t:'Admin-Abfrage', a:'ADMIN → Hub', f:'Bei Bedarf', s:'implementiert', e:'-' },
+  // BETRIEB
+  { k:'Betrieb', p:'Hub-Status Monitoring', t:'KPI-Abfrage', a:'Admin → Hub', f:'Kontinuierlich', s:'implementiert', e:'-' },
+  { k:'Betrieb', p:'Flyway-Migration', t:'Deployment neuer Version', a:'CI/CD → Hub', f:'Pro Release', s:'implementiert', e:'-' },
+  { k:'Betrieb', p:'Datenbank-Backup', t:'Geplanter Job', a:'DB-Admin', f:'Täglich', s:'geplant', e:'-' },
+  { k:'Betrieb', p:'SLA-Reporting', t:'Monats-/Quartalsreport', a:'Ops → Stakeholder', f:'Monatlich', s:'geplant', e:'-' },
+  { k:'Betrieb', p:'Performance-Monitoring', t:'Latenz/Durchsatz', a:'Ops-Team', f:'Kontinuierlich', s:'geplant', e:'-' },
+  // ONBOARDING
+  { k:'Onboarding', p:'Neuer VNB anbinden', t:'Vertragsabschluss', a:'Admin + VNB', f:'Selten', s:'geplant', e:'-' },
+  { k:'Onboarding', p:'Neuer MSB anbinden', t:'Vertragsabschluss', a:'Admin + MSB', f:'Selten', s:'geplant', e:'-' },
+  { k:'Onboarding', p:'Neuer BKV anbinden', t:'Vertragsabschluss', a:'Admin + BKV', f:'Selten', s:'geplant', e:'-' },
+  { k:'Onboarding', p:'Sandbox-Bereitstellung', t:'Test-Anfrage Marktpartner', a:'Admin', f:'Bei Bedarf', s:'optional', e:'-' },
+  // RECOVERY
+  { k:'Recovery', p:'Notfall-Ersatzlieferant', t:'Insolvenz / Default BKV', a:'ÜNB → Hub', f:'Selten', s:'optional', e:'-' },
+  { k:'Recovery', p:'Disaster Recovery', t:'Systemausfall', a:'Ops-Team', f:'Bei Bedarf', s:'geplant', e:'-' },
+  { k:'Recovery', p:'Datenrücklauf bei Hub-Ausfall', t:'Wiederherstellung nach Crash', a:'Ops + DB-Admin', f:'Bei Bedarf', s:'geplant', e:'-' }
+];
+
+function loadProcs() {
+  try {
+    const saved = localStorage.getItem(PROCS_KEY);
+    return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultProcs));
+  } catch(e) { return JSON.parse(JSON.stringify(defaultProcs)); }
+}
+function saveProcs(procs) {
+  try { localStorage.setItem(PROCS_KEY, JSON.stringify(procs)); } catch(e) {}
+}
+
+let _procs = loadProcs();
+let _procFilter = 'alle';
+let _procSearch = '';
+
+function normCat(v) {
+  return (v || '').toLowerCase().replace(/[äöüß]/g, c => ({ä:'a',ö:'o',ü:'u',ß:'ss'}[c]) || c).replace(/\s+/g,'-');
+}
+function normStatus(v) {
+  return (v || '').toLowerCase().replace(/[äöüß]/g, c => ({ä:'a',ö:'o',ü:'u',ß:'ss'}[c]) || c).replace(/\s+/g,'').replace(/[^a-z]/g,'');
+}
+
+function renderProcs() {
+  const tbody = document.getElementById('proc-tbody');
+  if (!tbody) return;
+  const html = _procs.map((p, i) => {
+    const catCls = 'pcat-' + normCat(p.k);
+    const stCls  = 'pst-'  + normStatus(p.s);
+    return `<tr data-idx="${i}" data-cat="${(p.k||'').toLowerCase()}">
+      <td class="pnum">${i+1}</td>
+      <td class="pcat ${catCls}"      contenteditable="true" data-f="k">${escapeHtml(p.k)}</td>
+      <td class="pproc"               contenteditable="true" data-f="p">${escapeHtml(p.p)}</td>
+      <td class="ptrig"               contenteditable="true" data-f="t">${escapeHtml(p.t)}</td>
+      <td class="pact"                contenteditable="true" data-f="a">${escapeHtml(p.a)}</td>
+      <td class="pfreq"               contenteditable="true" data-f="f">${escapeHtml(p.f)}</td>
+      <td class="pstatus ${stCls}"    contenteditable="true" data-f="s">${escapeHtml(p.s)}</td>
+      <td class="paudit"              contenteditable="true" data-f="e">${escapeHtml(p.e || '')}</td>
+      <td class="pactions"><button title="Zeile löschen" onclick="deleteProcRow(${i})">×</button></td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML = html;
+  updateFilterChips();
+  applyProcFilter();
+  updateProcCount();
+}
+
+function escapeHtml(s) {
+  return (s+'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function updateFilterChips() {
+  const cats = ['alle', ...new Set(_procs.map(p => p.k).filter(Boolean))];
+  const wrap = document.getElementById('procs-filter');
+  if (!wrap) return;
+  wrap.innerHTML = cats.map(c =>
+    `<button class="proc-chip ${c === _procFilter ? 'active' : ''}" onclick="filterProc('${escapeHtml(c)}')">${escapeHtml(c === 'alle' ? 'Alle' : c)}</button>`
+  ).join('');
+}
+
+function filterProc(cat) {
+  _procFilter = cat;
+  document.querySelectorAll('.proc-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.proc-chip').forEach(c => {
+    if (c.textContent === (cat === 'alle' ? 'Alle' : cat)) c.classList.add('active');
+  });
+  applyProcFilter();
+}
+
+function applyProcFilter() {
+  const search = _procSearch.toLowerCase();
+  document.querySelectorAll('#proc-tbody tr').forEach(tr => {
+    const cat = tr.dataset.cat || '';
+    const text = tr.textContent.toLowerCase();
+    const matchCat = _procFilter === 'alle' || cat === _procFilter.toLowerCase();
+    const matchSearch = !search || text.includes(search);
+    tr.classList.toggle('proc-hidden', !(matchCat && matchSearch));
+  });
+  updateProcCount();
+}
+
+function updateProcCount() {
+  const total = _procs.length;
+  const visible = document.querySelectorAll('#proc-tbody tr:not(.proc-hidden)').length;
+  const c = document.getElementById('procs-count');
+  if (c) c.textContent = (visible === total ? `${total}` : `${visible} / ${total}`) + ' Prozesse';
+}
+
+function addProcRow() {
+  _procs.push({ k:'Neu', p:'', t:'', a:'', f:'', s:'geplant', e:'-' });
+  saveProcs(_procs);
+  renderProcs();
+  // Fokus auf neue Zeile setzen
+  setTimeout(() => {
+    const tbody = document.getElementById('proc-tbody');
+    const lastRow = tbody.lastElementChild;
+    if (lastRow) {
+      lastRow.classList.add('proc-new');
+      const procCell = lastRow.querySelector('td.pproc');
+      if (procCell) procCell.focus();
+      lastRow.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+  }, 50);
+}
+
+function deleteProcRow(idx) {
+  if (!confirm('Zeile ' + (idx+1) + ' wirklich löschen?')) return;
+  _procs.splice(idx, 1);
+  saveProcs(_procs);
+  renderProcs();
+}
+
+function resetProcs() {
+  if (!confirm('Tabelle auf Standard zurücksetzen?\nAlle eigenen Änderungen gehen verloren.')) return;
+  localStorage.removeItem(PROCS_KEY);
+  _procs = loadProcs();
+  renderProcs();
+}
+
+function exportProcCSV() {
+  const headers = ['Nr','Kategorie','Prozess','Auslöser','Akteure','Frequenz','Status','Audit-Event'];
+  const rows = [headers, ..._procs.map((p, i) => [i+1, p.k, p.p, p.t, p.a, p.f, p.s, p.e || ''])];
+  const csv = rows.map(r => r.map(c => `"${(c+'').replace(/"/g,'""')}"`).join(';')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type:'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const today = new Date().toISOString().slice(0,10);
+  a.download = `mabis-hub-prozessliste_${today}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+// Cell edit: save on blur
+document.addEventListener('blur', e => {
+  if (e.target.matches && e.target.matches('td[contenteditable][data-f]')) {
+    const tr  = e.target.closest('tr');
+    const idx = parseInt(tr.dataset.idx, 10);
+    const f   = e.target.dataset.f;
+    const v   = e.target.textContent.trim();
+    if (_procs[idx]) {
+      _procs[idx][f] = v;
+      saveProcs(_procs);
+      if (f === 'k') {
+        e.target.className = 'pcat pcat-' + normCat(v);
+        tr.dataset.cat = v.toLowerCase();
+        updateFilterChips();
+      }
+      if (f === 's') {
+        e.target.className = 'pstatus pst-' + normStatus(v);
+      }
+    }
+  }
+}, true);
+
+// Search input
+document.addEventListener('input', e => {
+  if (e.target && e.target.id === 'procs-search') {
+    _procSearch = e.target.value;
+    applyProcFilter();
+  }
+});
+
+// Init Prozessliste lazily when tab is opened
+const _origSwitchTab = switchTab;
+switchTab = function(id) {
+  _origSwitchTab(id);
+  if (id === 'procs') {
+    if (!document.getElementById('proc-tbody').children.length) renderProcs();
+  }
+};
 </script>
 </body>
 </html>
