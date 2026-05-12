@@ -251,6 +251,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .proc-table td.pcat-betrieb{color:var(--text-m)}
 .proc-table td.pcat-onboarding{color:#84C5C5}
 .proc-table td.pcat-recovery{color:var(--red)}
+.proc-table td.pcat-datenqualitat{color:#94B5E0}
+.proc-table td.pcat-reporting{color:#E0B584}
+.proc-table td.pcat-marktevolution{color:#B584E0}
+.proc-table td.pcat-zukunft{color:#84E0E0}
 .proc-table td.pcat-default{color:var(--text-m)}
 .proc-table td.pproc{min-width:180px;font-weight:500}
 .proc-table td.ptrig{color:var(--text-m);font-size:11px;min-width:160px}
@@ -1380,7 +1384,7 @@ window.addEventListener('resize', drawArrows);
 // ══════════════════════════════════════════════════════════════
 // TAB 5 – PROZESSLISTE (editierbar, localStorage)
 // ══════════════════════════════════════════════════════════════
-const PROCS_KEY = 'mabis-hub-procs-v1';
+const PROCS_KEY = 'mabis-hub-procs-v2';
 
 const defaultProcs = [
   // STAMMDATEN
@@ -1442,7 +1446,90 @@ const defaultProcs = [
   // RECOVERY
   { k:'Recovery', p:'Notfall-Ersatzlieferant', t:'Insolvenz / Default BKV', a:'ÜNB → Hub', f:'Selten', s:'optional', e:'-' },
   { k:'Recovery', p:'Disaster Recovery', t:'Systemausfall', a:'Ops-Team', f:'Bei Bedarf', s:'geplant', e:'-' },
-  { k:'Recovery', p:'Datenrücklauf bei Hub-Ausfall', t:'Wiederherstellung nach Crash', a:'Ops + DB-Admin', f:'Bei Bedarf', s:'geplant', e:'-' }
+  { k:'Recovery', p:'Datenrücklauf bei Hub-Ausfall', t:'Wiederherstellung nach Crash', a:'Ops + DB-Admin', f:'Bei Bedarf', s:'geplant', e:'-' },
+
+  // ──── ERGÄNZUNG (v2): Aktuelle & potenzielle MaBiS-Prozesse ────
+
+  // STAMMDATEN +6
+  { k:'Stammdaten', p:'MeLo-Stammdaten (Messlokation)', t:'Neue Messstelle aktiviert', a:'MSB → Hub', f:'Bei Bedarf', s:'geplant', e:'STAMMDATEN_GEMELDET' },
+  { k:'Stammdaten', p:'Tranchen-Bildung (BK-Aufteilung)', t:'BKV teilt Bilanzkreis auf', a:'BKV → Hub', f:'Selten', s:'optional', e:'STAMMDATEN_AKTUALISIERT' },
+  { k:'Stammdaten', p:'Sub-Bilanzkreis-Hierarchie', t:'Tochter-BK Verknüpfung', a:'BKV → Hub', f:'Bei Bedarf', s:'optional', e:'STAMMDATEN_AKTUALISIERT' },
+  { k:'Stammdaten', p:'BKVÜ Bilanzkreisvertrag verwalten', t:'Vertragsabschluss/-änderung', a:'ÜNB ↔ BKV ↔ Hub', f:'Selten', s:'geplant', e:'-' },
+  { k:'Stammdaten', p:'MaStR-Synchronisation', t:'Stammdatenabgleich mit BNetzA', a:'Hub ↔ MaStR-API', f:'Täglich', s:'geplant', e:'-' },
+  { k:'Stammdaten', p:'Lieferantenstammdaten pflegen', t:'Neuer/geänderter Lieferant', a:'Lieferant → Hub', f:'Bei Bedarf', s:'geplant', e:'-' },
+
+  // MESSWERTE +6
+  { k:'Messwerte', p:'Standardlastprofile (H0/G0/L0)', t:'SLP-basierte Bilanzierung', a:'Hub intern', f:'Pro SLP-MaLo', s:'geplant', e:'-' },
+  { k:'Messwerte', p:'TAF-1 bis TAF-14 SMGW', t:'Smart Meter Gateway Werte', a:'iMSys → Hub', f:'Konfiguriert', s:'optional', e:'MESSWERT_EINGELIEFERT' },
+  { k:'Messwerte', p:'Sommer-/Winterzeit-Umstellung', t:'DST 25h/23h-Tage', a:'Hub intern', f:'2× jährlich', s:'geplant', e:'-' },
+  { k:'Messwerte', p:'Initialwert-Bildung neue MaLo', t:'Erstanmeldung MaLo', a:'Hub intern', f:'Pro neue MaLo', s:'teilweise', e:'-' },
+  { k:'Messwerte', p:'Zeitstempel-Plausibilität', t:'Eingang Messwert', a:'Hub intern', f:'Pro Messwert', s:'implementiert', e:'MESSWERT_ABGELEHNT' },
+  { k:'Messwerte', p:'SLP-Profilanpassung Jahresverlauf', t:'Jahreszeitenwechsel', a:'Hub intern', f:'Saisonal', s:'optional', e:'-' },
+
+  // FAHRPLÄNE +5
+  { k:'Fahrpläne', p:'Erzeugungsfahrplan (EINSPEISUNG)', t:'Erzeugungs-BK Anmeldung', a:'BKV → Hub', f:'Täglich', s:'geplant', e:'FAHRPLAN_EINGEREICHT' },
+  { k:'Fahrpläne', p:'Saldenfahrpläne BKV ↔ BKV (P2P)', t:'Bilanzkreis-Saldierung', a:'BKV ↔ BKV → Hub', f:'Bei Bedarf', s:'optional', e:'FAHRPLAN_EINGEREICHT' },
+  { k:'Fahrpläne', p:'Sub-Bilanzkreis-Fahrpläne', t:'Tochter-BK Lieferung', a:'Sub-BKV → Hub', f:'Täglich', s:'optional', e:'FAHRPLAN_EINGEREICHT' },
+  { k:'Fahrpläne', p:'Cross-Border-Fahrpläne', t:'Internationaler Stromhandel', a:'BKV → Hub', f:'Bei Bedarf', s:'optional', e:'FAHRPLAN_EINGEREICHT' },
+  { k:'Fahrpläne', p:'Day-Ahead Konsolidierung', t:'D-1 14:30 Frist', a:'Hub intern', f:'Täglich', s:'geplant', e:'-' },
+
+  // AGGREGATION +3
+  { k:'Aggregation', p:'Differenzbilanzkreis-Aggregation', t:'Netzverluste & Differenzmengen', a:'VNB → Hub', f:'Monatlich', s:'geplant', e:'-' },
+  { k:'Aggregation', p:'Verlustenergie-Aggregation', t:'Netzverluste je Netzgebiet', a:'Hub intern', f:'Monatlich', s:'geplant', e:'-' },
+  { k:'Aggregation', p:'Aggregation je Spannungsebene', t:'HS/MS/NS getrennt', a:'Hub intern', f:'Pro Lauf', s:'geplant', e:'-' },
+
+  // ABRECHNUNG +5
+  { k:'Abrechnung', p:'Mehr-/Mindermengen-Abrechnung (MMMA)', t:'Jahresende SLP-Abrechnung', a:'VNB ↔ Lieferant → Hub', f:'Jährlich', s:'geplant', e:'ABRECHNUNGSLAUF_ABGESCHLOSSEN' },
+  { k:'Abrechnung', p:'Sicherheitsleistung-Abrechnung', t:'BKV-Bonitätsabsicherung', a:'ÜNB → BKV', f:'Pro Lauf', s:'geplant', e:'-' },
+  { k:'Abrechnung', p:'Wälzungsabrechnung (EEG/KWKG/§19)', t:'Monatliche Wälzung', a:'ÜNB → Hub', f:'Monatlich', s:'optional', e:'-' },
+  { k:'Abrechnung', p:'Pönalisierungsabrechnung', t:'Verstöße gegen Marktregeln', a:'ÜNB → BKV', f:'Bei Bedarf', s:'optional', e:'-' },
+  { k:'Abrechnung', p:'BKV-Wechsel mit Stichtag', t:'Wechsel des Bilanzkreisverantwortlichen', a:'BKV alt/neu + Hub', f:'Selten', s:'geplant', e:'STAMMDATEN_AKTUALISIERT' },
+
+  // KOMMUNIKATION (EDIFACT) +7
+  { k:'Kommunikation', p:'UTILMD-Empfang (Stammdaten EDIFACT)', t:'Externer Stammdaten-Push', a:'VNB → Gateway → Hub', f:'Pro Nachricht', s:'optional', e:'STAMMDATEN_GEMELDET' },
+  { k:'Kommunikation', p:'MSCONS-Empfang (Lastgang EDIFACT)', t:'Externer Messwert-Push', a:'MSB → Gateway → Hub', f:'Täglich', s:'optional', e:'MESSWERT_EINGELIEFERT' },
+  { k:'Kommunikation', p:'INVOIC-Versand (Rechnung)', t:'Nach Abrechnungslauf', a:'Hub → BKV', f:'Monatlich', s:'optional', e:'-' },
+  { k:'Kommunikation', p:'REMADV-Empfang (Zahlungsanzeige)', t:'Eingang Zahlung BKV', a:'BKV → Hub', f:'Monatlich', s:'optional', e:'-' },
+  { k:'Kommunikation', p:'APERAK (Anwendungsfehler-Quittung)', t:'Fehlerhafte EDIFACT-Nachricht', a:'Hub → MP', f:'Bei Fehler', s:'optional', e:'-' },
+  { k:'Kommunikation', p:'CONTRL (Empfangsbestätigung)', t:'EDIFACT-Empfang OK', a:'Hub → MP', f:'Pro Nachricht', s:'optional', e:'-' },
+  { k:'Kommunikation', p:'PARTIN (Marktpartner-Stammdaten)', t:'MP-Stammdatenwechsel', a:'BNetzA → Hub', f:'Selten', s:'optional', e:'-' },
+
+  // AUDIT +4
+  { k:'Audit', p:'BSI KRITIS-Audit', t:'Jährliche KRITIS-Pflichtprüfung', a:'BSI ↔ Hub', f:'Jährlich', s:'geplant', e:'-' },
+  { k:'Audit', p:'Datenschutzfolgenabschätzung (DSFA)', t:'DSGVO Art. 35', a:'DSB ↔ Hub', f:'Bei Änderung', s:'geplant', e:'-' },
+  { k:'Audit', p:'Löschkonzept (DSGVO Art. 17)', t:'Pseudonymisierte Datenlöschung', a:'Hub intern', f:'Bei Bedarf', s:'geplant', e:'-' },
+  { k:'Audit', p:'Penetration Testing', t:'Jährliches Security-Audit', a:'Externer Auditor', f:'Jährlich', s:'geplant', e:'-' },
+
+  // NEUE KATEGORIE: DATENQUALITÄT +6
+  { k:'Datenqualität', p:'Zeitreihen-Lückenerkennung', t:'Tagesabschluss', a:'Hub intern', f:'Täglich', s:'geplant', e:'-' },
+  { k:'Datenqualität', p:'Doublettenprüfung', t:'Pro Messwert-Eingang', a:'Hub intern', f:'Pro Messwert', s:'implementiert', e:'-' },
+  { k:'Datenqualität', p:'Reconciliation MSB ↔ Hub', t:'Soll-/Ist-Vergleich Lieferungen', a:'Hub intern', f:'Täglich', s:'geplant', e:'-' },
+  { k:'Datenqualität', p:'Konsistenzprüfung Stammdaten ↔ Messwerte', t:'Vor Abrechnungslauf', a:'Hub intern', f:'Pro Lauf', s:'geplant', e:'-' },
+  { k:'Datenqualität', p:'Vollständigkeitsprüfung Fahrplan', t:'96 Werte/Tag erforderlich', a:'Hub intern', f:'Pro Fahrplan', s:'implementiert', e:'-' },
+  { k:'Datenqualität', p:'Quality Score Berechnung', t:'Per MaLo/MSB-Monat', a:'Hub intern', f:'Monatlich', s:'geplant', e:'-' },
+
+  // NEUE KATEGORIE: REPORTING +5
+  { k:'Reporting', p:'Monatsabschluss-Report', t:'Monatsende', a:'Hub → Ops', f:'Monatlich', s:'geplant', e:'-' },
+  { k:'Reporting', p:'BNetzA-Statistik-Report', t:'Regulatorische Meldung', a:'Hub → BNetzA', f:'Quartalsweise', s:'geplant', e:'-' },
+  { k:'Reporting', p:'SLA-Erfüllungsreport', t:'Monatliche Verfügbarkeit', a:'Hub → Marktpartner', f:'Monatlich', s:'geplant', e:'-' },
+  { k:'Reporting', p:'Ausnahmen-/Anomalie-Report', t:'Outlier-Detection', a:'Hub → Ops', f:'Täglich', s:'geplant', e:'-' },
+  { k:'Reporting', p:'KPI-Dashboard-Generierung', t:'Live-Monitoring', a:'Admin → Hub', f:'Kontinuierlich', s:'implementiert', e:'-' },
+
+  // NEUE KATEGORIE: MARKTEVOLUTION +4
+  { k:'Marktevolution', p:'Jährliche MAKO-Format-Updates', t:'BDEW-Update (jährlich/halbjährlich)', a:'Dev-Team → Hub', f:'1-2× jährlich', s:'geplant', e:'-' },
+  { k:'Marktevolution', p:'iMSys-Rollout-Integration', t:'BSI Smart-Meter-Pflichtausbau', a:'MSB → Hub', f:'Gestaffelt', s:'geplant', e:'-' },
+  { k:'Marktevolution', p:'API-Versionierung & Deprecation', t:'Breaking-Change-Release', a:'Dev-Team → Marktpartner', f:'Pro Major-Release', s:'geplant', e:'-' },
+  { k:'Marktevolution', p:'Marktpartner-ID-Migration (EIC)', t:'BNetzA-Vorgabe', a:'Hub intern', f:'Selten', s:'optional', e:'-' },
+
+  // NEUE KATEGORIE: ZUKUNFT (potenzielle / regulatorisch absehbare Prozesse) +8
+  { k:'Zukunft', p:'15min-Bilanzierung für alle Verbraucher', t:'EU-Verordnung 2017/2195', a:'Alle MP', f:'Zukünftig', s:'geplant', e:'-' },
+  { k:'Zukunft', p:'Dynamische Tarife §41a EnWG', t:'Pflicht ab 2025 für Lieferanten', a:'Lieferant → Hub', f:'Zukünftig', s:'geplant', e:'-' },
+  { k:'Zukunft', p:'§14a EnWG steuerbare Verbrauchsein.', t:'Wärmepumpen, Wallboxen, Speicher', a:'MSB/VNB → Hub', f:'Ab 01.01.2024', s:'geplant', e:'-' },
+  { k:'Zukunft', p:'Submetering / Mieterstrom-Bilanzierung', t:'Unter-Zähler-Abrechnung', a:'Submeter-Betreiber → Hub', f:'Bei Bedarf', s:'optional', e:'-' },
+  { k:'Zukunft', p:'Energiegemeinschaften (REC/CEC)', t:'EU RED II Umsetzung', a:'Gemeinschaft → Hub', f:'Zukünftig', s:'optional', e:'-' },
+  { k:'Zukunft', p:'CO2-Tracking pro kWh', t:'Herkunftsnachweis-Pflicht', a:'UBA + Hub', f:'Zukünftig', s:'optional', e:'-' },
+  { k:'Zukunft', p:'Speicher-Bilanzierung (BES)', t:'Doppelvermarktungsschutz Speicher', a:'BKV → Hub', f:'Zukünftig', s:'optional', e:'-' },
+  { k:'Zukunft', p:'ML-basierte Anomalieerkennung', t:'KI-gestützte Plausibilisierung', a:'Hub intern (ML)', f:'Kontinuierlich', s:'optional', e:'-' }
 ];
 
 function loadProcs() {
