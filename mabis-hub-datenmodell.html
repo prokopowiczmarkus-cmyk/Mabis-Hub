@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MaBiS-Hub · Datenmodell & Interfaces</title>
+<title>MaBiS-Hub · Datenmodell, Interfaces & Prozesse</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -155,6 +155,63 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .enum-block{padding:10px 18px;display:flex;flex-wrap:wrap;gap:6px}
 .enum-val{font-family:var(--font-m);font-size:10px;padding:3px 10px;border-radius:4px;background:rgba(251,146,60,.08);color:var(--orange);border:1px solid rgba(251,146,60,.18)}
 .enum-val span{color:var(--text-d);margin-left:4px}
+
+/* ════════════════════════════════════════════
+   TAB 4 – PROZESSE (BPMN)
+════════════════════════════════════════════ */
+#bpmn-wrap{flex:1;overflow:auto;padding:18px 24px 30px;background:var(--bg)}
+#bpmn-wrap::-webkit-scrollbar{width:5px;height:5px}
+#bpmn-wrap::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+.bpmn-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.bpmn-subtabs{display:flex;gap:4px}
+.bpmn-subtab{font-family:var(--font-m);font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--text-m);cursor:pointer;transition:all .15s;letter-spacing:.06em}
+.bpmn-subtab:hover{color:var(--text);background:var(--bg3)}
+.bpmn-subtab.active{border-color:var(--border2);background:var(--acc-g);color:var(--acc)}
+.bpmn-meta{font-family:var(--font-m);font-size:10px;color:var(--text-d);letter-spacing:.08em}
+
+.bpmn-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.bpmn-desc{font-size:12px;color:var(--text-m);margin-bottom:14px;line-height:1.6;max-width:980px}
+
+.bpmn-diagram{display:none;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.bpmn-diagram.active{display:block}
+.bpmn-svg{width:100%;height:auto;display:block;font-family:var(--font-b)}
+
+/* BPMN SVG element styles */
+.bpmn-phase-bar{fill:rgba(255,255,255,.02);stroke:var(--border)}
+.bpmn-phase-divider{stroke:var(--border);stroke-dasharray:3 3}
+.bpmn-phase-label{font-family:'DM Mono',monospace;font-size:10px;fill:var(--text-m);letter-spacing:.14em;text-transform:uppercase}
+
+.bpmn-lane-box{fill:none;stroke:var(--border)}
+.bpmn-lane-label-bg{stroke:var(--border)}
+.bpmn-lane-name{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600}
+.bpmn-lane-role{font-family:'DM Mono',monospace;font-size:9px;fill:var(--text-d);letter-spacing:.08em}
+
+.bpmn-task-rect{stroke-width:1.5;rx:7;ry:7}
+.bpmn-task-msb .bpmn-task-rect{fill:rgba(167,139,250,.08);stroke:#A78BFA}
+.bpmn-task-vnb .bpmn-task-rect{fill:rgba(62,201,224,.08);stroke:#3EC9E0}
+.bpmn-task-bkv .bpmn-task-rect{fill:rgba(52,209,122,.08);stroke:#34D17A}
+.bpmn-task-hub .bpmn-task-rect{fill:rgba(62,201,224,.14);stroke:#3EC9E0;stroke-width:2}
+.bpmn-task-unb .bpmn-task-rect{fill:rgba(245,166,35,.08);stroke:#F5A623}
+.bpmn-task-text{font-family:'DM Sans',sans-serif;font-size:10.5px;fill:var(--text);text-anchor:middle;dominant-baseline:middle}
+.bpmn-loop{font-family:'DM Mono',monospace;font-size:11px;fill:var(--text-m)}
+.bpmn-audit{font-family:'DM Mono',monospace;font-size:8px;fill:var(--orange);letter-spacing:.04em}
+
+.bpmn-event-start{fill:var(--bg2);stroke:#34D17A;stroke-width:1.5}
+.bpmn-event-end{fill:var(--bg2);stroke:#F05252;stroke-width:3}
+.bpmn-event-timer-outer{fill:var(--bg2);stroke:#F5A623;stroke-width:1.5}
+.bpmn-event-timer-inner{fill:none;stroke:#F5A623;stroke-width:1.2}
+.bpmn-event-label{font-family:'DM Mono',monospace;font-size:9px;fill:var(--text-m);text-anchor:middle}
+
+.bpmn-gateway{fill:var(--bg2);stroke:#F5A623;stroke-width:1.5}
+.bpmn-gateway-x{stroke:#F5A623;stroke-width:2;fill:none}
+
+.bpmn-seq{fill:none;stroke:#8B96B0;stroke-width:1.5;marker-end:url(#bpmn-arr)}
+.bpmn-msg{fill:none;stroke:#3EC9E0;stroke-width:1.3;stroke-dasharray:6 4;marker-end:url(#bpmn-arr-msg)}
+.bpmn-flow-label{font-family:'DM Mono',monospace;font-size:9px;fill:var(--text-m)}
+
+.bpmn-legend{display:flex;flex-wrap:wrap;gap:10px 20px;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-top:6px}
+.bpmn-legend-item{display:flex;align-items:center;gap:8px;font-size:10px;font-family:var(--font-m);color:var(--text-m)}
+.bpmn-legend-icon{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -168,6 +225,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <button class="tab active" onclick="switchTab('model')">Datenmodell</button>
     <button class="tab" onclick="switchTab('arch')">Schichtenarchitektur</button>
     <button class="tab" onclick="switchTab('iface')">Interfaces</button>
+    <button class="tab" onclick="switchTab('process')">Prozesse</button>
   </div>
   <div class="tb-right">BK6-24-210 · Java 21 · Spring Boot 3.3.5</div>
 </div>
@@ -461,6 +519,416 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 </div>
 </div>
 
+<!-- ══════════════════════════════════════════════
+     TAB 4: PROZESSE (BPMN)
+══════════════════════════════════════════════ -->
+<div class="page" id="page-process">
+<div id="bpmn-wrap">
+
+  <div class="bpmn-head">
+    <div class="bpmn-subtabs">
+      <button class="bpmn-subtab active" onclick="switchBpmn('typical', this)">Typisch · Monatliche Bilanzkreisabrechnung</button>
+      <button class="bpmn-subtab" onclick="switchBpmn('special', this)">Speziell · Widerspruch &amp; Korrekturlauf M+13</button>
+    </div>
+    <div class="bpmn-meta">BPMN-style · Swim Lanes · Sequence + Message Flow</div>
+  </div>
+
+  <!-- ───────────────────────────────────────────
+       BPMN 1 – Typischer Prozess
+  ─────────────────────────────────────────── -->
+  <div class="bpmn-diagram active" id="bpmn-typical">
+    <div class="bpmn-title">Monatliche Bilanzkreisabrechnung – Vorläufiger Lauf (M+1)</div>
+    <div class="bpmn-desc">Happy-Path-Prozess: Stammdaten werden einmalig gemeldet, MSB und BKV liefern täglich Messwerte bzw. Fahrpläne. Zum Monatsende stößt der ÜNB den ersten Abrechnungslauf an. MaBiS-Hub aggregiert, berechnet die Ausgleichsenergie und erstellt die vorläufige Abrechnung für den BKV.</div>
+
+    <svg viewBox="0 0 1280 600" class="bpmn-svg" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <marker id="bpmn-arr" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="9" markerHeight="7" orient="auto">
+          <polygon points="0 0, 10 4, 0 8" fill="#8B96B0"/>
+        </marker>
+        <marker id="bpmn-arr-msg" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="9" markerHeight="7" orient="auto">
+          <polygon points="0.5 0.5, 9.5 4, 0.5 7.5" fill="none" stroke="#3EC9E0" stroke-width="1.3"/>
+        </marker>
+      </defs>
+
+      <!-- ── Phase header ── -->
+      <rect x="130" y="0" width="1150" height="30" class="bpmn-phase-bar"/>
+      <line x1="450" y1="0" x2="450" y2="30" class="bpmn-phase-divider"/>
+      <line x1="710" y1="0" x2="710" y2="30" class="bpmn-phase-divider"/>
+      <text x="290" y="20" class="bpmn-phase-label">① Stammdatenphase</text>
+      <text x="580" y="20" class="bpmn-phase-label">② Laufende Lieferphase (täglich)</text>
+      <text x="990" y="20" class="bpmn-phase-label">③ Abrechnungsphase (Monatsende → M+1)</text>
+
+      <!-- ── Lane labels (left column) ── -->
+      <rect x="0" y="30"  width="130" height="100" fill="rgba(167,139,250,.04)" class="bpmn-lane-label-bg"/>
+      <rect x="0" y="130" width="130" height="100" fill="rgba(62,201,224,.04)"  class="bpmn-lane-label-bg"/>
+      <rect x="0" y="230" width="130" height="100" fill="rgba(52,209,122,.04)"  class="bpmn-lane-label-bg"/>
+      <rect x="0" y="330" width="130" height="140" fill="rgba(62,201,224,.08)"  class="bpmn-lane-label-bg"/>
+      <rect x="0" y="470" width="130" height="100" fill="rgba(245,166,35,.04)"  class="bpmn-lane-label-bg"/>
+
+      <text x="65" y="75"  text-anchor="middle" class="bpmn-lane-name" fill="#A78BFA">MSB</text>
+      <text x="65" y="90"  text-anchor="middle" class="bpmn-lane-role">Messstelle</text>
+      <text x="65" y="175" text-anchor="middle" class="bpmn-lane-name" fill="#3EC9E0">VNB</text>
+      <text x="65" y="190" text-anchor="middle" class="bpmn-lane-role">Verteilnetz</text>
+      <text x="65" y="270" text-anchor="middle" class="bpmn-lane-name" fill="#34D17A">BKV</text>
+      <text x="65" y="285" text-anchor="middle" class="bpmn-lane-role">Bilanzkreis · Kunde</text>
+      <text x="65" y="395" text-anchor="middle" class="bpmn-lane-name" fill="#3EC9E0">MaBiS-Hub</text>
+      <text x="65" y="410" text-anchor="middle" class="bpmn-lane-role">Plattform</text>
+      <text x="65" y="515" text-anchor="middle" class="bpmn-lane-name" fill="#F5A623">ÜNB</text>
+      <text x="65" y="530" text-anchor="middle" class="bpmn-lane-role">Übertragungsnetz</text>
+
+      <!-- Lane backgrounds (process area) -->
+      <rect x="130" y="30"  width="1150" height="100" class="bpmn-lane-box"/>
+      <rect x="130" y="130" width="1150" height="100" class="bpmn-lane-box"/>
+      <rect x="130" y="230" width="1150" height="100" class="bpmn-lane-box"/>
+      <rect x="130" y="330" width="1150" height="140" class="bpmn-lane-box" fill="rgba(62,201,224,.03)"/>
+      <rect x="130" y="470" width="1150" height="100" class="bpmn-lane-box"/>
+
+      <!-- Phase column dividers in lanes -->
+      <line x1="450" y1="30" x2="450" y2="570" class="bpmn-phase-divider"/>
+      <line x1="710" y1="30" x2="710" y2="570" class="bpmn-phase-divider"/>
+
+      <!-- ════════ Events & Tasks ════════ -->
+
+      <!-- Start (VNB lane) -->
+      <circle cx="160" cy="180" r="11" class="bpmn-event-start"/>
+      <text x="160" y="207" class="bpmn-event-label">Start</text>
+
+      <!-- VNB: Stammdaten melden -->
+      <g class="bpmn-task bpmn-task-vnb">
+        <rect class="bpmn-task-rect" x="190" y="162" width="140" height="36"/>
+        <text class="bpmn-task-text" x="260" y="180">Stammdaten melden</text>
+      </g>
+      <text x="260" y="215" class="bpmn-audit" text-anchor="middle">⊕ STAMMDATEN_GEMELDET</text>
+
+      <!-- MSB: Messwerte einliefern (loop) -->
+      <g class="bpmn-task bpmn-task-msb">
+        <rect class="bpmn-task-rect" x="500" y="62" width="150" height="36"/>
+        <text class="bpmn-task-text" x="575" y="80">Messwerte einliefern</text>
+        <text class="bpmn-loop" x="575" y="94" text-anchor="middle">↻ täglich</text>
+      </g>
+      <text x="575" y="115" class="bpmn-audit" text-anchor="middle">⊕ MESSWERT_EINGELIEFERT</text>
+
+      <!-- BKV: Fahrplan einreichen (loop) -->
+      <g class="bpmn-task bpmn-task-bkv">
+        <rect class="bpmn-task-rect" x="500" y="262" width="150" height="36"/>
+        <text class="bpmn-task-text" x="575" y="280">Fahrplan einreichen</text>
+        <text class="bpmn-loop" x="575" y="294" text-anchor="middle">↻ tägl. Vortagsfrist</text>
+      </g>
+      <text x="575" y="315" class="bpmn-audit" text-anchor="middle">⊕ FAHRPLAN_EINGEREICHT</text>
+
+      <!-- Timer event: Monatsende (ÜNB lane) -->
+      <circle cx="745" cy="519" r="13" class="bpmn-event-timer-outer"/>
+      <circle cx="745" cy="519" r="9"  class="bpmn-event-timer-inner"/>
+      <line x1="745" y1="514" x2="745" y2="519" class="bpmn-event-timer-inner"/>
+      <line x1="745" y1="519" x2="749" y2="522" class="bpmn-event-timer-inner"/>
+      <text x="745" y="552" class="bpmn-event-label">Monatsende</text>
+
+      <!-- ÜNB: Lauf anstoßen -->
+      <g class="bpmn-task bpmn-task-unb">
+        <rect class="bpmn-task-rect" x="780" y="500" width="170" height="38"/>
+        <text class="bpmn-task-text" x="865" y="519">Abrechnungslauf (M+1)</text>
+        <text class="bpmn-task-text" x="865" y="532" style="font-size:10px;fill:#8B96B0">anstoßen</text>
+      </g>
+      <text x="865" y="555" class="bpmn-audit" text-anchor="middle">⊕ ABRECHNUNGSLAUF_GESTARTET</text>
+
+      <!-- Hub: Stammdaten speichern -->
+      <g class="bpmn-task bpmn-task-hub">
+        <rect class="bpmn-task-rect" x="190" y="380" width="140" height="36"/>
+        <text class="bpmn-task-text" x="260" y="398">Stammdaten</text>
+        <text class="bpmn-task-text" x="260" y="411" style="font-size:9.5px;fill:#8B96B0">validieren &amp; speichern</text>
+      </g>
+
+      <!-- Hub: Messwert speichern -->
+      <g class="bpmn-task bpmn-task-hub">
+        <rect class="bpmn-task-rect" x="505" y="350" width="140" height="36"/>
+        <text class="bpmn-task-text" x="575" y="368">Messwert</text>
+        <text class="bpmn-task-text" x="575" y="381" style="font-size:9.5px;fill:#8B96B0">prüfen (MaLo bekannt?)</text>
+      </g>
+
+      <!-- Hub: Fahrplan speichern -->
+      <g class="bpmn-task bpmn-task-hub">
+        <rect class="bpmn-task-rect" x="505" y="408" width="140" height="36"/>
+        <text class="bpmn-task-text" x="575" y="426">Fahrplan</text>
+        <text class="bpmn-task-text" x="575" y="439" style="font-size:9.5px;fill:#8B96B0">upsert (BK + Tag)</text>
+      </g>
+
+      <!-- Hub: Aggregation + AE -->
+      <g class="bpmn-task bpmn-task-hub">
+        <rect class="bpmn-task-rect" x="800" y="350" width="170" height="36"/>
+        <text class="bpmn-task-text" x="885" y="368">Aggregation + AE-Saldo</text>
+        <text class="bpmn-task-text" x="885" y="381" style="font-size:9.5px;fill:#8B96B0">Datenschutz: ≥ 5 MaLos</text>
+      </g>
+
+      <!-- Hub: Abrechnung erstellen -->
+      <g class="bpmn-task bpmn-task-hub">
+        <rect class="bpmn-task-rect" x="990" y="380" width="160" height="36"/>
+        <text class="bpmn-task-text" x="1070" y="398">Abrechnung erstellen</text>
+        <text class="bpmn-task-text" x="1070" y="411" style="font-size:9.5px;fill:#8B96B0">Status: ERSTELLT</text>
+      </g>
+      <text x="1070" y="437" class="bpmn-audit" text-anchor="middle">⊕ ABRECHNUNGSLAUF_ABGESCHLOSSEN</text>
+
+      <!-- BKV: Abrechnung empfangen -->
+      <g class="bpmn-task bpmn-task-bkv">
+        <rect class="bpmn-task-rect" x="1100" y="262" width="140" height="36"/>
+        <text class="bpmn-task-text" x="1170" y="280">Abrechnung</text>
+        <text class="bpmn-task-text" x="1170" y="293" style="font-size:9.5px;fill:#8B96B0">empfangen + prüfen</text>
+      </g>
+      <text x="1170" y="315" class="bpmn-audit" text-anchor="middle">⊕ ABRECHNUNG_ABGERUFEN</text>
+
+      <!-- End event (BKV lane) -->
+      <circle cx="1260" cy="280" r="11" class="bpmn-event-end"/>
+      <text x="1260" y="305" class="bpmn-event-label">M+1 ok</text>
+
+      <!-- ════════ Sequence & Message Flows ════════ -->
+
+      <!-- Start → Stammdaten melden -->
+      <path class="bpmn-seq" d="M 171 180 L 189 180"/>
+
+      <!-- VNB Stammdaten → Hub speichern (message) -->
+      <path class="bpmn-msg" d="M 260 198 L 260 380"/>
+      <text x="266" y="290" class="bpmn-flow-label">stammdaten</text>
+
+      <!-- MSB Messwerte → Hub Messwert (message) -->
+      <path class="bpmn-msg" d="M 575 98 L 575 350"/>
+      <text x="581" y="225" class="bpmn-flow-label">messwert</text>
+
+      <!-- BKV Fahrplan → Hub Fahrplan (message) -->
+      <path class="bpmn-msg" d="M 575 298 L 575 408"/>
+
+      <!-- Within Hub: Stammdaten → Messwert (sequence) -->
+      <path class="bpmn-seq" d="M 330 398 Q 420 398 505 368"/>
+
+      <!-- Within Hub: Messwert/Fahrplan → Aggregation (merge) -->
+      <path class="bpmn-seq" d="M 645 368 L 800 368"/>
+      <path class="bpmn-seq" d="M 645 426 Q 720 426 780 380"/>
+
+      <!-- Hub Aggregation → Abrechnung erstellen -->
+      <path class="bpmn-seq" d="M 970 368 Q 985 368 990 398"/>
+
+      <!-- ÜNB Lauf anstoßen → Hub Aggregation (message, trigger) -->
+      <path class="bpmn-msg" d="M 865 500 L 865 386"/>
+      <text x="872" y="450" class="bpmn-flow-label">trigger</text>
+
+      <!-- Hub Abrechnung → BKV Empfang (message) -->
+      <path class="bpmn-msg" d="M 1100 380 Q 1100 320 1100 298"/>
+      <text x="1106" y="345" class="bpmn-flow-label">abrechnung</text>
+
+      <!-- BKV Empfang → End -->
+      <path class="bpmn-seq" d="M 1240 280 L 1249 280"/>
+
+      <!-- Hinweis-Pfeil zur Spezial-Variante -->
+      <line x1="1260" y1="293" x2="1260" y2="558" stroke="rgba(240,82,82,.35)" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="1260" y="572" class="bpmn-flow-label" text-anchor="middle" fill="#F05252" style="font-size:9px">bei Widerspruch →</text>
+    </svg>
+  </div>
+
+  <!-- ───────────────────────────────────────────
+       BPMN 2 – Spezialprozess
+  ─────────────────────────────────────────── -->
+  <div class="bpmn-diagram" id="bpmn-special">
+    <div class="bpmn-title">Widerspruch &amp; Korrekturlauf (M+13)</div>
+    <div class="bpmn-desc">Nicht-Happy-Path: Der BKV (Kunde) erkennt eine Diskrepanz in der vorläufigen Abrechnung. Über den Widerspruchsmechanismus werden nachgereichte Messwerte des MSB eingespielt, der ÜNB löst den korrigierten Lauf (M+13) aus, und MaBiS-Hub erstellt eine neue Abrechnung mit Status WIDERSPROCHEN → ANERKANNT.</div>
+
+    <svg viewBox="0 0 1280 580" class="bpmn-svg" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <marker id="bpmn-arr2" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="9" markerHeight="7" orient="auto">
+          <polygon points="0 0, 10 4, 0 8" fill="#8B96B0"/>
+        </marker>
+        <marker id="bpmn-arr-msg2" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="9" markerHeight="7" orient="auto">
+          <polygon points="0.5 0.5, 9.5 4, 0.5 7.5" fill="none" stroke="#3EC9E0" stroke-width="1.3"/>
+        </marker>
+      </defs>
+
+      <!-- Phase header -->
+      <rect x="130" y="0" width="1150" height="30" class="bpmn-phase-bar"/>
+      <line x1="430" y1="0" x2="430" y2="30" class="bpmn-phase-divider"/>
+      <line x1="760" y1="0" x2="760" y2="30" class="bpmn-phase-divider"/>
+      <text x="280" y="20" class="bpmn-phase-label">① Prüfung &amp; Widerspruch</text>
+      <text x="595" y="20" class="bpmn-phase-label">② Nacherfassung (MSB + ÜNB)</text>
+      <text x="1020" y="20" class="bpmn-phase-label">③ Korrekturlauf M+13</text>
+
+      <!-- Lane labels -->
+      <rect x="0" y="30"  width="130" height="120" fill="rgba(52,209,122,.04)" class="bpmn-lane-label-bg"/>
+      <rect x="0" y="150" width="130" height="150" fill="rgba(62,201,224,.08)" class="bpmn-lane-label-bg"/>
+      <rect x="0" y="300" width="130" height="130" fill="rgba(245,166,35,.04)" class="bpmn-lane-label-bg"/>
+      <rect x="0" y="430" width="130" height="120" fill="rgba(167,139,250,.04)" class="bpmn-lane-label-bg"/>
+
+      <text x="65" y="85"  text-anchor="middle" class="bpmn-lane-name" fill="#34D17A">BKV</text>
+      <text x="65" y="100" text-anchor="middle" class="bpmn-lane-role">Kunde · widerspricht</text>
+      <text x="65" y="220" text-anchor="middle" class="bpmn-lane-name" fill="#3EC9E0">MaBiS-Hub</text>
+      <text x="65" y="235" text-anchor="middle" class="bpmn-lane-role">Plattform</text>
+      <text x="65" y="360" text-anchor="middle" class="bpmn-lane-name" fill="#F5A623">ÜNB</text>
+      <text x="65" y="375" text-anchor="middle" class="bpmn-lane-role">Übertragungsnetz</text>
+      <text x="65" y="485" text-anchor="middle" class="bpmn-lane-name" fill="#A78BFA">MSB</text>
+      <text x="65" y="500" text-anchor="middle" class="bpmn-lane-role">Messstelle</text>
+
+      <!-- Lane backgrounds -->
+      <rect x="130" y="30"  width="1150" height="120" class="bpmn-lane-box"/>
+      <rect x="130" y="150" width="1150" height="150" class="bpmn-lane-box" fill="rgba(62,201,224,.03)"/>
+      <rect x="130" y="300" width="1150" height="130" class="bpmn-lane-box"/>
+      <rect x="130" y="430" width="1150" height="120" class="bpmn-lane-box"/>
+
+      <!-- Phase dividers -->
+      <line x1="430" y1="30" x2="430" y2="550" class="bpmn-phase-divider"/>
+      <line x1="760" y1="30" x2="760" y2="550" class="bpmn-phase-divider"/>
+
+      <!-- ════ Events & Tasks ════ -->
+
+      <!-- Start (BKV) -->
+      <circle cx="160" cy="90" r="11" class="bpmn-event-start"/>
+      <text x="160" y="117" class="bpmn-event-label">Vorläufige</text>
+      <text x="160" y="128" class="bpmn-event-label">Abrechnung da</text>
+
+      <!-- BKV: Plausibilität prüfen -->
+      <g class="bpmn-task bpmn-task-bkv">
+        <rect class="bpmn-task-rect" x="190" y="72" width="140" height="36"/>
+        <text class="bpmn-task-text" x="260" y="90">Vorläufige Abrechnung</text>
+        <text class="bpmn-task-text" x="260" y="103" style="font-size:10px;fill:#8B96B0">prüfen</text>
+      </g>
+
+      <!-- Gateway: Plausibel? -->
+      <polygon class="bpmn-gateway" points="370,90 392,68 414,90 392,112"/>
+      <line class="bpmn-gateway-x" x1="380" y1="80" x2="404" y2="100"/>
+      <line class="bpmn-gateway-x" x1="404" y1="80" x2="380" y2="100"/>
+      <text x="392" y="55" class="bpmn-event-label">Plausibel?</text>
+      <text x="420" y="93" class="bpmn-flow-label" style="fill:#F05252">nein</text>
+      <text x="392" y="135" class="bpmn-flow-label" style="fill:#34D17A;text-anchor:middle">ja → typ. Prozess</text>
+
+      <!-- BKV: Widerspruch einlegen -->
+      <g class="bpmn-task bpmn-task-bkv">
+        <rect class="bpmn-task-rect" x="450" y="72" width="140" height="36"/>
+        <text class="bpmn-task-text" x="520" y="90">Widerspruch</text>
+        <text class="bpmn-task-text" x="520" y="103" style="font-size:10px;fill:#8B96B0">einlegen</text>
+      </g>
+
+      <!-- Hub: Widerspruch registrieren -->
+      <g class="bpmn-task bpmn-task-hub">
+        <rect class="bpmn-task-rect" x="450" y="190" width="160" height="40"/>
+        <text class="bpmn-task-text" x="530" y="208">Widerspruch registrieren</text>
+        <text class="bpmn-task-text" x="530" y="222" style="font-size:9.5px;fill:#8B96B0">Status → WIDERSPROCHEN</text>
+      </g>
+      <text x="530" y="248" class="bpmn-audit" text-anchor="middle">⊕ ABRECHNUNGSLAUF_FEHLGESCHLAGEN</text>
+
+      <!-- ÜNB: Diskrepanz prüfen -->
+      <g class="bpmn-task bpmn-task-unb">
+        <rect class="bpmn-task-rect" x="630" y="340" width="140" height="36"/>
+        <text class="bpmn-task-text" x="700" y="358">Diskrepanz prüfen</text>
+        <text class="bpmn-task-text" x="700" y="371" style="font-size:9.5px;fill:#8B96B0">Nachforderung MSB</text>
+      </g>
+
+      <!-- MSB: Korrigierte Messwerte -->
+      <g class="bpmn-task bpmn-task-msb">
+        <rect class="bpmn-task-rect" x="630" y="470" width="180" height="40"/>
+        <text class="bpmn-task-text" x="720" y="488">Korrigierte Messwerte</text>
+        <text class="bpmn-task-text" x="720" y="502" style="font-size:9.5px;fill:#8B96B0">nachliefern (Ersatzwert → Gemessen)</text>
+      </g>
+      <text x="720" y="528" class="bpmn-audit" text-anchor="middle">⊕ MESSWERT_EINGELIEFERT (Qualität: GEMESSEN)</text>
+
+      <!-- Hub: Neue Aggregation -->
+      <g class="bpmn-task bpmn-task-hub">
+        <rect class="bpmn-task-rect" x="800" y="190" width="160" height="40"/>
+        <text class="bpmn-task-text" x="880" y="208">Neue Aggregation</text>
+        <text class="bpmn-task-text" x="880" y="222" style="font-size:9.5px;fill:#8B96B0">mit nachgereichten Werten</text>
+      </g>
+
+      <!-- ÜNB: Korrekturlauf -->
+      <g class="bpmn-task bpmn-task-unb">
+        <rect class="bpmn-task-rect" x="990" y="340" width="160" height="38"/>
+        <text class="bpmn-task-text" x="1070" y="358">Korrekturlauf (M+13)</text>
+        <text class="bpmn-task-text" x="1070" y="371" style="font-size:9.5px;fill:#8B96B0">anstoßen · Lauf: KORRIGIERT</text>
+      </g>
+      <text x="1070" y="395" class="bpmn-audit" text-anchor="middle">⊕ ABRECHNUNGSLAUF_GESTARTET</text>
+
+      <!-- Hub: Korrigierte Abrechnung erstellen -->
+      <g class="bpmn-task bpmn-task-hub">
+        <rect class="bpmn-task-rect" x="980" y="245" width="180" height="40"/>
+        <text class="bpmn-task-text" x="1070" y="263">Korrigierte Abrechnung</text>
+        <text class="bpmn-task-text" x="1070" y="277" style="font-size:9.5px;fill:#8B96B0">erstellen · Status: ANERKANNT</text>
+      </g>
+
+      <!-- BKV: Korrigierte Abrechnung erhalten -->
+      <g class="bpmn-task bpmn-task-bkv">
+        <rect class="bpmn-task-rect" x="1080" y="72" width="160" height="36"/>
+        <text class="bpmn-task-text" x="1160" y="90">Korrigierte Abrechnung</text>
+        <text class="bpmn-task-text" x="1160" y="103" style="font-size:10px;fill:#8B96B0">erhalten &amp; akzeptieren</text>
+      </g>
+      <text x="1160" y="125" class="bpmn-audit" text-anchor="middle">⊕ ABRECHNUNG_ABGERUFEN</text>
+
+      <!-- End event -->
+      <circle cx="1260" cy="90" r="11" class="bpmn-event-end"/>
+      <text x="1260" y="117" class="bpmn-event-label">M+13 ok</text>
+
+      <!-- ════ Flows ════ -->
+
+      <!-- Start → prüfen -->
+      <path class="bpmn-seq" d="M 171 90 L 189 90"/>
+      <!-- prüfen → Gateway -->
+      <path class="bpmn-seq" d="M 330 90 L 370 90"/>
+      <!-- Gateway → Widerspruch -->
+      <path class="bpmn-seq" d="M 414 90 L 449 90"/>
+      <!-- Widerspruch → Hub (message) -->
+      <path class="bpmn-msg" d="M 520 108 L 520 190"/>
+      <text x="528" y="155" class="bpmn-flow-label">widerspruch</text>
+      <!-- Hub Widerspruch → ÜNB prüfen (message, going down) -->
+      <path class="bpmn-msg" d="M 610 220 Q 700 220 700 340"/>
+      <text x="640" y="280" class="bpmn-flow-label">nachforderung</text>
+      <!-- ÜNB → MSB (message) -->
+      <path class="bpmn-msg" d="M 700 376 L 700 470"/>
+      <text x="708" y="425" class="bpmn-flow-label">request</text>
+      <!-- MSB → Hub (message, going up) -->
+      <path class="bpmn-msg" d="M 810 470 Q 900 470 880 230"/>
+      <text x="870" y="350" class="bpmn-flow-label">korr. messwerte</text>
+      <!-- Hub Aggregation → ÜNB Korrekturlauf -->
+      <path class="bpmn-msg" d="M 960 220 Q 1070 220 1070 340"/>
+      <!-- ÜNB Korrekturlauf → Hub neue Abrechnung -->
+      <path class="bpmn-msg" d="M 1070 340 L 1070 285"/>
+      <!-- Hub Abrechnung → BKV (message) -->
+      <path class="bpmn-msg" d="M 1160 245 L 1160 108"/>
+      <text x="1166" y="180" class="bpmn-flow-label">korr. abrechnung</text>
+      <!-- BKV → End -->
+      <path class="bpmn-seq" d="M 1240 90 L 1249 90"/>
+    </svg>
+  </div>
+
+  <!-- ── Legende ── -->
+  <div class="bpmn-legend">
+    <div class="bpmn-legend-item">
+      <svg width="20" height="20" class="bpmn-legend-icon"><circle cx="10" cy="10" r="8" fill="none" stroke="#34D17A" stroke-width="1.5"/></svg>
+      Start-Ereignis
+    </div>
+    <div class="bpmn-legend-item">
+      <svg width="20" height="20" class="bpmn-legend-icon"><circle cx="10" cy="10" r="8" fill="none" stroke="#F05252" stroke-width="3"/></svg>
+      End-Ereignis
+    </div>
+    <div class="bpmn-legend-item">
+      <svg width="20" height="20" class="bpmn-legend-icon"><circle cx="10" cy="10" r="8" fill="none" stroke="#F5A623" stroke-width="1.5"/><circle cx="10" cy="10" r="5" fill="none" stroke="#F5A623" stroke-width="1"/></svg>
+      Timer-Ereignis
+    </div>
+    <div class="bpmn-legend-item">
+      <svg width="22" height="20" class="bpmn-legend-icon"><polygon points="11,3 19,10 11,17 3,10" fill="none" stroke="#F5A623" stroke-width="1.5"/><line x1="7" y1="6" x2="15" y2="14" stroke="#F5A623" stroke-width="1.5"/><line x1="15" y1="6" x2="7" y2="14" stroke="#F5A623" stroke-width="1.5"/></svg>
+      XOR-Gateway
+    </div>
+    <div class="bpmn-legend-item">
+      <svg width="30" height="14" class="bpmn-legend-icon"><rect x="2" y="2" width="26" height="10" rx="2" fill="rgba(62,201,224,.14)" stroke="#3EC9E0" stroke-width="1.5"/></svg>
+      Aktivität / Task
+    </div>
+    <div class="bpmn-legend-item">
+      <svg width="30" height="10" class="bpmn-legend-icon"><line x1="2" y1="5" x2="26" y2="5" stroke="#8B96B0" stroke-width="1.5"/><polygon points="22,2 28,5 22,8" fill="#8B96B0"/></svg>
+      Sequenzfluss
+    </div>
+    <div class="bpmn-legend-item">
+      <svg width="30" height="10" class="bpmn-legend-icon"><line x1="2" y1="5" x2="26" y2="5" stroke="#3EC9E0" stroke-width="1.3" stroke-dasharray="4 3"/><polygon points="22,2 28,5 22,8" fill="none" stroke="#3EC9E0" stroke-width="1.3"/></svg>
+      Nachrichtenfluss
+    </div>
+    <div class="bpmn-legend-item">
+      <span style="color:#FB923C;font-family:'DM Mono';font-size:11px">⊕ AUDIT_EREIGNIS</span>
+      <span>= protokollierter Audit-Event</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
 </div><!-- /body -->
 </div><!-- /shell -->
 
@@ -479,6 +947,14 @@ function toggleIface(head) {
   const body = head.nextElementSibling;
   head.classList.toggle('open');
   body.classList.toggle('open');
+}
+
+// ── BPMN Sub-Tab Switching ────────────────────────────────────
+function switchBpmn(id, btn) {
+  document.querySelectorAll('.bpmn-diagram').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.bpmn-subtab').forEach(t => t.classList.remove('active'));
+  document.getElementById('bpmn-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
 }
 
 // ── Node Data ─────────────────────────────────────────────────
