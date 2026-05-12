@@ -291,10 +291,27 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .plg-label{font-weight:500;color:var(--text-d);letter-spacing:.14em;text-transform:uppercase;font-size:9px}
 .plg-item{display:inline-flex;gap:5px;align-items:baseline;color:var(--text-m)}
 .plg-sym{font-weight:600}
-.proc-table td.pactions{width:34px;text-align:center;padding:0}
-.proc-table td.pactions button{background:transparent;border:none;color:var(--text-d);cursor:pointer;font-size:14px;width:24px;height:24px;border-radius:4px;opacity:0;transition:all .15s;line-height:1}
-.proc-table tr:hover td.pactions button{opacity:1}
-.proc-table td.pactions button:hover{color:var(--red);background:rgba(240,82,82,.1)}
+.proc-table td.pactions{width:68px;text-align:center;padding:0;white-space:nowrap}
+.proc-table td.pactions button{background:transparent;border:none;color:var(--text-d);cursor:pointer;font-size:14px;width:26px;height:26px;border-radius:4px;transition:all .15s;line-height:1;margin:0 1px}
+.proc-table td.pactions button.chart-btn{opacity:.6;color:var(--acc)}
+.proc-table td.pactions button.chart-btn:hover{opacity:1;background:var(--acc-g)}
+.proc-table td.pactions button.del-btn{opacity:0}
+.proc-table tr:hover td.pactions button.del-btn{opacity:1}
+.proc-table td.pactions button.del-btn:hover{color:var(--red);background:rgba(240,82,82,.1)}
+
+/* ── Single-process chart (within Prozesse tab) ── */
+.single-nav{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;flex-wrap:wrap}
+.single-nav-search{flex:1;min-width:200px;font-family:var(--font-m);font-size:11px;padding:6px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);outline:none}
+.single-nav-search:focus{border-color:var(--acc)}
+.single-nav-pos{font-family:var(--font-m);font-size:11px;color:var(--text-m);min-width:80px;text-align:center}
+.single-nav-btn{font-family:var(--font-m);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text-m);cursor:pointer;letter-spacing:.04em}
+.single-nav-btn:hover:not(:disabled){background:var(--acc-g);color:var(--acc);border-color:var(--acc)}
+.single-nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.single-empty{padding:40px;text-align:center;color:var(--text-d);font-family:var(--font-m);font-size:12px}
+.single-info{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 14px;background:var(--bg3);border-radius:8px;margin-bottom:12px;font-size:11px;font-family:var(--font-m)}
+.single-info span{color:var(--text-m)}
+.single-info b{color:var(--text);font-weight:500}
+.single-chart-host svg{background:var(--bg2);border:1px solid var(--border);border-radius:10px}
 .proc-table td[contenteditable]:focus{outline:1.5px solid var(--acc);background:var(--bg3);border-radius:4px}
 .proc-table td[contenteditable]:empty:not(:focus)::before{content:'—';color:var(--text-d)}
 .proc-table tr.proc-hidden{display:none}
@@ -617,6 +634,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <div class="bpmn-subtabs">
       <button class="bpmn-subtab active" onclick="switchBpmn('typical', this)">Typisch · Monatliche Bilanzkreisabrechnung</button>
       <button class="bpmn-subtab" onclick="switchBpmn('special', this)">Speziell · Widerspruch &amp; Korrekturlauf M+13</button>
+      <button class="bpmn-subtab" onclick="switchBpmn('single', this)">Einzelprozess (aus Liste)</button>
     </div>
     <div class="bpmn-meta">BPMN-style · Swim Lanes · Sequence + Message Flow</div>
   </div>
@@ -976,6 +994,25 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       <!-- BKV → End -->
       <path class="bpmn-seq" d="M 1240 90 L 1249 90"/>
     </svg>
+  </div>
+
+  <!-- ───────────────────────────────────────────
+       BPMN 3 – Einzelprozess (Auto-generiert)
+  ─────────────────────────────────────────── -->
+  <div class="bpmn-diagram" id="bpmn-single">
+    <div class="single-nav">
+      <button class="single-nav-btn" onclick="navSingle(-1)">◀ Vorheriger</button>
+      <input type="text" class="single-nav-search" id="single-search" placeholder="Prozess suchen oder Nummer eingeben…">
+      <span class="single-nav-pos" id="single-pos">—</span>
+      <button class="single-nav-btn" onclick="navSingle(1)">Nächster ▶</button>
+      <button class="single-nav-btn" onclick="switchTab('procs')">↩ Zurück zur Liste</button>
+    </div>
+    <div id="single-host">
+      <div class="single-empty">
+        Wähle einen Prozess in der <b style="color:var(--acc);cursor:pointer" onclick="switchTab('procs')">Prozessliste</b> und klicke auf das <b style="color:var(--acc)">⊟</b>-Symbol,<br>
+        oder navigiere mit den Pfeilen / der Suche.
+      </div>
+    </div>
   </div>
 
   <!-- ── Legende ── -->
@@ -1639,7 +1676,10 @@ function renderProcs() {
       <td class="pstatus ${stCls}"    contenteditable="true" data-f="s">${escapeHtml(p.s)}</td>
       <td class="pknow ${kwCls}"      contenteditable="true" data-f="x">${escapeHtml(p.x || '')}</td>
       <td class="paudit"              contenteditable="true" data-f="e">${escapeHtml(p.e || '')}</td>
-      <td class="pactions"><button title="Zeile löschen" onclick="deleteProcRow(${i})">×</button></td>
+      <td class="pactions">
+        <button class="chart-btn" title="Prozessdiagramm anzeigen" onclick="viewProcChart(${i})">⊟</button>
+        <button class="del-btn" title="Zeile löschen" onclick="deleteProcRow(${i})">×</button>
+      </td>
     </tr>`;
   }).join('');
   tbody.innerHTML = html;
@@ -1774,6 +1814,236 @@ switchTab = function(id) {
     if (!document.getElementById('proc-tbody').children.length) renderProcs();
   }
 };
+
+// ══════════════════════════════════════════════════════════════
+// EINZELPROZESS-CHART (Auto-generiert)
+// ══════════════════════════════════════════════════════════════
+let _singleIdx = 0;
+
+function parseActors(akteure) {
+  if (!akteure) return ['Hub'];
+  const stripped = akteure.replace(/\(.*?\)/g, '').trim();
+  const parts = stripped.split(/[→↔+]/).map(s => s.trim()).filter(Boolean);
+  const out = [];
+  parts.forEach(p => {
+    p.split('/').forEach(s => {
+      let t = s.trim();
+      if (!t) return;
+      t = t.replace(/\s+(alt|neu)$/i,'').trim();
+      if (!out.some(x => x.toLowerCase() === t.toLowerCase())) out.push(t);
+    });
+  });
+  return out.length ? out.slice(0, 5) : ['Hub'];
+}
+
+function actorTheme(name) {
+  const n = (name || '').toLowerCase();
+  if (n.includes('hub'))           return { fill:'rgba(62,201,224,.14)', stroke:'#3EC9E0', text:'#3EC9E0', role:'Plattform' };
+  if (n.includes('vnb'))           return { fill:'rgba(62,201,224,.08)', stroke:'#3EC9E0', text:'#3EC9E0', role:'Verteilnetz' };
+  if (n.startsWith('msb') || n === 'msb' || /^msb\b/.test(n)) return { fill:'rgba(167,139,250,.08)', stroke:'#A78BFA', text:'#A78BFA', role:'Messstelle' };
+  if (n.includes('bkv'))           return { fill:'rgba(52,209,122,.08)', stroke:'#34D17A', text:'#34D17A', role:'Bilanzkreis' };
+  if (n.includes('ünb') || n.includes('unb') || n.startsWith('tso')) return { fill:'rgba(245,166,35,.08)', stroke:'#F5A623', text:'#F5A623', role:'Übertragungsnetz' };
+  if (n.includes('admin') || n.includes('ops'))    return { fill:'rgba(240,82,82,.08)', stroke:'#F05252', text:'#F05252', role:'Betrieb' };
+  if (n.includes('lieferant'))     return { fill:'rgba(251,146,60,.08)', stroke:'#FB923C', text:'#FB923C', role:'Lieferant' };
+  if (n.includes('bnetza'))        return { fill:'rgba(240,82,82,.06)', stroke:'#F05252', text:'#F05252', role:'Regulator' };
+  if (n.includes('keycloak') || n.includes('gateway') || n.includes('mastr') || n.includes('uba') || n.includes('bsi') || n.includes('entso') || n.includes('api'))
+    return { fill:'rgba(132,224,224,.08)', stroke:'#84E0E0', text:'#84E0E0', role:'Schnittstelle' };
+  if (n.includes('aggregator') || n.includes('vpp') || n.includes('cpo')) return { fill:'rgba(90,213,143,.08)', stroke:'#5AD58F', text:'#5AD58F', role:'Aggregator' };
+  if (n.includes('mp'))            return { fill:'rgba(139,150,176,.08)', stroke:'#8B96B0', text:'#8B96B0', role:'Marktpartner' };
+  return { fill:'rgba(139,150,176,.06)', stroke:'#8B96B0', text:'#8B96B0', role:'Akteur' };
+}
+
+function inferTaskName(proc, actor, pos, total) {
+  const n = (actor || '').toLowerCase();
+  if (n.includes('hub')) {
+    if (proc.k === 'Aggregation') return 'Aggregieren';
+    if (proc.k === 'Abrechnung')  return 'Abrechnung erstellen';
+    if (proc.k === 'Audit')       return 'Audit-Eintrag schreiben';
+    if (proc.k === 'Reporting')   return 'Report generieren';
+    if (proc.k === 'Datenqualität') return 'Prüfen + Bewerten';
+    return 'Validieren + Speichern';
+  }
+  if (n.includes('keycloak') || n.includes('gateway') || n.includes('mastr') || n.includes('api')) return 'Vermitteln';
+  if (n.includes('bnetza')) return 'Empfangen';
+  if (n.includes('uba') || n.includes('bsi')) return 'Empfangen + Prüfen';
+  if (n.includes('ops') || n.includes('admin')) return 'Überwachen';
+  if (pos === 0) {
+    let s = proc.p.replace(/^Neuer\s+/, '').replace(/^Wechsel\s+/, '');
+    if (s.length > 30) s = s.substring(0, 28) + '…';
+    return s;
+  }
+  if (pos === total - 1 && total > 1) return 'Empfangen';
+  return 'Weiterleiten';
+}
+
+function escSvg(s) {
+  return (s+'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+function generateProcChart(proc) {
+  const actors = parseActors(proc.a);
+  const N = actors.length;
+  const LANE_H = 78;
+  const HDR = 76;          // title + meta
+  const TRIG = 30;         // trigger row
+  const PAD_BOT = 26;
+  const totalH = HDR + TRIG + LANE_H * N + PAD_BOT;
+  const W = 1200;
+
+  let svg = `<svg viewBox="0 0 ${W} ${totalH}" class="bpmn-svg" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <marker id="psarr" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="9" markerHeight="7" orient="auto">
+        <polygon points="0 0, 10 4, 0 8" fill="#8B96B0"/>
+      </marker>
+      <marker id="pmarr" viewBox="0 0 10 8" refX="9" refY="4" markerWidth="9" markerHeight="7" orient="auto">
+        <polygon points="0.5 0.5, 9.5 4, 0.5 7.5" fill="none" stroke="#3EC9E0" stroke-width="1.3"/>
+      </marker>
+    </defs>`;
+
+  // Title block
+  svg += `<text x="20" y="28" fill="#E8EDF5" font-size="16" font-weight="600" font-family="DM Sans">${escSvg(proc.p)}</text>`;
+  const metaParts = [proc.k, proc.f, 'Status: ' + (proc.s || '–')];
+  if (proc.x) metaParts.push('Know-how: ' + proc.x);
+  svg += `<text x="20" y="50" fill="#8B96B0" font-size="11" font-family="DM Mono">${escSvg(metaParts.join('  ·  '))}</text>`;
+
+  // Trigger annotation
+  if (proc.t) {
+    svg += `<text x="20" y="${HDR + 18}" fill="#3E4A63" font-size="10" font-family="DM Mono">Auslöser: <tspan fill="#8B96B0">${escSvg(proc.t)}</tspan></text>`;
+  }
+
+  // Lanes
+  const laneTop = HDR + TRIG;
+  actors.forEach((actor, i) => {
+    const y = laneTop + i * LANE_H;
+    const theme = actorTheme(actor);
+    svg += `<rect x="0" y="${y}" width="130" height="${LANE_H}" fill="${theme.fill}" stroke="rgba(62,201,224,.1)"/>`;
+    svg += `<rect x="130" y="${y}" width="${W-130}" height="${LANE_H}" fill="none" stroke="rgba(62,201,224,.1)"/>`;
+    svg += `<text x="65" y="${y + LANE_H/2 - 4}" text-anchor="middle" fill="${theme.text}" font-size="13" font-weight="600" font-family="DM Sans">${escSvg(actor)}</text>`;
+    svg += `<text x="65" y="${y + LANE_H/2 + 12}" text-anchor="middle" fill="#3E4A63" font-size="9" font-family="DM Mono">${escSvg(theme.role)}</text>`;
+  });
+
+  // Start event in first actor's lane
+  const startY = laneTop + LANE_H/2;
+  svg += `<circle cx="170" cy="${startY}" r="11" fill="#0D0F13" stroke="#34D17A" stroke-width="1.5"/>`;
+  svg += `<text x="170" y="${startY + 28}" text-anchor="middle" fill="#8B96B0" font-size="9" font-family="DM Mono">Start</text>`;
+
+  // Task positions across the diagram
+  const taskW = 170;
+  const gapStart = 200;
+  const gapEnd = W - 80;
+  const availW = gapEnd - gapStart - taskW;
+  const stepCount = Math.max(1, N);
+  const stepGap = stepCount > 1 ? availW / (stepCount - 1) : 0;
+
+  const positions = [];
+  let prevR = 181, prevY = startY;
+
+  actors.forEach((actor, i) => {
+    const x = gapStart + (stepCount > 1 ? stepGap * i : (availW/2));
+    const y = laneTop + i * LANE_H + LANE_H/2 - 18;
+    const cy = y + 18;
+    const theme = actorTheme(actor);
+    const taskName = inferTaskName(proc, actor, i, N);
+
+    // Arrow from previous element
+    if (i === 0) {
+      // sequence flow from start
+      svg += `<line x1="${prevR}" y1="${prevY}" x2="${x}" y2="${cy}" stroke="#8B96B0" stroke-width="1.5" marker-end="url(#psarr)"/>`;
+    } else {
+      // message flow between lanes (dashed)
+      const dx = x - prevR;
+      const cx1 = prevR + Math.max(40, dx*0.4);
+      const cx2 = x - Math.max(40, dx*0.4);
+      svg += `<path d="M${prevR},${prevY} C${cx1},${prevY} ${cx2},${cy} ${x},${cy}" fill="none" stroke="#3EC9E0" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#pmarr)"/>`;
+    }
+
+    // Task box
+    svg += `<g>
+      <rect x="${x}" y="${y}" width="${taskW}" height="36" rx="7" fill="${theme.fill}" stroke="${theme.stroke}" stroke-width="1.5"/>
+      <text x="${x + taskW/2}" y="${cy + 4}" text-anchor="middle" fill="#E8EDF5" font-size="11" font-family="DM Sans">${escSvg(taskName)}</text>
+    </g>`;
+
+    positions.push({ x: x + taskW, y: cy });
+    prevR = x + taskW;
+    prevY = cy;
+  });
+
+  // End event in last actor's lane
+  const lastTask = positions[positions.length - 1];
+  const endX = W - 50, endY = lastTask.y;
+  svg += `<line x1="${lastTask.x}" y1="${lastTask.y}" x2="${endX - 12}" y2="${endY}" stroke="#8B96B0" stroke-width="1.5" marker-end="url(#psarr)"/>`;
+  svg += `<circle cx="${endX}" cy="${endY}" r="11" fill="#0D0F13" stroke="#F05252" stroke-width="2.5"/>`;
+  svg += `<text x="${endX}" y="${endY + 28}" text-anchor="middle" fill="#8B96B0" font-size="9" font-family="DM Mono">Ende</text>`;
+
+  // Audit annotation if applicable
+  if (proc.e && proc.e !== '-' && proc.e !== '—' && proc.e.trim() !== '') {
+    svg += `<text x="${endX}" y="${endY - 22}" text-anchor="middle" fill="#FB923C" font-size="9" font-family="DM Mono">⊕ ${escSvg(proc.e)}</text>`;
+  }
+
+  svg += `</svg>`;
+  return svg;
+}
+
+function renderSingleChart(idx) {
+  if (idx < 0 || idx >= _procs.length) return;
+  _singleIdx = idx;
+  const proc = _procs[idx];
+  const host = document.getElementById('single-host');
+  if (!host) return;
+
+  const infoHtml = `<div class="single-info">
+    <span>Prozess <b>#${idx+1}</b> von ${_procs.length}</span>
+    <span>Kategorie: <b>${escapeHtml(proc.k)}</b></span>
+    <span>Akteure: <b>${escapeHtml(proc.a || '–')}</b></span>
+    <span>Frequenz: <b>${escapeHtml(proc.f || '–')}</b></span>
+    <span>Status: <b>${escapeHtml(proc.s || '–')}</b></span>
+    ${proc.x ? `<span>Know-how: <b>${escapeHtml(proc.x)}</b></span>` : ''}
+    ${proc.e && proc.e !== '-' ? `<span>Audit: <b style="color:var(--orange)">${escapeHtml(proc.e)}</b></span>` : ''}
+  </div>`;
+
+  host.innerHTML = infoHtml + `<div class="single-chart-host">${generateProcChart(proc)}</div>`;
+
+  // Update navigator
+  const pos = document.getElementById('single-pos');
+  if (pos) pos.textContent = `${idx+1} / ${_procs.length}`;
+  const search = document.getElementById('single-search');
+  if (search && document.activeElement !== search) search.value = proc.p;
+}
+
+function viewProcChart(idx) {
+  switchTab('process');
+  // activate single sub-tab
+  document.querySelectorAll('.bpmn-diagram').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.bpmn-subtab').forEach(t => t.classList.remove('active'));
+  document.getElementById('bpmn-single').classList.add('active');
+  const tabs = document.querySelectorAll('.bpmn-subtab');
+  if (tabs[2]) tabs[2].classList.add('active');
+  renderSingleChart(idx);
+}
+
+function navSingle(delta) {
+  const newIdx = _singleIdx + delta;
+  if (newIdx < 0 || newIdx >= _procs.length) return;
+  renderSingleChart(newIdx);
+}
+
+document.addEventListener('input', e => {
+  if (e.target && e.target.id === 'single-search') {
+    const q = e.target.value.trim().toLowerCase();
+    if (!q) return;
+    // try number
+    const num = parseInt(q, 10);
+    if (!isNaN(num) && num >= 1 && num <= _procs.length) {
+      renderSingleChart(num - 1);
+      return;
+    }
+    // try name match
+    const match = _procs.findIndex(p =>
+      (p.p || '').toLowerCase().includes(q) || (p.k || '').toLowerCase().includes(q)
+    );
+    if (match >= 0) renderSingleChart(match);
+  }
+});
 </script>
 </body>
 </html>
