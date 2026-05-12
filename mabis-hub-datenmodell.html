@@ -255,6 +255,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .proc-table td.pcat-reporting{color:#E0B584}
 .proc-table td.pcat-marktevolution{color:#B584E0}
 .proc-table td.pcat-zukunft{color:#84E0E0}
+.proc-table td.pcat-energiewende{color:#5AD58F}
+.proc-table td.pcat-digitalisierung{color:#4A9DE0}
 .proc-table td.pcat-default{color:var(--text-m)}
 .proc-table td.pproc{min-width:180px;font-weight:500}
 .proc-table td.ptrig{color:var(--text-m);font-size:11px;min-width:160px}
@@ -1384,7 +1386,7 @@ window.addEventListener('resize', drawArrows);
 // ══════════════════════════════════════════════════════════════
 // TAB 5 – PROZESSLISTE (editierbar, localStorage)
 // ══════════════════════════════════════════════════════════════
-const PROCS_KEY = 'mabis-hub-procs-v2';
+const PROCS_KEY = 'mabis-hub-procs-v3';
 
 const defaultProcs = [
   // STAMMDATEN
@@ -1529,7 +1531,41 @@ const defaultProcs = [
   { k:'Zukunft', p:'Energiegemeinschaften (REC/CEC)', t:'EU RED II Umsetzung', a:'Gemeinschaft → Hub', f:'Zukünftig', s:'optional', e:'-' },
   { k:'Zukunft', p:'CO2-Tracking pro kWh', t:'Herkunftsnachweis-Pflicht', a:'UBA + Hub', f:'Zukünftig', s:'optional', e:'-' },
   { k:'Zukunft', p:'Speicher-Bilanzierung (BES)', t:'Doppelvermarktungsschutz Speicher', a:'BKV → Hub', f:'Zukünftig', s:'optional', e:'-' },
-  { k:'Zukunft', p:'ML-basierte Anomalieerkennung', t:'KI-gestützte Plausibilisierung', a:'Hub intern (ML)', f:'Kontinuierlich', s:'optional', e:'-' }
+  { k:'Zukunft', p:'ML-basierte Anomalieerkennung', t:'KI-gestützte Plausibilisierung', a:'Hub intern (ML)', f:'Kontinuierlich', s:'optional', e:'-' },
+
+  // ──── ERGÄNZUNG (v3): Transformative Energiewende-Prozesse ────
+
+  // NEUE KATEGORIE: ENERGIEWENDE +12 (Dekarbonisierung & Flexibilität)
+  { k:'Energiewende', p:'Echtzeit-CO₂-Bilanzierung pro BK', t:'Klimatransparenz pro Stunde', a:'Hub intern + UBA', f:'Stündlich', s:'optional', e:'-' },
+  { k:'Energiewende', p:'Hourly Matching Grünstrom (24/7-PPA)', t:'Stundenscharfe Herkunftsnachweise', a:'UBA + Hub', f:'Stündlich', s:'optional', e:'-' },
+  { k:'Energiewende', p:'Klimaneutralitäts-Reporting je BK', t:'ESG-Anforderung Lieferant/Industrie', a:'Hub → BKV/Lieferant', f:'Monatlich', s:'optional', e:'-' },
+  { k:'Energiewende', p:'Prosumer-Bilanzierung', t:'Erzeuger + Verbraucher in einer MaLo', a:'MSB → Hub', f:'Kontinuierlich', s:'geplant', e:'MESSWERT_EINGELIEFERT' },
+  { k:'Energiewende', p:'Quartiers-/Microgrid-Bilanzierung', t:'Lokale Energiezellen, Inselbetrieb', a:'Quartiers-Op → Hub', f:'Pro Quartier', s:'optional', e:'-' },
+  { k:'Energiewende', p:'Sektorenkopplung Strom-Wärme-Gas-Mobilität', t:'Multi-Energie-Bilanzierung', a:'BKV cross-sector → Hub', f:'Pro Sektor', s:'optional', e:'-' },
+  { k:'Energiewende', p:'Power-to-X Bilanzierung (P2H/P2G/P2L)', t:'Sektoraler Energietransfer (H₂, FT-Fuels)', a:'BKV/Anlagenbetreiber → Hub', f:'Pro Anlage', s:'optional', e:'-' },
+  { k:'Energiewende', p:'Virtuelle Kraftwerke (VPP) Aggregation', t:'Bündelung dezentraler Anlagen', a:'VPP-Op → ÜNB/Hub', f:'Kontinuierlich', s:'optional', e:'-' },
+  { k:'Energiewende', p:'Demand-Response-Aggregator', t:'Flexibilitätsangebot Verbraucher', a:'Aggregator → ÜNB/Hub', f:'Pro Abruf', s:'optional', e:'-' },
+  { k:'Energiewende', p:'Negativstrom-/Curtailment-Bewirtschaftung', t:'Überschuss-Energie bei EE-Spitzen', a:'ÜNB → Hub', f:'Bei Bedarf', s:'optional', e:'-' },
+  { k:'Energiewende', p:'E-Mobilitäts-Bilanzierung (Ladevorgänge)', t:'CPO/EMP-Marktteilnahme', a:'CPO → Hub', f:'Pro Ladevorgang', s:'optional', e:'-' },
+  { k:'Energiewende', p:'Bidirektionales Laden V2G/V2H', t:'EV als mobiler Speicher', a:'MSB + CPO → Hub', f:'Pro Vorgang', s:'optional', e:'-' },
+
+  // NEUE KATEGORIE: DIGITALISIERUNG +8 (Technologische Innovation)
+  { k:'Digitalisierung', p:'Echtzeit-Marktdaten-API (Streaming)', t:'Ablösung M+1 durch Push-Streaming', a:'Hub → Marktpartner', f:'Echtzeit', s:'optional', e:'-' },
+  { k:'Digitalisierung', p:'KI-gestützte Lastprognose', t:'ML-basierte Day-Ahead-Forecasts', a:'Hub intern (ML)', f:'Täglich D-1', s:'optional', e:'-' },
+  { k:'Digitalisierung', p:'Automatisierte Ersatzwertbildung (ML)', t:'Statt manueller Hochrechnung', a:'Hub intern (ML)', f:'Bei Lücke', s:'optional', e:'MESSWERT_EINGELIEFERT' },
+  { k:'Digitalisierung', p:'Predictive Maintenance Zähler-Hardware', t:'Anomalie-Erkennung Zähler-Drift', a:'Hub → MSB', f:'Kontinuierlich', s:'optional', e:'-' },
+  { k:'Digitalisierung', p:'Self-Service-Marktpartner-Onboarding', t:'API-First Anmeldung statt manueller Prozess', a:'MP → Hub-Portal', f:'Bei Bedarf', s:'optional', e:'-' },
+  { k:'Digitalisierung', p:'Smart Contracts für Bilanzkreis-Verträge', t:'On-Chain BKVÜ-Abwicklung', a:'BKV ↔ ÜNB ↔ Hub', f:'Pro Vertrag', s:'optional', e:'-' },
+  { k:'Digitalisierung', p:'Blockchain-Audit-Trail (DLT)', t:'Tamper-proof Distributed Ledger', a:'Hub intern + Konsortium', f:'Pro Audit-Event', s:'optional', e:'-' },
+  { k:'Digitalisierung', p:'Quanten-resistente Verschlüsselung (PQC)', t:'Post-Quantum-Cryptography', a:'Hub intern', f:'Dauerhaft', s:'optional', e:'-' },
+
+  // ZUKUNFT (EU-Integration & Marktdesign) +6
+  { k:'Zukunft', p:'EU-weite Bilanzkreis-Harmonisierung', t:'EU Clean Energy Package', a:'Hub ↔ EU-TSOs', f:'Zukünftig', s:'optional', e:'-' },
+  { k:'Zukunft', p:'ENTSO-E Plattform-Anbindung', t:'EU-TSO Datenaustausch', a:'Hub ↔ ENTSO-E', f:'Kontinuierlich', s:'optional', e:'-' },
+  { k:'Zukunft', p:'Cross-Border-Capacity-Allocation', t:'Kuppelstellen-Management', a:'TSOs → Hub', f:'Täglich', s:'optional', e:'-' },
+  { k:'Zukunft', p:'Inter-TSO Compensation (ITC)', t:'EU-Transit-Mechanismus', a:'ÜNB-Verbund', f:'Monatlich', s:'optional', e:'-' },
+  { k:'Zukunft', p:'Lokale Strommärkte (LEM) Anbindung', t:'Sub-Bilanzkreis-Märkte / Quartiere', a:'Lokaler Operator → Hub', f:'Pro Markt', s:'optional', e:'-' },
+  { k:'Zukunft', p:'Real-Time-Markets (5-15min)', t:'Untertägige Bilanzierung', a:'BKV → ÜNB → Hub', f:'Echtzeit', s:'optional', e:'-' }
 ];
 
 function loadProcs() {
