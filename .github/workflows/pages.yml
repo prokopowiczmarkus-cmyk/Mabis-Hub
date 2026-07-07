@@ -1,0 +1,54 @@
+name: Deploy MaBiS-Hub Datenmodell to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - mabis-hub-datenmodell.html
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build site (publish only the data model file)
+        run: |
+          mkdir -p _site
+          cp mabis-hub-datenmodell.html _site/mabis-hub-datenmodell.html
+          cat > _site/index.html <<'EOF'
+          <!doctype html>
+          <meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=./mabis-hub-datenmodell.html">
+          <title>MaBiS-Hub Datenmodell</title>
+          <a href="./mabis-hub-datenmodell.html">MaBiS-Hub Datenmodell</a>
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
